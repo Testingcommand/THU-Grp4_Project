@@ -188,6 +188,16 @@ if st.session_state.admin_unlocked:
 if st.session_state.stage == 'safety_gate':
     st.title("Welcome to the Narrative Context Study")
     st.write("This instrument explores how early life experiences shape our perspectives.")
+    
+    # --- NEW: Physical Well-being Check ---
+    st.info("Your physical well-being is important to us. Have you had a meal or something to eat recently? (Good health and physical comfort help when reflecting on complex topics).")
+    has_eaten = st.radio("Meal Check", ["Yes, I have eaten", "No, not recently"], horizontal=True, label_visibility="collapsed")
+    st.session_state.responses['has_eaten'] = has_eaten
+    
+    if has_eaten == "No, not recently":
+        st.write("*Tip: We gently encourage you to grab a snack or some water before beginning, but you may proceed whenever you feel ready.*")
+    # --------------------------------------
+
     st.warning("You are about to be asked questions regarding childhood adversity, threat, and deprivation. Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
     
     col1, col2 = st.columns(2)
