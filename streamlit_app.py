@@ -118,10 +118,123 @@ CONTENT = {
         "audio_inst_4": "⚠️ **Important:** Wait a few seconds for processing after clicking stop.",
         "processing_audio": "⏳ Processing... please wait.",
         "success": "✅ Your responses have been submitted. You may now close this window."
+    },
+    "Mandarin": {
+        "welcome": "欢迎参加叙事语境研究。\n\n您的身心健康对我们很重要。您最近有进食吗？",
+        "btn_meal_yes": "是的，我吃过了",
+        "btn_meal_no": "没有，最近没吃",
+        "meal_yes_reply": "太好了。您现在是否处于一个安全、私密且舒适的环境中来进行反思？",
+        "meal_no_reply": "*提示：我们建议您在开始前先吃点零食。*\n\n您现在是否处于一个安全、私密且舒适的环境中？",
+        "btn_safe_yes": "是的，我在安全的空间",
+        "btn_safe_no": "不在，我需要退出",
+        "safe_yes_reply": "谢谢。让我们开始视觉探索。",
+        "safe_no_reply": "您的健康是我们的首要任务。我们已安全关闭了您的会话。",
+        "decompression_prompt": "感谢您完成这次探索。正在生成您的理论 NeuroTwin 拓扑结构...",
+        "tab_text": "⌨️ 输入回复",
+        "tab_audio": "🎙️ 录制音频",
+        "btn_submit_text": "提交回复",
+        "btn_skip": "⏭️ 跳过",
+        "error_empty_text": "请在提交前输入回复，或选择“跳过”。",
+        "audio_inst_1": "请慢慢来。如果您停下来思考，录音**不会**停止。",
+        "audio_inst_2": "**1. 点击麦克风图标一次开始录音。**",
+        "audio_inst_3": "**2. 再次点击停止录音并提交。**",
+        "audio_inst_4": "⚠️ **重要提示：** 点击停止后，请等待几秒钟让系统处理。",
+        "processing_audio": "⏳ 正在处理... 请稍候。",
+        "success": "✅ 您的回复已提交。您现在可以关闭此窗口。"
+    },
+    "Cantonese": {
+        "welcome": "歡迎來到敘事語境研究。\n\n你嘅身心健康對我哋好重要。你最近有冇食嘢呀？",
+        "btn_meal_yes": "有呀，我食咗喇",
+        "btn_meal_no": "冇呀，最近未食",
+        "meal_yes_reply": "太好喇。你而家係咪喺一個安全、私密同舒適嘅環境入面進行反思？",
+        "meal_no_reply": "*提示：我哋建議你開始之前先食少少嘢。*\n\n你而家係咪喺一個安全、私密同舒適嘅環境入面？",
+        "btn_safe_yes": "係，我喺安全嘅空間",
+        "btn_safe_no": "唔係，我需要退出",
+        "safe_yes_reply": "多謝。等我哋開始視覺探索。",
+        "safe_no_reply": "你嘅健康係我哋嘅首要考慮。我哋已經安全咁關閉咗你嘅會話。",
+        "decompression_prompt": "多謝你完成呢次探索。緊生成你嘅理論 NeuroTwin 拓撲結構...",
+        "tab_text": "⌨️ 輸入回覆",
+        "tab_audio": "🎙️ 錄製錄音",
+        "btn_submit_text": "提交回覆",
+        "btn_skip": "⏭️ 跳過",
+        "error_empty_text": "請輸入回覆或選擇「跳過」。",
+        "audio_inst_1": "慢慢嚟。如果你停低思考，錄音**唔會**停止。",
+        "audio_inst_2": "**1. 㩒一下咪高峰圖標開始錄音。**",
+        "audio_inst_3": "**2. 再㩒一次停止錄音並提交。**",
+        "audio_inst_4": "⚠️ **重要提示：** 㩒咗停止之後，請等幾秒鐘畀系統處理。",
+        "processing_audio": "⏳ 處理緊... 請稍等。",
+        "success": "✅ 你嘅回覆已經提交。你而家可以關閉呢個視窗。"
+    },
+    "Spanish": {
+        "welcome": "Bienvenido/a al Estudio de Contexto Narrativo.\n\nSu bienestar es importante para nosotros. ¿Ha comido algo recientemente?",
+        "btn_meal_yes": "Sí, he comido",
+        "btn_meal_no": "No, no recientemente",
+        "meal_yes_reply": "Excelente. ¿Se encuentra actualmente en un entorno seguro, privado y cómodo para reflexionar sobre temas complejos?",
+        "meal_no_reply": "*Consejo: Le animamos amablemente a comer un bocadillo antes de comenzar.*\n\n¿Se encuentra actualmente en un entorno seguro, privado y cómodo?",
+        "btn_safe_yes": "Sí, estoy en un espacio seguro",
+        "btn_safe_no": "No, necesito salir",
+        "safe_yes_reply": "Gracias. Comencemos la exploración visual.",
+        "safe_no_reply": "Su bienestar es nuestra prioridad. Hemos cerrado su sesión de forma segura.",
+        "decompression_prompt": "Gracias por completar este viaje. Generando su topología teórica NeuroTwin...",
+        "tab_text": "⌨️ Escribir Respuesta",
+        "tab_audio": "🎙️ Grabar Audio",
+        "btn_submit_text": "Enviar Respuesta",
+        "btn_skip": "⏭️ Omitir",
+        "error_empty_text": "Por favor escriba una respuesta o elija 'Omitir'.",
+        "audio_inst_1": "Tómese el tiempo que necesite. La grabación **no** se detendrá si hace una pausa.",
+        "audio_inst_2": "**1. Haga clic en el micrófono UNA VEZ para comenzar.**",
+        "audio_inst_3": "**2. Haga clic una SEGUNDA vez para detener y enviar.**",
+        "audio_inst_4": "⚠️ **Importante:** Espere unos segundos para procesar después de detener.",
+        "processing_audio": "⏳ Procesando... por favor espere.",
+        "success": "✅ Sus respuestas han sido enviadas. Ahora puede cerrar esta ventana."
+    },
+    "French": {
+        "welcome": "Bienvenue dans l'Étude du Contexte Narratif.\n\nVotre bien-être est important pour nous. Avez-vous mangé quelque chose récemment ?",
+        "btn_meal_yes": "Oui, j'ai mangé",
+        "btn_meal_no": "Non, pas récemment",
+        "meal_yes_reply": "Parfait. Êtes-vous dans un environnement sûr, privé et confortable pour réfléchir à des sujets complexes ?",
+        "meal_no_reply": "*Conseil : Nous vous encourageons à prendre une collation avant de commencer.*\n\nÊtes-vous dans un environnement sûr et confortable ?",
+        "btn_safe_yes": "Oui, je suis dans un espace sûr",
+        "btn_safe_no": "Non, je dois quitter",
+        "safe_yes_reply": "Merci. Commençons l'exploration visuelle.",
+        "safe_no_reply": "Votre bien-être est notre priorité. Nous avons fermé votre session.",
+        "decompression_prompt": "Merci d'avoir terminé ce parcours. Génération de votre topologie théorique NeuroTwin...",
+        "tab_text": "⌨️ Taper la réponse",
+        "tab_audio": "🎙️ Enregistrer l'audio",
+        "btn_submit_text": "Soumettre",
+        "btn_skip": "⏭️ Passer",
+        "error_empty_text": "Veuillez taper une réponse ou choisir 'Passer'.",
+        "audio_inst_1": "Prenez votre temps. L'enregistrement **ne s'arrêtera pas** si vous faites une pause.",
+        "audio_inst_2": "**1. Cliquez UNE FOIS sur le microphone pour commencer.**",
+        "audio_inst_3": "**2. Cliquez une DEUXIÈME fois pour arrêter et soumettre.**",
+        "audio_inst_4": "⚠️ **Important :** Patientez quelques secondes après avoir cliqué sur arrêter.",
+        "processing_audio": "⏳ Traitement... veuillez patienter.",
+        "success": "✅ Vos réponses ont été soumises. Vous pouvez fermer cette fenêtre."
+    },
+    "Russian": {
+        "welcome": "Добро пожаловать в Исследование Нарративного Контекста.\n\nВаше благополучие важно для нас. Вы недавно ели?",
+        "btn_meal_yes": "Да, я поел(а)",
+        "btn_meal_no": "Нет, недавно не ел(а)",
+        "meal_yes_reply": "Отлично. Находитесь ли вы сейчас в безопасной, уединенной и комфортной обстановке?",
+        "meal_no_reply": "*Совет: Мы рекомендуем перекусить перед началом.*\n\nВы в безопасной обстановке?",
+        "btn_safe_yes": "Да, я в безопасности",
+        "btn_safe_no": "Нет, мне нужно выйти",
+        "safe_yes_reply": "Спасибо. Давайте начнем визуальное исследование.",
+        "safe_no_reply": "Ваше благополучие - наш приоритет. Мы закрыли вашу сессию.",
+        "decompression_prompt": "Спасибо. Генерация вашей теоретической топологии NeuroTwin...",
+        "tab_text": "⌨️ Напечатать ответ",
+        "tab_audio": "🎙️ Записать аудио",
+        "btn_submit_text": "Отправить",
+        "btn_skip": "⏭️ Пропустить",
+        "error_empty_text": "Пожалуйста, введите ответ или выберите 'Пропустить'.",
+        "audio_inst_1": "Не торопитесь. Запись **не** остановится, если вы сделаете паузу.",
+        "audio_inst_2": "**1. Нажмите на микрофон ОДИН РАЗ, чтобы начать.**",
+        "audio_inst_3": "**2. Нажмите ВТОРОЙ РАЗ, чтобы остановить и отправить.**",
+        "audio_inst_4": "⚠️ **Важно:** Подождите несколько секунд после остановки.",
+        "processing_audio": "⏳ Обработка... пожалуйста, подождите.",
+        "success": "✅ Ваши ответы отправлены. Вы можете закрыть это окно."
     }
 }
-# (For the sake of testing the logic, I have temporarily shortened the dictionary to English. 
-# Once the logic is confirmed working, you can paste your 6-language blocks right back in here!)
 
 # ==========================================
 # 3. INITIALIZE SESSION STATES
@@ -132,7 +245,7 @@ if 'admin_unlocked' not in st.session_state:
     st.session_state.admin_unlocked = False
 
 if 'current_step' not in st.session_state:
-    st.session_state.current_step = 'dashboard' # Starts at the new landing page
+    st.session_state.current_step = 'dashboard'
     st.session_state.messages = []
     st.session_state.lang = "English"
 
@@ -149,7 +262,7 @@ with st.sidebar:
         st.divider()
         admin_password = st.text_input("Admin Password", type="password")
         if st.button("Login"):
-            if admin_password == st.secrets.get("admin_password", "1234"): # Fallback for local testing
+            if admin_password == st.secrets.get("admin_password", "1234"): 
                 st.session_state.admin_unlocked = True
             else:
                 st.error("Incorrect Password")
@@ -157,7 +270,7 @@ with st.sidebar:
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
     st.write("Welcome to the secure administrative view.")
-    st.stop() # Hides the public app
+    st.stop() 
 
 # ==========================================
 # 5. RENDER CHAT HISTORY
@@ -173,13 +286,16 @@ if st.session_state.current_step != 'dashboard':
                 st.write(msg["content"])
 
 # ==========================================
-# 6. THE STATE MACHINE (Unbroken if/elif chain)
+# 6. THE STATE MACHINE 
 # ==========================================
 t = CONTENT[st.session_state.lang]
 
-# 1. The Landing Dashboard
+# 1. The Landing Dashboard (IMAGE REMOVED FOR NOW)
 if st.session_state.current_step == 'dashboard':
-    st.image("image_1a02d2.jpg", use_column_width=True) # References your exact file
+    
+    st.title("NeuroTwin: Many Ways to Thrive")
+    st.write("### Your story. Your choices. Many ways to thrive.")
+    st.write("---")
     
     col1, col2, col3 = st.columns(3)
     with col1:
@@ -196,10 +312,44 @@ if st.session_state.current_step == 'dashboard':
 # 2. Language Selection
 elif st.session_state.current_step == 'language_selection':
     st.write("### Please select your preferred language:")
-    if st.button("English", use_container_width=True):
+    
+    col1, col2, col3 = st.columns(3)
+    if col1.button("English", use_container_width=True):
         st.session_state.lang = "English"
         st.session_state.responses['language'] = "English"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": t["welcome"]})
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["English"]["welcome"]})
+        st.session_state.current_step = 'intro_meal'
+        st.rerun()
+    if col2.button("中文 (Mandarin)", use_container_width=True):
+        st.session_state.lang = "Mandarin"
+        st.session_state.responses['language'] = "Mandarin"
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Mandarin"]["welcome"]})
+        st.session_state.current_step = 'intro_meal'
+        st.rerun()
+    if col3.button("粵語 (Cantonese)", use_container_width=True):
+        st.session_state.lang = "Cantonese"
+        st.session_state.responses['language'] = "Cantonese"
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Cantonese"]["welcome"]})
+        st.session_state.current_step = 'intro_meal'
+        st.rerun()
+
+    col4, col5, col6 = st.columns(3)
+    if col4.button("Español (Spanish)", use_container_width=True):
+        st.session_state.lang = "Spanish"
+        st.session_state.responses['language'] = "Spanish"
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Spanish"]["welcome"]})
+        st.session_state.current_step = 'intro_meal'
+        st.rerun()
+    if col5.button("Français (French)", use_container_width=True):
+        st.session_state.lang = "French"
+        st.session_state.responses['language'] = "French"
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["French"]["welcome"]})
+        st.session_state.current_step = 'intro_meal'
+        st.rerun()
+    if col6.button("Русский (Russian)", use_container_width=True):
+        st.session_state.lang = "Russian"
+        st.session_state.responses['language'] = "Russian"
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Russian"]["welcome"]})
         st.session_state.current_step = 'intro_meal'
         st.rerun()
 
@@ -292,13 +442,10 @@ elif st.session_state.current_step == 'decompression':
     if success:
         st.success(t["success"])
         
-        # Render the Digital Twin!
         st.divider()
         st.subheader("Your NeuroTwin Topology")
         st.write("Based on your narrative appraisals, here is a theoretical mapping of your circuit topology against a baseline.")
         
-        # In the future, we will calculate these scores dynamically based on their specific answers.
-        # For now, we pass in a mock array to prove the visualization works.
         mock_patient_scores = [4.5, 2.5, 1.5, 2.0, 4.0] 
         fig = generate_neurotwin_chart(mock_patient_scores)
         st.pyplot(fig)
