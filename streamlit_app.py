@@ -198,3 +198,4 @@ elif st.session_state.stage == 'decompression':
         )
     else:
         st.warning("No JSON data found yet.")
+        st.warning("No JSON data found yet.")
