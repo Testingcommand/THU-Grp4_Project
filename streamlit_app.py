@@ -191,43 +191,47 @@ elif st.session_state.current_step == 'safe_exit':
         st.session_state.clear()
         st.rerun()
 
-# D. The Core DMAP Questions (Text or Audio)
+# D. The Core DMAP Questions (Tabbed Interface)
 elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', 'dep_subj']:
     
-    # 1. Text Input 
-    prompt = st.chat_input("Type your response here...")
-    
-    # 2. Audio Input (With explicitly clear user instructions and extended silence timeout)
-    st.write("---")
-    st.markdown("### 🎙️ Prefer to speak?")
-    st.markdown("Take all the time you need. The recording will **not** stop if you pause to think.")
-    st.info("**Instructions:** Click the microphone icon ONCE to start recording. When you are completely finished speaking, click it a SECOND time to submit.")
-    
-    audio_bytes = audio_recorder(
-        key=f"mic_{st.session_state.current_step}",
-        pause_threshold=300.0 # Gives the user 5 full minutes of silence before auto-stopping
-    )
-    
-    if prompt or audio_bytes:
-        if st.session_state.current_step == 'threat_obj':
-            next_step = 'threat_subj'
-            ai_reply = "Thank you for sharing that. How did those specific experiences shape your understanding of safety, and how do they influence your ability to trust others today?"
-        
-        elif st.session_state.current_step == 'threat_subj':
-            next_step = 'dep_obj'
-            ai_reply = "Part 2: Experiences of Deprivation.\n\nWere there times in your childhood when you felt your basic physical or emotional needs were consistently not met?"
-            
-        elif st.session_state.current_step == 'dep_obj':
-            next_step = 'dep_subj'
-            ai_reply = "How has this absence of support or resources influenced how you view your own self-worth and how you connect with communities now?"
-            
-        elif st.session_state.current_step == 'dep_subj':
-            next_step = 'decompression'
-            ai_reply = "Thank you for sharing your narrative. Your perspective is vital to building a more context-aware framework for clinical care. Please wait a moment while I securely save your responses..."
+    # Determine the next step and AI reply
+    if st.session_state.current_step == 'threat_obj':
+        next_step = 'threat_subj'
+        ai_reply = "Thank you for sharing that. How did those specific experiences shape your understanding of safety, and how do they influence your ability to trust others today?"
+    elif st.session_state.current_step == 'threat_subj':
+        next_step = 'dep_obj'
+        ai_reply = "Part 2: Experiences of Deprivation.\n\nWere there times in your childhood when you felt your basic physical or emotional needs were consistently not met?"
+    elif st.session_state.current_step == 'dep_obj':
+        next_step = 'dep_subj'
+        ai_reply = "How has this absence of support or resources influenced how you view your own self-worth and how you connect with communities now?"
+    elif st.session_state.current_step == 'dep_subj':
+        next_step = 'decompression'
+        ai_reply = "Thank you for sharing your narrative. Your perspective is vital to building a more context-aware framework for clinical care. Please wait a moment while I securely save your responses..."
 
-        if prompt:
-            advance_chat(prompt, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
-        elif audio_bytes:
+    st.write("---")
+    
+    # NEW: Tabbed interface cleanly separates typing vs. speaking
+    tab_text, tab_audio = st.tabs(["⌨️ Type Response", "🎙️ Record Audio"])
+    
+    with tab_text:
+        user_text = st.text_area("Type your response here:", key=f"text_{st.session_state.current_step}")
+        if st.button("Submit Text Response", key=f"btn_txt_{st.session_state.current_step}", type="primary"):
+            if user_text.strip():
+                advance_chat(user_text, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
+            else:
+                st.error("Please type a response before submitting.")
+                
+    with tab_audio:
+        st.info("Take all the time you need. The recording will **not** stop if you pause to think.")
+        st.markdown("**1. Click the microphone icon ONCE to start recording.**")
+        st.markdown("**2. Click it a SECOND time to stop recording and submit.**")
+        
+        audio_bytes = audio_recorder(
+            key=f"mic_{st.session_state.current_step}",
+            pause_threshold=300.0 
+        )
+        
+        if audio_bytes:
             audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
             advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
 
