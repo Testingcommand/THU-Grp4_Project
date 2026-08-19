@@ -69,10 +69,17 @@ def export_data_to_google():
         return False
 
 # -----------------------------------------
-# ADMIN SIDEBAR & DASHBOARD (HIDDEN)
+# SIDEBAR: PARTICIPANT CONTROLS & ADMIN
 # -----------------------------------------
-if st.query_params.get("admin") == "true":
-    with st.sidebar:
+with st.sidebar:
+    st.subheader("Assessment Controls")
+    if st.button("🔄 Restart Assessment", use_container_width=True):
+        st.session_state.clear()
+        st.rerun()
+
+    # The Admin section only appears if "?admin=true" is in the URL
+    if st.query_params.get("admin") == "true":
+        st.divider()
         st.subheader("Admin Access")
         admin_password = st.text_input("Password", type="password")
         if st.button("Login"):
@@ -187,9 +194,7 @@ elif st.session_state.current_step == 'safety_gate':
 
 # C. Exit Gate
 elif st.session_state.current_step == 'safe_exit':
-    if st.button("Restart Assessment"):
-        st.session_state.clear()
-        st.rerun()
+    st.info("To restart the assessment, please use the button in the sidebar menu on the left.")
 
 # D. The Core DMAP Questions (Tabbed Interface)
 elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', 'dep_subj']:
@@ -210,7 +215,7 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
 
     st.write("---")
     
-    # NEW: Tabbed interface cleanly separates typing vs. speaking
+    # Tabbed interface cleanly separates typing vs. speaking
     tab_text, tab_audio = st.tabs(["⌨️ Type Response", "🎙️ Record Audio"])
     
     with tab_text:
