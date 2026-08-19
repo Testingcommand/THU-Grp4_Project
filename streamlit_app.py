@@ -11,6 +11,143 @@ GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyKRANC_nZCdQPnYQOU
 
 st.set_page_config(page_title="DMAP Narrative AI", layout="centered")
 
+import streamlit as st
+import numpy as np
+import matplotlib.pyplot as plt
+
+def generate_neurotwin_chart(patient_scores):
+    """
+    Generates a matplotlib radar chart comparing a patient's theoretical 
+    circuit topology against a baseline control.
+    """
+    # 1. Define the specific neurobiological circuits based on H1-H3
+    categories = [
+        'Threat Reactivity\n(Amygdala / PAG)',
+        'Social Cognition\n(TPJ / mPFC)',
+        'Reward Sensitivity\n(Ventral Striatum)',
+        'Cognitive Flexibility\n(dlPFC)',
+        'Interoception\n(Insula)'
+    ]
+    N = len(categories)
+
+    # 2. Set up the baseline (control) data
+    # Assuming a scale of 1 to 5, where 3 is a standard neurotypical baseline
+    control_scores = [3.0, 3.0, 3.0, 3.0, 3.0] 
+    
+    # We must close the loop for the radar chart by appending the first value to the end
+    angles = [n / float(N) * 2 * np.pi for n in range(N)]
+    angles += angles[:1]
+    
+    control_scores += control_scores[:1]
+    patient_data = patient_scores + patient_scores[:1]
+
+    # 3. Initialize the matplotlib figure
+    fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
+
+    # 4. Draw one axis per variable and add labels
+    plt.xticks(angles[:-1], categories, color='black', size=10)
+    ax.set_rlabel_position(0)
+    plt.yticks([1, 2, 3, 4, 5], ["1", "2", "3", "4", "5"], color="grey", size=8)
+    plt.ylim(0, 5)
+
+    # 5. Plot Control Baseline (The "Expected" Topology)
+    ax.plot(angles, control_scores, linewidth=1.5, linestyle='dashed', label='Control Baseline', color='teal')
+    ax.fill(angles, control_scores, 'teal', alpha=0.05)
+
+    # 6. Plot Patient NeuroTwin (The "Shifted" Topology)
+    ax.plot(angles, patient_data, linewidth=2.5, linestyle='solid', label='Patient NeuroTwin', color='crimson')
+    ax.fill(angles, patient_data, 'crimson', alpha=0.25)
+
+    # 7. Add legend and styling
+    plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
+    ax.spines['polar'].set_visible(False) # Softens the outer border
+    
+    return fig
+
+# --- Streamlit Implementation Example ---
+st.title("Interactive NeuroTwin Dashboard")
+st.write("Visualizing theoretical circuit topology based on narrative appraisal.")
+
+# Example mapping of how the "Inkblot" test scores would feed into this array.
+# Let's assume the user's responses indicated high threat reactivity and low reward sensitivity.
+mock_patient_scores = [4.5, 2.5, 1.5, 2.0, 4.0]
+
+# Generate and display the plot
+fig = generate_neurotwin_chart(mock_patient_scores)
+st.pyplot(fig)
+
+# D. The Projective Inkblot Questions
+elif st.session_state.current_step in ['inkblot_1', 'inkblot_2', 'inkblot_3']:
+    
+    # 1. Define the dynamic content for each image stage
+    if st.session_state.current_step == 'inkblot_1':
+        # Hypothesis 1 & 2: Social Reading vs. Threat (TPJ / Amygdala)
+        image_url = "https://via.placeholder.com/800x400.png?text=[Insert+Ambiguous+Crowd/Social+Image+Here]"
+        prompt = "Look at the image above. What do you see happening in this scene? What do you think the individuals are feeling, or what are they about to do?"
+        next_step = 'inkblot_2'
+        ai_reply = "Thank you. Let's look at another scene."
+        
+    elif st.session_state.current_step == 'inkblot_2':
+        # Hypothesis 3: Reward / Deprivation / Resource Allocation (Ventral Striatum)
+        image_url = "https://via.placeholder.com/800x400.png?text=[Insert+Ambiguous+Resource/Task+Image+Here]"
+        prompt = "In this image, how do you think resources or rewards are being distributed? What is the core conflict or resolution here?"
+        next_step = 'inkblot_3'
+        ai_reply = "Thank you for sharing your perspective. Let's move to the final image."
+
+    elif st.session_state.current_step == 'inkblot_3':
+        # General Flexibility / Integration (dlPFC)
+        image_url = "https://via.placeholder.com/800x400.png?text=[Insert+Abstract+or+Complex+Image+Here]"
+        prompt = "Describe the environment in this image. Is it safe, unpredictable, or something else entirely?"
+        next_step = 'decompression'
+        ai_reply = "Thank you for completing this journey. Your perspective helps us build a more context-aware framework for clinical care. Please wait a moment while I securely save your responses..."
+
+    # 2. Render the Projective Image and Prompt
+    st.write("---")
+    st.image(image_url, use_column_width=True)
+    st.markdown(f"**{prompt}**")
+    
+    # 3. The Input Tabs (Text vs. Audio)
+    tab_text, tab_audio = st.tabs(["⌨️ Type Response", "🎙️ Record Audio"])
+    
+    with tab_text:
+        user_text = st.text_area("Type your narrative here:", key=f"text_{st.session_state.current_step}")
+        
+        # UI Layout: Submit button next to Skip button
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if st.button("Submit Text Response", key=f"btn_txt_{st.session_state.current_step}", type="primary", use_container_width=True):
+                if user_text.strip():
+                    advance_chat(user_text, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
+                else:
+                    st.error("Please type a response or choose 'Skip'.")
+        with col2:
+            if st.button("⏭️ Skip", key=f"skip_txt_{st.session_state.current_step}", use_container_width=True):
+                advance_chat("[User Chose to Skip]", "text", f"{st.session_state.current_step}_skipped", next_step, ai_reply)
+                
+    with tab_audio:
+        st.info("Take all the time you need. The recording will **not** stop if you pause to think.")
+        st.markdown("**1. Click the microphone icon ONCE to start recording.**")
+        st.markdown("**2. Click it a SECOND time to stop recording and submit.**")
+        st.warning("⚠️ **Important:** After clicking stop, please wait a few seconds for your audio to process.")
+        
+        # UI Layout: Mic next to Skip button
+        col3, col4 = st.columns([3, 1])
+        with col3:
+            audio_bytes = audio_recorder(
+                key=f"mic_{st.session_state.current_step}",
+                pause_threshold=300.0 
+            )
+        with col4:
+            st.write("") # Spacing alignment
+            st.write("")
+            if st.button("⏭️ Skip", key=f"skip_aud_{st.session_state.current_step}", use_container_width=True):
+                advance_chat("[User Chose to Skip]", "text", f"{st.session_state.current_step}_skipped", next_step, ai_reply)
+        
+        if audio_bytes:
+            with st.spinner("⏳ Processing your recording... please wait a moment."):
+                audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
+                advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
+
 # --- Language Dictionary ---
 CONTENT = {
     "English": {
