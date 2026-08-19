@@ -9,26 +9,40 @@ from audio_recorder_streamlit import audio_recorder
 
 GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyKRANC_nZCdQPnYQOUKfh-9-_bvweg-ZaCaabrRTi1tD7EGyyAPep3dhReVFZVhTW0/exec"
 
-# Configure the app's appearance
-st.set_page_config(page_title="DMAP Narrative Instrument", layout="centered")
+st.set_page_config(page_title="DMAP Narrative AI", layout="centered")
 
-# Initialize session states
-if 'stage' not in st.session_state:
-    st.session_state.stage = 'safety_gate'
+# --- Initialize Session States ---
 if 'responses' not in st.session_state:
     st.session_state.responses = {'id': datetime.now().strftime("%Y%m%d_%H%M%S")}
-if 'modality' not in st.session_state:
-    st.session_state.modality = 'text'
 if 'admin_unlocked' not in st.session_state:
     st.session_state.admin_unlocked = False
 
+# The Chatbot State Machine
+if 'current_step' not in st.session_state:
+    st.session_state.current_step = 'intro_meal'
+    # Start the conversation with the first AI bubble
+    st.session_state.messages = [
+        {"role": "assistant", "type": "text", "content": "Welcome to the Narrative Context Study. This instrument explores how early life experiences shape our perspectives.\n\nYour well-being is important to us. Have you had a meal or something to eat recently? (Good health and physical comfort help when reflecting on complex topics)."}
+    ]
+
 # --- Helper Functions ---
-def set_stage(new_stage):
-    st.session_state.stage = new_stage
+def advance_chat(user_msg, user_type, response_key, next_step, ai_msg):
+    """Saves the user's response, updates the chat UI, and cues the next AI question."""
+    # 1. Save data to our payload dictionary
+    st.session_state.responses[response_key] = user_msg
+    
+    # 2. Add user message to chat history
+    st.session_state.messages.append({"role": "user", "type": user_type, "content": user_msg})
+    
+    # 3. Add AI reply to chat history
+    if ai_msg:
+        st.session_state.messages.append({"role": "assistant", "type": "text", "content": ai_msg})
+        
+    # 4. Advance the state machine
+    st.session_state.current_step = next_step
     st.rerun()
 
 def save_data_to_json():
-    """Saves text responses locally for the Admin Dashboard to read."""
     file_path = 'clinical_responses.json'
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
@@ -42,35 +56,22 @@ def save_data_to_json():
             json.dump(db, f, indent=4)
 
 def save_audio_file(audio_bytes, question_key):
-    """Saves recorded audio bytes to a .wav file."""
     filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
     with open(filename, "wb") as f:
         f.write(audio_bytes)
-    st.session_state.responses[question_key] = filename
+    return filename
 
 def export_data_to_google():
-    """Sends JSON text and Base64 encoded audio to the Google Apps Script Webhook."""
     payload = {
         "id": st.session_state.responses['id'],
         "text_data": st.session_state.responses,
         "audio_files": []
     }
-    
-    # Loop through the responses to find any saved audio filenames
     for key, value in st.session_state.responses.items():
-        if isinstance(value, str) and value.endswith('.wav'):
-            if os.path.exists(value):
-                # Read the audio file and encode it
-                with open(value, "rb") as f:
-                    audio_bytes = f.read()
-                    encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
-                    
-                    # Attach it to the payload
-                    payload["audio_files"].append({
-                        "filename": value,
-                        "data": encoded_audio
-                    })
-
+        if isinstance(value, str) and value.endswith('.wav') and os.path.exists(value):
+            with open(value, "rb") as f:
+                encoded_audio = base64.b64encode(f.read()).decode('utf-8')
+                payload["audio_files"].append({"filename": value, "data": encoded_audio})
     try:
         response = requests.post(GOOGLE_WEBAPP_URL, json=payload)
         return response.status_code == 200
@@ -80,7 +81,6 @@ def export_data_to_google():
 # -----------------------------------------
 # ADMIN SIDEBAR & DASHBOARD (HIDDEN)
 # -----------------------------------------
-# The sidebar will ONLY render if "?admin=true" is added to the URL
 if st.query_params.get("admin") == "true":
     with st.sidebar:
         st.subheader("Admin Access")
@@ -98,26 +98,18 @@ if st.query_params.get("admin") == "true":
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
     st.write("Welcome to the secure administrative view.")
-    
     file_path = 'clinical_responses.json'
     if os.path.exists(file_path):
         with open(file_path, 'r') as f:
             data = json.load(f)
-            
         if data:
             df = pd.DataFrame(data)
             st.subheader("Participant Submissions")
             st.dataframe(df, use_container_width=True)
             
             csv = df.to_csv(index=False).encode('utf-8')
-            st.download_button(
-                label="📥 Download Data as CSV",
-                data=csv,
-                file_name="dmap_clinical_responses.csv",
-                mime="text/csv"
-            )
+            st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_clinical_responses.csv", mime="text/csv")
             
-            # One-Click Audio Playback
             st.subheader("One-Click Audio Review")
             audio_found = False
             for entry in data:
@@ -130,209 +122,128 @@ if st.session_state.admin_unlocked:
             if not audio_found:
                 st.info("No audio files are currently stored on this server.")
                 
-            # Data Management Section
             st.divider()
             st.subheader("Data Management (Remove Test Runs)")
-            st.warning("Deleting data here removes it from the app's local server. You must manually delete test rows from your Google Sheet and Google Drive.")
-            
             col1, col2 = st.columns(2)
             with col1:
                 delete_id = st.text_input("Enter Participant ID to delete:")
                 if st.button("Delete Specific Record"):
                     new_data = [row for row in data if row.get('id') != delete_id]
                     if len(new_data) < len(data):
-                        # Find and delete associated audio files for this ID
                         for entry in data:
                             if entry.get('id') == delete_id:
                                 for key, val in entry.items():
                                     if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
                                         os.remove(val)
-                        
-                        # Save the updated JSON
                         with open(file_path, 'w') as f:
                             json.dump(new_data, f, indent=4)
                         st.success(f"Record {delete_id} deleted!")
                         st.rerun()
                     else:
                         st.error("Participant ID not found.")
-                        
             with col2:
                 st.write("Wipe all data from the app:")
                 if st.button("🗑️ Clear All Local Data", type="primary"):
-                    # Delete all audio files locally
                     for entry in data:
                         for key, val in entry.items():
                             if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
                                 os.remove(val)
-                    # Wipe the JSON file
                     with open(file_path, 'w') as f:
                         json.dump([], f, indent=4)
                     st.success("All local data and audio files cleared!")
                     st.rerun()
-
         else:
             st.info("No responses recorded yet.")
     else:
         st.info("The database file has not been created yet.")
-
     st.divider()
     if st.button("Logout"):
         st.session_state.admin_unlocked = False
         st.rerun()
-        
-    st.stop() # CRITICAL: This stops the public form from rendering if the admin is logged in.
+    st.stop()
 
 # -----------------------------------------
-# STAGE 1: The Safety Gate (Public View)
+# STAGE 1: THE AI CHAT INTERFACE
 # -----------------------------------------
-if st.session_state.stage == 'safety_gate':
-    st.title("Welcome to the Narrative Context Study")
-    st.write("This instrument explores how early life experiences shape our perspectives.")
-    
-    # --- NEW: Physical Well-being Check ---
-    st.info("Your physical well-being is important to us. Have you had a meal or something to eat recently? (Good health and physical comfort help when reflecting on complex topics).")
-    has_eaten = st.radio("Meal Check", ["Yes, I have eaten", "No, not recently"], horizontal=True, label_visibility="collapsed")
-    st.session_state.responses['has_eaten'] = has_eaten
-    
-    if has_eaten == "No, not recently":
-        st.write("*Tip: We gently encourage you to grab a snack or some water before beginning, but you may proceed whenever you feel ready.*")
-    # --------------------------------------
+st.title("Narrative Context AI")
 
-    st.warning("You are about to be asked questions regarding childhood adversity, threat, and deprivation. Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
-    
+# Render all previous chat bubbles
+for msg in st.session_state.messages:
+    with st.chat_message(msg["role"]):
+        if msg["type"] == "audio":
+            st.write("🎙️ *Audio Response Recorded*")
+            st.audio(msg["content"], format="audio/wav")
+        else:
+            st.write(msg["content"])
+
+# -----------------------------------------
+# STAGE 2: DYNAMIC INPUT HANDLING
+# -----------------------------------------
+# A. Meal Check
+if st.session_state.current_step == 'intro_meal':
     col1, col2 = st.columns(2)
-    with col1:
-        if st.button("Yes, I am in a safe space", use_container_width=True):
-            set_stage('modality_selection')
-    with col2:
-        if st.button("No, I need to exit", use_container_width=True):
-            set_stage('safe_exit')
+    if col1.button("Yes, I have eaten", use_container_width=True):
+        advance_chat("Yes, I have eaten.", "text", "has_eaten", "safety_gate", "Great. You are about to be asked questions regarding childhood adversity, threat, and deprivation. Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
+    if col2.button("No, not recently", use_container_width=True):
+        advance_chat("No, not recently.", "text", "has_eaten", "safety_gate", "*Tip: We gently encourage you to grab a snack or some water before beginning.* \n\nYou are about to be asked questions regarding childhood adversity, threat, and deprivation. Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
 
-# -----------------------------------------
-# STAGE 1B: Safe Exit 
-# -----------------------------------------
-elif st.session_state.stage == 'safe_exit':
-    st.title("Your well-being is our priority.")
-    st.write("It is completely okay to step away. We have securely closed your session.")
+# B. Safety Gate
+elif st.session_state.current_step == 'safety_gate':
+    col1, col2 = st.columns(2)
+    if col1.button("Yes, I am in a safe space", use_container_width=True):
+        advance_chat("Yes, I am in a safe space.", "text", "safe_space", "threat_obj", "Thank you. Let's begin Part 1: Experiences of Threat.\n\nDid you experience instances where you felt physically or emotionally threatened during your childhood? Briefly describe the nature of these events.")
+    if col2.button("No, I need to exit", use_container_width=True):
+        advance_chat("No, I need to exit.", "text", "safe_space", "safe_exit", "Your well-being is our priority. It is completely okay to step away. We have securely closed your session.")
+
+# C. Exit Gate
+elif st.session_state.current_step == 'safe_exit':
     if st.button("Restart Assessment"):
-        set_stage('safety_gate')
+        st.session_state.clear()
+        st.rerun()
 
-# -----------------------------------------
-# STAGE 2: Modality Selection
-# -----------------------------------------
-elif st.session_state.stage == 'modality_selection':
-    st.title("Select Your Input Method")
-    st.write("How would you prefer to share your narrative today?")
+# D. The Core DMAP Questions (Text or Audio)
+elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', 'dep_subj']:
     
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⌨️ I prefer to type", use_container_width=True):
-            st.session_state.modality = 'text'
-            set_stage('dmap_threat')
-    with col2:
-        if st.button("🎙️ I prefer to speak", use_container_width=True):
-            st.session_state.modality = 'audio'
-            set_stage('dmap_threat')
+    # 1. Text Input (The standard chat bar at the bottom)
+    prompt = st.chat_input("Type your response here...")
+    
+    # 2. Audio Input (Rendered right above the chat bar)
+    st.write("---")
+    st.write("*Alternatively, tap the microphone to speak your response:*")
+    audio_bytes = audio_recorder(key=f"mic_{st.session_state.current_step}")
+    
+    # Logic: Figure out which question is next based on the current state
+    if prompt or audio_bytes:
+        if st.session_state.current_step == 'threat_obj':
+            next_step = 'threat_subj'
+            ai_reply = "Thank you for sharing that. How did those specific experiences shape your understanding of safety, and how do they influence your ability to trust others today?"
+        
+        elif st.session_state.current_step == 'threat_subj':
+            next_step = 'dep_obj'
+            ai_reply = "Part 2: Experiences of Deprivation.\n\nWere there times in your childhood when you felt your basic physical or emotional needs were consistently not met?"
             
-    st.divider()
-    if st.button("⬅️ Back"):
-        set_stage('safety_gate')
+        elif st.session_state.current_step == 'dep_obj':
+            next_step = 'dep_subj'
+            ai_reply = "How has this absence of support or resources influenced how you view your own self-worth and how you connect with communities now?"
+            
+        elif st.session_state.current_step == 'dep_subj':
+            next_step = 'decompression'
+            ai_reply = "Thank you for sharing your narrative. Your perspective is vital to building a more context-aware framework for clinical care. Please wait a moment while I securely save your responses..."
 
-# -----------------------------------------
-# STAGE 3: DMAP - Threat Assessment
-# -----------------------------------------
-elif st.session_state.stage == 'dmap_threat':
-    st.title("Part 1: Experiences of Threat")
-    
-    st.write("### 1. Objective Recall")
-    st.write("Did you experience instances where you felt physically or emotionally threatened during your childhood? Briefly describe the nature of these events.")
-    
-    if st.session_state.modality == 'text':
-        threat_obj = st.text_area("Your response:", value=st.session_state.responses.get('threat_obj_text', ''), key='t_obj_text')
-        st.session_state.responses['threat_obj_text'] = threat_obj
-    else:
-        st.write("🎙️ **Click the microphone to record your response:**")
-        audio_bytes_1 = audio_recorder(key="threat_obj_mic")
-        if audio_bytes_1:
-            st.audio(audio_bytes_1, format="audio/wav")
-            save_audio_file(audio_bytes_1, "threat_obj_audio")
-    
-    st.write("### 2. Subjective Appraisal")
-    st.write("How did those specific experiences shape your understanding of safety, and how do they influence your ability to trust others today?")
-    
-    if st.session_state.modality == 'text':
-        threat_subj = st.text_area("Your response:", value=st.session_state.responses.get('threat_subj_text', ''), key='t_subj_text')
-        st.session_state.responses['threat_subj_text'] = threat_subj
-    else:
-        st.write("🎙️ **Click the microphone to record your response:**")
-        audio_bytes_2 = audio_recorder(key="threat_subj_mic")
-        if audio_bytes_2:
-            st.audio(audio_bytes_2, format="audio/wav")
-            save_audio_file(audio_bytes_2, "threat_subj_audio")
+        # Save Text OR Audio
+        if prompt:
+            advance_chat(prompt, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
+        elif audio_bytes:
+            audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
+            advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
 
-    st.divider()
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⬅️ Back", use_container_width=True):
-            set_stage('modality_selection')
-    with col2:
-        if st.button("Next ➡️", use_container_width=True):
-            set_stage('dmap_deprivation')
-
-# -----------------------------------------
-# STAGE 4: DMAP - Deprivation Assessment
-# -----------------------------------------
-elif st.session_state.stage == 'dmap_deprivation':
-    st.title("Part 2: Experiences of Deprivation")
-    
-    st.write("### 3. Objective Recall")
-    st.write("Were there times in your childhood when you felt your basic physical or emotional needs were consistently not met?")
-    
-    if st.session_state.modality == 'text':
-        dep_obj = st.text_area("Your response:", value=st.session_state.responses.get('dep_obj_text', ''), key='d_obj_text')
-        st.session_state.responses['dep_obj_text'] = dep_obj
-    else:
-        st.write("🎙️ **Click the microphone to record your response:**")
-        audio_bytes_3 = audio_recorder(key="dep_obj_mic")
-        if audio_bytes_3:
-            st.audio(audio_bytes_3, format="audio/wav")
-            save_audio_file(audio_bytes_3, "dep_obj_audio")
-    
-    st.write("### 4. Subjective Appraisal")
-    st.write("How has this absence of support or resources influenced how you view your own self-worth and how you connect with communities now?")
-    
-    if st.session_state.modality == 'text':
-        dep_subj = st.text_area("Your response:", value=st.session_state.responses.get('dep_subj_text', ''), key='d_subj_text')
-        st.session_state.responses['dep_subj_text'] = dep_subj
-    else:
-        st.write("🎙️ **Click the microphone to record your response:**")
-        audio_bytes_4 = audio_recorder(key="dep_subj_mic")
-        if audio_bytes_4:
-            st.audio(audio_bytes_4, format="audio/wav")
-            save_audio_file(audio_bytes_4, "dep_subj_audio")
-
-    st.divider()
-    col1, col2 = st.columns(2)
-    with col1:
-        if st.button("⬅️ Back", use_container_width=True):
-            set_stage('dmap_threat')
-    with col2:
-        if st.button("Submit Assessment ✅", use_container_width=True):
-            save_data_to_json() 
-            set_stage('decompression')
-
-# -----------------------------------------
-# STAGE 5: Decompression & Export
-# -----------------------------------------
-elif st.session_state.stage == 'decompression':
-    st.title("Thank you for sharing your narrative.")
-    st.success("Your perspective is vital to building a more context-aware framework for clinical care.")
-    st.markdown("---")
-    
-    with st.spinner("Securely saving your response..."):
+# E. Decompression & Export
+elif st.session_state.current_step == 'decompression':
+    with st.spinner("Encrypting and syncing your data..."):
         success = export_data_to_google()
+        save_data_to_json() # Save local backup for admin panel
         
     if success:
-        st.write("Your responses have been successfully and securely submitted.")
+        st.success("✅ Your responses have been successfully and securely submitted. You may now close this window.")
     else:
-        st.error("There was a network issue saving your response to the cloud. Your local backup has been saved.")
+        st.error("⚠️ There was a network issue saving your response to the cloud. A local backup has been safely stored.")
