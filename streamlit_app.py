@@ -20,25 +20,16 @@ if 'admin_unlocked' not in st.session_state:
 # The Chatbot State Machine
 if 'current_step' not in st.session_state:
     st.session_state.current_step = 'intro_meal'
-    # Start the conversation with the first AI bubble
     st.session_state.messages = [
         {"role": "assistant", "type": "text", "content": "Welcome to the Narrative Context Study. This instrument explores how early life experiences shape our perspectives.\n\nYour well-being is important to us. Have you had a meal or something to eat recently? (Good health and physical comfort help when reflecting on complex topics)."}
     ]
 
 # --- Helper Functions ---
 def advance_chat(user_msg, user_type, response_key, next_step, ai_msg):
-    """Saves the user's response, updates the chat UI, and cues the next AI question."""
-    # 1. Save data to our payload dictionary
     st.session_state.responses[response_key] = user_msg
-    
-    # 2. Add user message to chat history
     st.session_state.messages.append({"role": "user", "type": user_type, "content": user_msg})
-    
-    # 3. Add AI reply to chat history
     if ai_msg:
         st.session_state.messages.append({"role": "assistant", "type": "text", "content": ai_msg})
-        
-    # 4. Advance the state machine
     st.session_state.current_step = next_step
     st.rerun()
 
@@ -49,7 +40,6 @@ def save_data_to_json():
             db = json.load(f)
     else:
         db = []
-    
     if not any(entry.get('id') == st.session_state.responses['id'] for entry in db):
         db.append(st.session_state.responses)
         with open(file_path, 'w') as f:
@@ -204,15 +194,17 @@ elif st.session_state.current_step == 'safe_exit':
 # D. The Core DMAP Questions (Text or Audio)
 elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', 'dep_subj']:
     
-    # 1. Text Input (The standard chat bar at the bottom)
+    # 1. Text Input 
     prompt = st.chat_input("Type your response here...")
     
-    # 2. Audio Input (Rendered right above the chat bar)
+    # 2. Audio Input (With explicitly clear user instructions)
     st.write("---")
-    st.write("*Alternatively, tap the microphone to speak your response:*")
+    st.markdown("### 🎙️ Prefer to speak?")
+    st.markdown("**1. Click the microphone icon once to START recording.**")
+    st.markdown("**2. Click it again to STOP recording and submit your answer.**")
+    
     audio_bytes = audio_recorder(key=f"mic_{st.session_state.current_step}")
     
-    # Logic: Figure out which question is next based on the current state
     if prompt or audio_bytes:
         if st.session_state.current_step == 'threat_obj':
             next_step = 'threat_subj'
@@ -230,7 +222,6 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
             next_step = 'decompression'
             ai_reply = "Thank you for sharing your narrative. Your perspective is vital to building a more context-aware framework for clinical care. Please wait a moment while I securely save your responses..."
 
-        # Save Text OR Audio
         if prompt:
             advance_chat(prompt, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
         elif audio_bytes:
@@ -239,11 +230,14 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
 
 # E. Decompression & Export
 elif st.session_state.current_step == 'decompression':
-    with st.spinner("Encrypting and syncing your data..."):
+    
+    st.info("⏳ **Please note:** Uploading audio files to the secure server can take up to a minute depending on your connection. Please do not close or refresh this window until you see the success message below.")
+    
+    with st.spinner("Encrypting and syncing your data to Google Drive..."):
         success = export_data_to_google()
-        save_data_to_json() # Save local backup for admin panel
+        save_data_to_json() 
         
     if success:
-        st.success("✅ Your responses have been successfully and securely submitted. You may now close this window.")
+        st.success("✅ Your responses have been successfully and securely submitted. You may now safely close this window.")
     else:
         st.error("⚠️ There was a network issue saving your response to the cloud. A local backup has been safely stored.")
