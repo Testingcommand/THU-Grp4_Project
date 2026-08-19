@@ -51,21 +51,53 @@ with st.sidebar:
         else:
             st.error("Incorrect Password")
 
+import pandas as pd
+import os
+
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
     st.write("Welcome to the secure administrative view.")
-    st.info("To view responses, open your connected Google Sheet and Google Drive folder.")
+    
+    # 1. Load and Display the Data
+    file_path = 'clinical_responses.json'
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+            
+        if data:
+            # Convert JSON to a pandas DataFrame for a clean, filterable table
+            df = pd.DataFrame(data)
+            st.subheader("Participant Submissions")
+            st.dataframe(df, use_container_width=True)
+            
+            # 2. Export Functionality
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="📥 Download Data as CSV",
+                data=csv,
+                file_name="dmap_clinical_responses.csv",
+                mime="text/csv"
+            )
+            
+            # 3. Audio Playback Interface
+            st.subheader("Audio Review")
+            st.write("Enter a saved audio filename from the table above to listen:")
+            audio_file = st.text_input("Filename (e.g., audio_20260819_120000_threat_obj_audio.wav)")
+            if audio_file and os.path.exists(audio_file):
+                st.audio(audio_file, format="audio/wav")
+            elif audio_file:
+                st.error("Audio file not found.")
+                
+        else:
+            st.info("No responses recorded yet.")
+    else:
+        st.info("The database file has not been created yet.")
+
+    st.divider()
     if st.button("Logout"):
         st.session_state.admin_unlocked = False
         st.rerun()
-    st.stop()
-
-# Function to save audio bytes to a local wav file
-def save_audio_file(audio_bytes, question_key):
-    filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
-    with open(filename, "wb") as f:
-        f.write(audio_bytes)
-    st.session_state.responses[question_key] = filename # Save the file path to the JSON log
+    st.stop() # Prevents the public assessment from rendering below
 
 # -----------------------------------------
 # STAGE 1: The Safety Gate
