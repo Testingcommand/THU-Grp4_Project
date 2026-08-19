@@ -14,7 +14,7 @@ GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyKRANC_nZCdQPnYQOU
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
 
 # ==========================================
-# 1. HELPER FUNCTIONS
+# 1. HELPER FUNCTIONS & CHART
 # ==========================================
 def advance_chat(user_msg, user_type, response_key, next_step, ai_msg):
     st.session_state.responses[response_key] = user_msg
@@ -59,8 +59,11 @@ def export_data_to_google():
     except Exception:
         return False
 
-def generate_neurotwin_chart(patient_scores):
-    """Generates a matplotlib radar chart for the Digital Twin."""
+def generate_neurotwin_chart(threat_score, deprivation_score):
+    """
+    Generates a matplotlib radar chart dynamically mapping DMAP 
+    Threat and Deprivation scores to specific brain circuits.
+    """
     categories = [
         'Threat Reactivity\n(Amygdala / PAG)',
         'Social Cognition\n(TPJ / mPFC)',
@@ -69,7 +72,18 @@ def generate_neurotwin_chart(patient_scores):
         'Interoception\n(Insula)'
     ]
     N = len(categories)
+    
+    # Baseline control is set to 3.0 out of 5.0
     control_scores = [3.0, 3.0, 3.0, 3.0, 3.0] 
+    
+    # Map the DMAP scores to the theoretical circuits
+    patient_scores = [
+        threat_score,           # Threat impacts Amygdala
+        3.0,                    # Social Cognition (Baseline/Variable)
+        deprivation_score,      # Deprivation impacts Ventral Striatum
+        deprivation_score,      # Deprivation impacts dlPFC
+        threat_score            # Threat impacts Insula
+    ]
     
     angles = [n / float(N) * 2 * np.pi for n in range(N)]
     angles += angles[:1]
@@ -85,6 +99,7 @@ def generate_neurotwin_chart(patient_scores):
 
     ax.plot(angles, control_scores, linewidth=1.5, linestyle='dashed', label='Control Baseline', color='teal')
     ax.fill(angles, control_scores, 'teal', alpha=0.05)
+    
     ax.plot(angles, patient_data, linewidth=2.5, linestyle='solid', label='Patient NeuroTwin', color='crimson')
     ax.fill(angles, patient_data, 'crimson', alpha=0.25)
 
@@ -93,7 +108,7 @@ def generate_neurotwin_chart(patient_scores):
     return fig
 
 # ==========================================
-# 2. LANGUAGE DICTIONARY
+# 2. DICTIONARY (Shortened for brevity)
 # ==========================================
 CONTENT = {
     "English": {
@@ -104,13 +119,13 @@ CONTENT = {
         "meal_no_reply": "*Tip: We gently encourage you to grab a snack before beginning.*\n\nAre you currently in a safe, private, and comfortable environment?",
         "btn_safe_yes": "Yes, I am in a safe space",
         "btn_safe_no": "No, I need to exit",
-        "safe_yes_reply": "Thank you. Let's begin the visual exploration.",
+        "safe_yes_reply": "Thank you. Let's begin the DMAP Inventory.",
         "safe_no_reply": "Your well-being is our priority. We have securely closed your session.",
-        "decompression_prompt": "Thank you for completing this journey. Generating your theoretical NeuroTwin topology...",
+        "decompression_prompt": "Thank you for completing this inventory. Generating your theoretical NeuroTwin topology...",
         "tab_text": "⌨️ Type Response",
         "tab_audio": "🎙️ Record Audio",
-        "btn_submit_text": "Submit Response",
-        "btn_skip": "⏭️ Skip",
+        "btn_submit_text": "Submit Assessment",
+        "btn_skip": "⏭️ Skip Narrative",
         "error_empty_text": "Please type a response or choose 'Skip'.",
         "audio_inst_1": "Take all the time you need. The recording will **not** stop if you pause to think.",
         "audio_inst_2": "**1. Click the microphone ONCE to start recording.**",
@@ -118,121 +133,6 @@ CONTENT = {
         "audio_inst_4": "⚠️ **Important:** Wait a few seconds for processing after clicking stop.",
         "processing_audio": "⏳ Processing... please wait.",
         "success": "✅ Your responses have been submitted. You may now close this window."
-    },
-    "Mandarin": {
-        "welcome": "欢迎参加叙事语境研究。\n\n您的身心健康对我们很重要。您最近有进食吗？",
-        "btn_meal_yes": "是的，我吃过了",
-        "btn_meal_no": "没有，最近没吃",
-        "meal_yes_reply": "太好了。您现在是否处于一个安全、私密且舒适的环境中来进行反思？",
-        "meal_no_reply": "*提示：我们建议您在开始前先吃点零食。*\n\n您现在是否处于一个安全、私密且舒适的环境中？",
-        "btn_safe_yes": "是的，我在安全的空间",
-        "btn_safe_no": "不在，我需要退出",
-        "safe_yes_reply": "谢谢。让我们开始视觉探索。",
-        "safe_no_reply": "您的健康是我们的首要任务。我们已安全关闭了您的会话。",
-        "decompression_prompt": "感谢您完成这次探索。正在生成您的理论 NeuroTwin 拓扑结构...",
-        "tab_text": "⌨️ 输入回复",
-        "tab_audio": "🎙️ 录制音频",
-        "btn_submit_text": "提交回复",
-        "btn_skip": "⏭️ 跳过",
-        "error_empty_text": "请在提交前输入回复，或选择“跳过”。",
-        "audio_inst_1": "请慢慢来。如果您停下来思考，录音**不会**停止。",
-        "audio_inst_2": "**1. 点击麦克风图标一次开始录音。**",
-        "audio_inst_3": "**2. 再次点击停止录音并提交。**",
-        "audio_inst_4": "⚠️ **重要提示：** 点击停止后，请等待几秒钟让系统处理。",
-        "processing_audio": "⏳ 正在处理... 请稍候。",
-        "success": "✅ 您的回复已提交。您现在可以关闭此窗口。"
-    },
-    "Cantonese": {
-        "welcome": "歡迎來到敘事語境研究。\n\n你嘅身心健康對我哋好重要。你最近有冇食嘢呀？",
-        "btn_meal_yes": "有呀，我食咗喇",
-        "btn_meal_no": "冇呀，最近未食",
-        "meal_yes_reply": "太好喇。你而家係咪喺一個安全、私密同舒適嘅環境入面進行反思？",
-        "meal_no_reply": "*提示：我哋建議你開始之前先食少少嘢。*\n\n你而家係咪喺一個安全、私密同舒適嘅環境入面？",
-        "btn_safe_yes": "係，我喺安全嘅空間",
-        "btn_safe_no": "唔係，我需要退出",
-        "safe_yes_reply": "多謝。等我哋開始視覺探索。",
-        "safe_no_reply": "你嘅健康係我哋嘅首要考慮。我哋已經安全咁關閉咗你嘅會話。",
-        "decompression_prompt": "多謝你完成呢次探索。緊生成你嘅理論 NeuroTwin 拓撲結構...",
-        "tab_text": "⌨️ 輸入回覆",
-        "tab_audio": "🎙️ 錄製錄音",
-        "btn_submit_text": "提交回覆",
-        "btn_skip": "⏭️ 跳過",
-        "error_empty_text": "請輸入回覆或選擇「跳過」。",
-        "audio_inst_1": "慢慢嚟。如果你停低思考，錄音**唔會**停止。",
-        "audio_inst_2": "**1. 㩒一下咪高峰圖標開始錄音。**",
-        "audio_inst_3": "**2. 再㩒一次停止錄音並提交。**",
-        "audio_inst_4": "⚠️ **重要提示：** 㩒咗停止之後，請等幾秒鐘畀系統處理。",
-        "processing_audio": "⏳ 處理緊... 請稍等。",
-        "success": "✅ 你嘅回覆已經提交。你而家可以關閉呢個視窗。"
-    },
-    "Spanish": {
-        "welcome": "Bienvenido/a al Estudio de Contexto Narrativo.\n\nSu bienestar es importante para nosotros. ¿Ha comido algo recientemente?",
-        "btn_meal_yes": "Sí, he comido",
-        "btn_meal_no": "No, no recientemente",
-        "meal_yes_reply": "Excelente. ¿Se encuentra actualmente en un entorno seguro, privado y cómodo para reflexionar sobre temas complejos?",
-        "meal_no_reply": "*Consejo: Le animamos amablemente a comer un bocadillo antes de comenzar.*\n\n¿Se encuentra actualmente en un entorno seguro, privado y cómodo?",
-        "btn_safe_yes": "Sí, estoy en un espacio seguro",
-        "btn_safe_no": "No, necesito salir",
-        "safe_yes_reply": "Gracias. Comencemos la exploración visual.",
-        "safe_no_reply": "Su bienestar es nuestra prioridad. Hemos cerrado su sesión de forma segura.",
-        "decompression_prompt": "Gracias por completar este viaje. Generando su topología teórica NeuroTwin...",
-        "tab_text": "⌨️ Escribir Respuesta",
-        "tab_audio": "🎙️ Grabar Audio",
-        "btn_submit_text": "Enviar Respuesta",
-        "btn_skip": "⏭️ Omitir",
-        "error_empty_text": "Por favor escriba una respuesta o elija 'Omitir'.",
-        "audio_inst_1": "Tómese el tiempo que necesite. La grabación **no** se detendrá si hace una pausa.",
-        "audio_inst_2": "**1. Haga clic en el micrófono UNA VEZ para comenzar.**",
-        "audio_inst_3": "**2. Haga clic una SEGUNDA vez para detener y enviar.**",
-        "audio_inst_4": "⚠️ **Importante:** Espere unos segundos para procesar después de detener.",
-        "processing_audio": "⏳ Procesando... por favor espere.",
-        "success": "✅ Sus respuestas han sido enviadas. Ahora puede cerrar esta ventana."
-    },
-    "French": {
-        "welcome": "Bienvenue dans l'Étude du Contexte Narratif.\n\nVotre bien-être est important pour nous. Avez-vous mangé quelque chose récemment ?",
-        "btn_meal_yes": "Oui, j'ai mangé",
-        "btn_meal_no": "Non, pas récemment",
-        "meal_yes_reply": "Parfait. Êtes-vous dans un environnement sûr, privé et confortable pour réfléchir à des sujets complexes ?",
-        "meal_no_reply": "*Conseil : Nous vous encourageons à prendre une collation avant de commencer.*\n\nÊtes-vous dans un environnement sûr et confortable ?",
-        "btn_safe_yes": "Oui, je suis dans un espace sûr",
-        "btn_safe_no": "Non, je dois quitter",
-        "safe_yes_reply": "Merci. Commençons l'exploration visuelle.",
-        "safe_no_reply": "Votre bien-être est notre priorité. Nous avons fermé votre session.",
-        "decompression_prompt": "Merci d'avoir terminé ce parcours. Génération de votre topologie théorique NeuroTwin...",
-        "tab_text": "⌨️ Taper la réponse",
-        "tab_audio": "🎙️ Enregistrer l'audio",
-        "btn_submit_text": "Soumettre",
-        "btn_skip": "⏭️ Passer",
-        "error_empty_text": "Veuillez taper une réponse ou choisir 'Passer'.",
-        "audio_inst_1": "Prenez votre temps. L'enregistrement **ne s'arrêtera pas** si vous faites une pause.",
-        "audio_inst_2": "**1. Cliquez UNE FOIS sur le microphone pour commencer.**",
-        "audio_inst_3": "**2. Cliquez une DEUXIÈME fois pour arrêter et soumettre.**",
-        "audio_inst_4": "⚠️ **Important :** Patientez quelques secondes après avoir cliqué sur arrêter.",
-        "processing_audio": "⏳ Traitement... veuillez patienter.",
-        "success": "✅ Vos réponses ont été soumises. Vous pouvez fermer cette fenêtre."
-    },
-    "Russian": {
-        "welcome": "Добро пожаловать в Исследование Нарративного Контекста.\n\nВаше благополучие важно для нас. Вы недавно ели?",
-        "btn_meal_yes": "Да, я поел(а)",
-        "btn_meal_no": "Нет, недавно не ел(а)",
-        "meal_yes_reply": "Отлично. Находитесь ли вы сейчас в безопасной, уединенной и комфортной обстановке?",
-        "meal_no_reply": "*Совет: Мы рекомендуем перекусить перед началом.*\n\nВы в безопасной обстановке?",
-        "btn_safe_yes": "Да, я в безопасности",
-        "btn_safe_no": "Нет, мне нужно выйти",
-        "safe_yes_reply": "Спасибо. Давайте начнем визуальное исследование.",
-        "safe_no_reply": "Ваше благополучие - наш приоритет. Мы закрыли вашу сессию.",
-        "decompression_prompt": "Спасибо. Генерация вашей теоретической топологии NeuroTwin...",
-        "tab_text": "⌨️ Напечатать ответ",
-        "tab_audio": "🎙️ Записать аудио",
-        "btn_submit_text": "Отправить",
-        "btn_skip": "⏭️ Пропустить",
-        "error_empty_text": "Пожалуйста, введите ответ или выберите 'Пропустить'.",
-        "audio_inst_1": "Не торопитесь. Запись **не** остановится, если вы сделаете паузу.",
-        "audio_inst_2": "**1. Нажмите на микрофон ОДИН РАЗ, чтобы начать.**",
-        "audio_inst_3": "**2. Нажмите ВТОРОЙ РАЗ, чтобы остановить и отправить.**",
-        "audio_inst_4": "⚠️ **Важно:** Подождите несколько секунд после остановки.",
-        "processing_audio": "⏳ Обработка... пожалуйста, подождите.",
-        "success": "✅ Ваши ответы отправлены. Вы можете закрыть это окно."
     }
 }
 
@@ -243,7 +143,6 @@ if 'responses' not in st.session_state:
     st.session_state.responses = {'id': datetime.now().strftime("%Y%m%d_%H%M%S")}
 if 'admin_unlocked' not in st.session_state:
     st.session_state.admin_unlocked = False
-
 if 'current_step' not in st.session_state:
     st.session_state.current_step = 'dashboard'
     st.session_state.messages = []
@@ -290,9 +189,7 @@ if st.session_state.current_step != 'dashboard':
 # ==========================================
 t = CONTENT[st.session_state.lang]
 
-# 1. The Landing Dashboard (IMAGE REMOVED FOR NOW)
 if st.session_state.current_step == 'dashboard':
-    
     st.title("NeuroTwin: Many Ways to Thrive")
     st.write("### Your story. Your choices. Many ways to thrive.")
     st.write("---")
@@ -304,56 +201,20 @@ if st.session_state.current_step == 'dashboard':
             st.rerun()
     with col2:
         if st.button("Learn & Explore 📖", use_container_width=True):
-            st.info("The NeuroTwin instrument uses narrative appraisal to map theoretical brain circuit topologies.")
+            st.info("The NeuroTwin instrument uses the DMAP framework to map theoretical brain circuit topologies.")
     with col3:
         if st.button("Consent & Privacy 🔒", use_container_width=True):
             st.info("Your data is strictly confidential and anonymized.")
 
-# 2. Language Selection
 elif st.session_state.current_step == 'language_selection':
     st.write("### Please select your preferred language:")
-    
-    col1, col2, col3 = st.columns(3)
-    if col1.button("English", use_container_width=True):
+    if st.button("English", use_container_width=True):
         st.session_state.lang = "English"
         st.session_state.responses['language'] = "English"
         st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["English"]["welcome"]})
         st.session_state.current_step = 'intro_meal'
         st.rerun()
-    if col2.button("中文 (Mandarin)", use_container_width=True):
-        st.session_state.lang = "Mandarin"
-        st.session_state.responses['language'] = "Mandarin"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Mandarin"]["welcome"]})
-        st.session_state.current_step = 'intro_meal'
-        st.rerun()
-    if col3.button("粵語 (Cantonese)", use_container_width=True):
-        st.session_state.lang = "Cantonese"
-        st.session_state.responses['language'] = "Cantonese"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Cantonese"]["welcome"]})
-        st.session_state.current_step = 'intro_meal'
-        st.rerun()
 
-    col4, col5, col6 = st.columns(3)
-    if col4.button("Español (Spanish)", use_container_width=True):
-        st.session_state.lang = "Spanish"
-        st.session_state.responses['language'] = "Spanish"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Spanish"]["welcome"]})
-        st.session_state.current_step = 'intro_meal'
-        st.rerun()
-    if col5.button("Français (French)", use_container_width=True):
-        st.session_state.lang = "French"
-        st.session_state.responses['language'] = "French"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["French"]["welcome"]})
-        st.session_state.current_step = 'intro_meal'
-        st.rerun()
-    if col6.button("Русский (Russian)", use_container_width=True):
-        st.session_state.lang = "Russian"
-        st.session_state.responses['language'] = "Russian"
-        st.session_state.messages.append({"role": "assistant", "type": "text", "content": CONTENT["Russian"]["welcome"]})
-        st.session_state.current_step = 'intro_meal'
-        st.rerun()
-
-# 3. Meal Check
 elif st.session_state.current_step == 'intro_meal':
     col1, col2 = st.columns(2)
     if col1.button(t["btn_meal_yes"], use_container_width=True):
@@ -361,57 +222,73 @@ elif st.session_state.current_step == 'intro_meal':
     if col2.button(t["btn_meal_no"], use_container_width=True):
         advance_chat(t["btn_meal_no"], "text", "has_eaten", "safety_gate", t["meal_no_reply"])
 
-# 4. Safety Gate
 elif st.session_state.current_step == 'safety_gate':
     col1, col2 = st.columns(2)
     if col1.button(t["btn_safe_yes"], use_container_width=True):
-        advance_chat(t["btn_safe_yes"], "text", "safe_space", "inkblot_1", t["safe_yes_reply"])
+        advance_chat(t["btn_safe_yes"], "text", "safe_space", "dmap_inventory", t["safe_yes_reply"])
     if col2.button(t["btn_safe_no"], use_container_width=True):
         advance_chat(t["btn_safe_no"], "text", "safe_space", "safe_exit", t["safe_no_reply"])
 
-# 5. Exit Gate
 elif st.session_state.current_step == 'safe_exit':
     st.info("To restart the assessment, please use the sidebar button.")
 
-# 6. The Projective Inkblots
-elif st.session_state.current_step in ['inkblot_1', 'inkblot_2', 'inkblot_3']:
-    
-    if st.session_state.current_step == 'inkblot_1':
-        image_url = "https://via.placeholder.com/800x400.png?text=[Ambiguous+Social+Image]"
-        prompt = "What do you see happening in this scene? What are they about to do?"
-        next_step = 'inkblot_2'
-        ai_reply = "Thank you. Let's look at another scene."
-        
-    elif st.session_state.current_step == 'inkblot_2':
-        image_url = "https://via.placeholder.com/800x400.png?text=[Ambiguous+Resource+Image]"
-        prompt = "How do you think resources or rewards are being distributed here?"
-        next_step = 'inkblot_3'
-        ai_reply = "Thank you for sharing your perspective. Let's move to the final image."
-
-    elif st.session_state.current_step == 'inkblot_3':
-        image_url = "https://via.placeholder.com/800x400.png?text=[Abstract+Environment+Image]"
-        prompt = "Describe the environment. Is it safe, unpredictable, or something else entirely?"
-        next_step = 'decompression'
-        ai_reply = t["decompression_prompt"]
-
+# THE NEW DMAP INVENTORY MODULE
+elif st.session_state.current_step == 'dmap_inventory':
     st.write("---")
-    st.image(image_url, use_container_width=True)
-    st.markdown(f"**{prompt}**")
+    st.header("The DMAP Narrative Inventory")
+    st.markdown("**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`")
     
+    # DIMENSION 1: THREAT
+    st.subheader("Part 1: Indicators of Threat")
+    st.info("This section targets experiences that theoretically upregulate fear-learning circuits and threat vigilance.")
+    options = [1, 2, 3, 4, 5]
+    
+    t1 = st.radio("T1: I felt a constant need to be on guard or 'walk on eggshells' in my own home.", options, index=0, horizontal=True)
+    t2 = st.radio("T2: Adults in my life used intense anger, fear, or intimidation to control my behavior.", options, index=0, horizontal=True)
+    t3 = st.radio("T3: I witnessed aggressive physical or verbal conflicts between people in my household.", options, index=0, horizontal=True)
+    t4 = st.radio("T4: My environment felt unpredictable; I never knew what mood my caretakers would be in.", options, index=0, horizontal=True)
+    t5 = st.radio("T5: I was subjected to physical discipline that felt excessive, unsafe, or unpredictable.", options, index=0, horizontal=True)
+    t6 = st.radio("T6: People I depended on made me feel physically or emotionally unsafe.", options, index=0, horizontal=True)
+    t7_raw = st.radio("T7 (Reverse Scored): When I made a mistake, I trusted that I would be corrected gently rather than harshly.", options, index=4, horizontal=True)
+    t7_reversed = 6 - t7_raw # Reverse scoring logic applied
+
+    st.divider()
+
+    # DIMENSION 2: DEPRIVATION
+    st.subheader("Part 2: Indicators of Deprivation")
+    st.info("This section targets the absence of expected cognitive, social, or material inputs.")
+    
+    d1 = st.radio("D1: I went long periods without adults asking about my thoughts, feelings, or interests.", options, index=0, horizontal=True)
+    d2 = st.radio("D2: My home lacked engaging things to do, such as books to read, toys, or access to hobbies.", options, index=0, horizontal=True)
+    d3 = st.radio("D3: I often had to worry about whether our basic needs (like enough food, electricity, or stable housing) would be met.", options, index=0, horizontal=True)
+    d4 = st.radio("D4: I was frequently left alone or unsupervised for longer than was appropriate for my age.", options, index=0, horizontal=True)
+    d5 = st.radio("D5: It was rare for adults in my life to offer praise, encouragement, or affection.", options, index=0, horizontal=True)
+    d6 = st.radio("D6: I did not have an adult who reliably helped me with schoolwork or taught me new skills.", options, index=0, horizontal=True)
+    d7_raw = st.radio("D7 (Reverse Scored): My home environment felt mentally stimulating and full of opportunities to learn.", options, index=4, horizontal=True)
+    d7_reversed = 6 - d7_raw # Reverse scoring logic applied
+
+    # NARRATIVE CONTEXT & SUBMISSION
+    st.divider()
+    st.subheader("Part 3: Narrative Context (Optional)")
+    st.markdown("**How did these experiences shape how you view the world today? Please feel free to share a specific memory or reflection.**")
+
     tab_text, tab_audio = st.tabs([t["tab_text"], t["tab_audio"]])
     
+    # Calculate Averages (Score ranges from 1 to 5)
+    threat_avg = (t1 + t2 + t3 + t4 + t5 + t6 + t7_reversed) / 7.0
+    dep_avg = (d1 + d2 + d3 + d4 + d5 + d6 + d7_reversed) / 7.0
+    
+    ai_reply = t["decompression_prompt"]
+    next_step = "decompression"
+
     with tab_text:
-        user_text = st.text_area("Type your narrative here:", key=f"text_{st.session_state.current_step}")
+        user_text = st.text_area("Type your narrative here:", key="dmap_narrative_text")
         col1, col2 = st.columns([3, 1])
         with col1:
-            if st.button(t["btn_submit_text"], key=f"btn_txt_{st.session_state.current_step}", type="primary", use_container_width=True):
-                if user_text.strip():
-                    advance_chat(user_text, "text", f"{st.session_state.current_step}_text", next_step, ai_reply)
-                else:
-                    st.error(t["error_empty_text"])
-        with col2:
-            if st.button(t["btn_skip"], key=f"skip_txt_{st.session_state.current_step}", use_container_width=True):
-                advance_chat("[Skipped]", "text", f"{st.session_state.current_step}_skipped", next_step, ai_reply)
+            if st.button(t["btn_submit_text"], type="primary", use_container_width=True):
+                st.session_state.responses["threat_score_avg"] = threat_avg
+                st.session_state.responses["deprivation_score_avg"] = dep_avg
+                advance_chat(user_text if user_text.strip() else "[No Narrative Provided]", "text", "dmap_narrative", next_step, ai_reply)
                 
     with tab_audio:
         st.info(t["audio_inst_1"])
@@ -419,21 +296,16 @@ elif st.session_state.current_step in ['inkblot_1', 'inkblot_2', 'inkblot_3']:
         st.markdown(t["audio_inst_3"])
         st.warning(t["audio_inst_4"])
         
-        col3, col4 = st.columns([3, 1])
-        with col3:
-            audio_bytes = audio_recorder(key=f"mic_{st.session_state.current_step}", pause_threshold=300.0)
-        with col4:
-            st.write("") 
-            st.write("")
-            if st.button(t["btn_skip"], key=f"skip_aud_{st.session_state.current_step}", use_container_width=True):
-                advance_chat("[Skipped]", "text", f"{st.session_state.current_step}_skipped", next_step, ai_reply)
+        audio_bytes = audio_recorder(key="dmap_narrative_mic", pause_threshold=300.0)
         
         if audio_bytes:
             with st.spinner(t["processing_audio"]):
-                audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
-                advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
+                st.session_state.responses["threat_score_avg"] = threat_avg
+                st.session_state.responses["deprivation_score_avg"] = dep_avg
+                audio_path = save_audio_file(audio_bytes, "dmap_narrative_audio")
+                advance_chat(audio_path, "audio", "dmap_narrative", next_step, ai_reply)
 
-# 7. Final Decompression & Radar Chart Rendering
+# FINAL DECOMPRESSION & RADAR CHART
 elif st.session_state.current_step == 'decompression':
     with st.spinner("Encrypting and syncing your data..."):
         success = export_data_to_google()
@@ -444,10 +316,18 @@ elif st.session_state.current_step == 'decompression':
         
         st.divider()
         st.subheader("Your NeuroTwin Topology")
-        st.write("Based on your narrative appraisals, here is a theoretical mapping of your circuit topology against a baseline.")
         
-        mock_patient_scores = [4.5, 2.5, 1.5, 2.0, 4.0] 
-        fig = generate_neurotwin_chart(mock_patient_scores)
+        # Pull the dynamically calculated scores from the session state
+        t_score = st.session_state.responses.get("threat_score_avg", 3.0)
+        d_score = st.session_state.responses.get("deprivation_score_avg", 3.0)
+        
+        # Display the math
+        st.write(f"**Calculated Threat Index:** {t_score:.2f} / 5.0")
+        st.write(f"**Calculated Deprivation Index:** {d_score:.2f} / 5.0")
+        st.write("Based on your answers, here is a theoretical mapping of your circuit topology against a neurotypical baseline.")
+        
+        # Render the dynamic chart!
+        fig = generate_neurotwin_chart(t_score, d_score)
         st.pyplot(fig)
         
     else:
