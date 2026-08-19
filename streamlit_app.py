@@ -84,14 +84,14 @@ with st.sidebar:
     st.subheader("Admin Access")
     admin_password = st.text_input("Password", type="password")
     if st.button("Login"):
-        # Safe fallback: Checks cloud secrets first, defaults to 'test' if running locally without secrets
-        expected_password = st.secrets["admin_password"] if "admin_password" in st.secrets else "test"
-        
-        if admin_password == expected_password:
-            st.session_state.admin_unlocked = True
-            st.success("Admin Dashboard Unlocked")
-        else:
-            st.error("Incorrect Password")
+        try:
+            if admin_password == st.secrets["admin_password"]:
+                st.session_state.admin_unlocked = True
+                st.success("Admin Dashboard Unlocked")
+            else:
+                st.error("Incorrect Password")
+        except FileNotFoundError:
+            st.error("Secrets configuration missing on server.")
 
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
@@ -115,13 +115,18 @@ if st.session_state.admin_unlocked:
                 mime="text/csv"
             )
             
-            st.subheader("Audio Review")
-            st.write("Enter a saved audio filename from the table above to listen:")
-            audio_file = st.text_input("Filename (e.g., audio_20260819_120000_threat_obj_audio.wav)")
-            if audio_file and os.path.exists(audio_file):
-                st.audio(audio_file, format="audio/wav")
-            elif audio_file:
-                st.error("Audio file not found.")
+            # One-Click Audio Playback
+            st.subheader("One-Click Audio Review")
+            audio_found = False
+            for entry in data:
+                for key, val in entry.items():
+                    if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                        audio_found = True
+                        st.write(f"**ID:** `{entry['id']}` | **Prompt:** `{key}`")
+                        st.audio(val, format="audio/wav")
+                        
+            if not audio_found:
+                st.info("No audio files are currently stored on this server.")
         else:
             st.info("No responses recorded yet.")
     else:
