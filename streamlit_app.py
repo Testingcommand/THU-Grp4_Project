@@ -7,7 +7,7 @@ import pandas as pd
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzcANFcUPblZcDB6gWjej4YfY5kwl607nQXvAEAs0l7fgsKaW_SVW8L6sPGfed-FRoY/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyKRANC_nZCdQPnYQOUKfh-9-_bvweg-ZaCaabrRTi1tD7EGyyAPep3dhReVFZVhTW0/exec"
 
 # Configure the app's appearance
 st.set_page_config(page_title="DMAP Narrative Instrument", layout="centered")
