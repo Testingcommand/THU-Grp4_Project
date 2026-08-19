@@ -1,8 +1,11 @@
 import streamlit as st
 import json
-import os
+import base64
+import requests
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
+
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzcANFcUPblZcDB6gWjej4YfY5kwl607nQXvAEAs0l7fgsKaW_SVW8L6sPGfed-FRoY/exec"
 
 # Configure the app's appearance
 st.set_page_config(page_title="DMAP Narrative Instrument", layout="centered")
@@ -15,25 +18,47 @@ if 'responses' not in st.session_state:
 if 'modality' not in st.session_state:
     st.session_state.modality = 'text'
 
-# Function to instantly transition between pages
-def set_stage(new_stage):
-    st.session_state.stage = new_stage
-    st.rerun()
-
-# Function to save text responses to a local JSON file
-def save_data_to_json():
-    file_path = 'clinical_responses.json'
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            db = json.load(f)
-    else:
-        db = []
+# --- Secure Cloud Export Function ---
+def export_data_to_google():
+    """Sends JSON text and any Base64 encoded audio to the Google Apps Script Webhook"""
+    payload = {
+        "id": st.session_state.responses['id'],
+        "text_data": st.session_state.responses,
+        "audio_files": [] 
+    }
     
-    # Check if this session's data is already saved to prevent duplicates
-    if not any(entry.get('id') == st.session_state.responses['id'] for entry in db):
-        db.append(st.session_state.responses)
-        with open(file_path, 'w') as f:
-            json.dump(db, f, indent=4)
+    # Encode audio if it exists in the session state
+    if 'threat_subj_audio' in st.session_state.responses: # example check, adjust based on your actual audio logic
+         pass # Replace with actual base64 audio encoding logic if storing bytes in session_state
+
+    try:
+        response = requests.post(GOOGLE_WEBAPP_URL, json=payload)
+        return response.status_code == 200
+    except Exception as e:
+        return False
+
+# --- Admin Sidebar Login ---
+if 'admin_unlocked' not in st.session_state:
+    st.session_state.admin_unlocked = False
+
+with st.sidebar:
+    st.subheader("Admin Access")
+    admin_password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if admin_password == st.secrets["admin_password"]:
+            st.session_state.admin_unlocked = True
+            st.success("Admin Dashboard Unlocked")
+        else:
+            st.error("Incorrect Password")
+
+if st.session_state.admin_unlocked:
+    st.title("Admin Dashboard")
+    st.write("Welcome to the secure administrative view.")
+    st.info("To view responses, open your connected Google Sheet and Google Drive folder.")
+    if st.button("Logout"):
+        st.session_state.admin_unlocked = False
+        st.rerun()
+    st.stop()
 
 # Function to save audio bytes to a local wav file
 def save_audio_file(audio_bytes, question_key):
@@ -45,6 +70,32 @@ def save_audio_file(audio_bytes, question_key):
 # -----------------------------------------
 # STAGE 1: The Safety Gate
 # -----------------------------------------
+# --- Admin Sidebar Login ---
+if 'admin_unlocked' not in st.session_state:
+    st.session_state.admin_unlocked = False
+
+with st.sidebar:
+    st.subheader("Admin Access")
+    admin_password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        # This checks the password against your Streamlit Secrets
+        if admin_password == st.secrets["admin_password"]:
+            st.session_state.admin_unlocked = True
+            st.success("Admin Dashboard Unlocked")
+        else:
+            st.error("Incorrect Password")
+
+# If Admin is logged in, show the dashboard and stop the rest of the app
+if st.session_state.admin_unlocked:
+    st.title("Admin Dashboard")
+    st.write("Welcome to the secure administrative view.")
+    st.info("To view responses, open your connected Google Sheet and Google Drive folder.")
+    
+    if st.button("Logout"):
+        st.session_state.admin_unlocked = False
+        st.rerun()
+    st.stop() # Prevents the public assessment from rendering below
+    
 if st.session_state.stage == 'safety_gate':
     st.title("Welcome to the Narrative Context Study")
     st.write("This instrument explores how early life experiences shape our perspectives.")
@@ -178,24 +229,11 @@ elif st.session_state.stage == 'decompression':
     st.title("Thank you for sharing your narrative.")
     st.success("Your perspective is vital to building a more context-aware framework for clinical care.")
     st.markdown("---")
-    st.subheader("Data Successfully Saved")
-    st.write("Your text responses and audio file paths have been saved to `clinical_responses.json`. Any audio recordings have been saved as `.wav` files in your project folder.")
-    st.json(st.session_state.responses)
     
-    import json
-    import os
-    
-    # Create a download button for the JSON file
-    if os.path.exists('clinical_responses.json'):
-        with open('clinical_responses.json', 'r') as f:
-            json_data = f.read()
-            
-        st.download_button(
-            label="📥 Download JSON Data", 
-            data=json_data, 
-            file_name="clinical_responses.json", 
-            mime="application/json" 
-        )
+    with st.spinner("Securely saving your response..."):
+        success = export_data_to_google()
+        
+    if success:
+        st.write("Your responses have been successfully and securely submitted.")
     else:
-        st.warning("No JSON data found yet.")
-        st.warning("No JSON data found yet.")
+        st.error("There was a network issue saving your response. Please contact the administrator.")
