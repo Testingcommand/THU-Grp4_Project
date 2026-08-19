@@ -197,13 +197,16 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
     # 1. Text Input 
     prompt = st.chat_input("Type your response here...")
     
-    # 2. Audio Input (With explicitly clear user instructions)
+    # 2. Audio Input (With explicitly clear user instructions and extended silence timeout)
     st.write("---")
     st.markdown("### 🎙️ Prefer to speak?")
-    st.markdown("**1. Click the microphone icon once to START recording.**")
-    st.markdown("**2. Click it again to STOP recording and submit your answer.**")
+    st.markdown("Take all the time you need. The recording will **not** stop if you pause to think.")
+    st.info("**Instructions:** Click the microphone icon ONCE to start recording. When you are completely finished speaking, click it a SECOND time to submit.")
     
-    audio_bytes = audio_recorder(key=f"mic_{st.session_state.current_step}")
+    audio_bytes = audio_recorder(
+        key=f"mic_{st.session_state.current_step}",
+        pause_threshold=300.0 # Gives the user 5 full minutes of silence before auto-stopping
+    )
     
     if prompt or audio_bytes:
         if st.session_state.current_step == 'threat_obj':
