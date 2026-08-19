@@ -2,6 +2,7 @@ import streamlit as st
 import json
 import os
 import requests
+import base64
 import pandas as pd
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
@@ -48,12 +49,28 @@ def save_audio_file(audio_bytes, question_key):
     st.session_state.responses[question_key] = filename
 
 def export_data_to_google():
-    """Sends JSON text to the Google Apps Script Webhook."""
+    """Sends JSON text and Base64 encoded audio to the Google Apps Script Webhook."""
     payload = {
         "id": st.session_state.responses['id'],
         "text_data": st.session_state.responses,
-        "audio_files": [] 
+        "audio_files": []
     }
+    
+    # Loop through the responses to find any saved audio filenames
+    for key, value in st.session_state.responses.items():
+        if isinstance(value, str) and value.endswith('.wav'):
+            if os.path.exists(value):
+                # Read the audio file and encode it
+                with open(value, "rb") as f:
+                    audio_bytes = f.read()
+                    encoded_audio = base64.b64encode(audio_bytes).decode('utf-8')
+                    
+                    # Attach it to the payload
+                    payload["audio_files"].append({
+                        "filename": value,
+                        "data": encoded_audio
+                    })
+
     try:
         response = requests.post(GOOGLE_WEBAPP_URL, json=payload)
         return response.status_code == 200
