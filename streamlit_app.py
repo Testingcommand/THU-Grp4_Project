@@ -127,6 +127,47 @@ if st.session_state.admin_unlocked:
                         
             if not audio_found:
                 st.info("No audio files are currently stored on this server.")
+                
+            # --- NEW: Data Management Section ---
+            st.divider()
+            st.subheader("Data Management (Remove Test Runs)")
+            st.warning("Deleting data here removes it from the app's local server. You must manually delete test rows from your Google Sheet and Google Drive.")
+            
+            col1, col2 = st.columns(2)
+            with col1:
+                delete_id = st.text_input("Enter Participant ID to delete:")
+                if st.button("Delete Specific Record"):
+                    new_data = [row for row in data if row.get('id') != delete_id]
+                    if len(new_data) < len(data):
+                        # Find and delete associated audio files for this ID
+                        for entry in data:
+                            if entry.get('id') == delete_id:
+                                for key, val in entry.items():
+                                    if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                                        os.remove(val)
+                        
+                        # Save the updated JSON
+                        with open(file_path, 'w') as f:
+                            json.dump(new_data, f, indent=4)
+                        st.success(f"Record {delete_id} deleted!")
+                        st.rerun()
+                    else:
+                        st.error("Participant ID not found.")
+                        
+            with col2:
+                st.write("Wipe all data from the app:")
+                if st.button("🗑️ Clear All Local Data", type="primary"):
+                    # Delete all audio files locally
+                    for entry in data:
+                        for key, val in entry.items():
+                            if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                                os.remove(val)
+                    # Wipe the JSON file
+                    with open(file_path, 'w') as f:
+                        json.dump([], f, indent=4)
+                    st.success("All local data and audio files cleared!")
+                    st.rerun()
+
         else:
             st.info("No responses recorded yet.")
     else:
