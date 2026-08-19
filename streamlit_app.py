@@ -78,20 +78,22 @@ def export_data_to_google():
         return False
 
 # -----------------------------------------
-# ADMIN SIDEBAR & DASHBOARD
+# ADMIN SIDEBAR & DASHBOARD (HIDDEN)
 # -----------------------------------------
-with st.sidebar:
-    st.subheader("Admin Access")
-    admin_password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        try:
-            if admin_password == st.secrets["admin_password"]:
-                st.session_state.admin_unlocked = True
-                st.success("Admin Dashboard Unlocked")
-            else:
-                st.error("Incorrect Password")
-        except FileNotFoundError:
-            st.error("Secrets configuration missing on server.")
+# The sidebar will ONLY render if "?admin=true" is added to the URL
+if st.query_params.get("admin") == "true":
+    with st.sidebar:
+        st.subheader("Admin Access")
+        admin_password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            try:
+                if admin_password == st.secrets["admin_password"]:
+                    st.session_state.admin_unlocked = True
+                    st.success("Admin Dashboard Unlocked")
+                else:
+                    st.error("Incorrect Password")
+            except FileNotFoundError:
+                st.error("Secrets configuration missing on server.")
 
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
@@ -128,7 +130,7 @@ if st.session_state.admin_unlocked:
             if not audio_found:
                 st.info("No audio files are currently stored on this server.")
                 
-            # --- NEW: Data Management Section ---
+            # Data Management Section
             st.divider()
             st.subheader("Data Management (Remove Test Runs)")
             st.warning("Deleting data here removes it from the app's local server. You must manually delete test rows from your Google Sheet and Google Drive.")
