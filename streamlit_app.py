@@ -34,7 +34,9 @@ CONTENT = {
         "audio_inst_1": "Take all the time you need. The recording will **not** stop if you pause to think.",
         "audio_inst_2": "**1. Click the microphone icon ONCE to start recording.**",
         "audio_inst_3": "**2. Click it a SECOND time to stop recording and submit.**",
-        "upload_warning": "⏳ **Please note:** Uploading audio files to the secure server can take up to a minute depending on your connection. Please do not close or refresh this window until you see the success message below.",
+        "audio_inst_4": "⚠️ **Important:** After clicking stop, please wait a few seconds for your audio to process.",
+        "processing_audio": "⏳ Processing your recording... please wait a moment.",
+        "upload_warning": "⏳ **Please note:** Uploading your final data to the secure server can take up to a minute depending on your connection. Please do not close or refresh this window until you see the success message below.",
         "success": "✅ Your responses have been successfully and securely submitted. You may now safely close this window.",
         "error_network": "⚠️ There was a network issue saving your response to the cloud. A local backup has been safely stored.",
         "restart_info": "To restart the assessment, please use the button in the sidebar menu on the left.",
@@ -61,7 +63,9 @@ CONTENT = {
         "audio_inst_1": "请慢慢来。如果您停下来思考，录音**不会**停止。",
         "audio_inst_2": "**1. 点击麦克风图标一次开始录音。**",
         "audio_inst_3": "**2. 再次点击停止录音并提交。**",
-        "upload_warning": "⏳ **请注意：** 将音频文件上传到安全服务器最多可能需要一分钟。在看到下方的成功提示前，请不要关闭或刷新此窗口。",
+        "audio_inst_4": "⚠️ **重要提示：** 点击停止后，请等待几秒钟让系统处理您的录音。",
+        "processing_audio": "⏳ 正在处理您的录音... 请稍候。",
+        "upload_warning": "⏳ **请注意：** 将最终数据上传到安全服务器最多可能需要一分钟。在看到下方的成功提示前，请不要关闭或刷新此窗口。",
         "success": "✅ 您的回复已成功且安全地提交。您现在可以安全地关闭此窗口。",
         "error_network": "⚠️ 将您的回复保存到云端时出现网络问题。本地备份已安全存储。",
         "restart_info": "如需重新开始评估，请使用左侧边栏菜单中的按钮。",
@@ -88,7 +92,9 @@ CONTENT = {
         "audio_inst_1": "慢慢嚟。如果你停低思考，錄音**唔會**停止。",
         "audio_inst_2": "**1. 㩒一下咪高峰圖標開始錄音。**",
         "audio_inst_3": "**2. 再㩒一次停止錄音並提交。**",
-        "upload_warning": "⏳ **請注意：** 將錄音檔案上傳到安全伺服器最多可能需要一分鐘。喺見到下面嘅成功提示之前，請唔好關閉或刷新呢個視窗。",
+        "audio_inst_4": "⚠️ **重要提示：** 㩒咗停止之後，請等幾秒鐘畀系統處理你嘅錄音。",
+        "processing_audio": "⏳ 處理緊你嘅錄音... 請稍等。",
+        "upload_warning": "⏳ **請注意：** 將最終數據上傳到安全伺服器最多可能需要一分鐘。喺見到下面嘅成功提示之前，請唔好關閉或刷新呢個視窗。",
         "success": "✅ 你嘅回覆已經成功而且安全咁提交。你而家可以安全咁關閉呢個視窗。",
         "error_network": "⚠️ 將你嘅回覆保存到雲端嗰陣出現網絡問題。本地備份已經安全儲存。",
         "restart_info": "如果想重新開始評估，請用左側邊欄選單入面嘅按鈕。",
@@ -115,7 +121,9 @@ CONTENT = {
         "audio_inst_1": "Tómese todo el tiempo que necesite. La grabación **no** se detendrá si hace una pausa para pensar.",
         "audio_inst_2": "**1. Haga clic en el ícono del micrófono UNA VEZ para comenzar a grabar.**",
         "audio_inst_3": "**2. Haga clic por SEGUNDA vez para detener la grabación y enviarla.**",
-        "upload_warning": "⏳ **Tenga en cuenta:** Subir archivos de audio al servidor seguro puede tardar hasta un minuto dependiendo de su conexión. No cierre ni actualice esta ventana hasta que vea el mensaje de éxito a continuación.",
+        "audio_inst_4": "⚠️ **Importante:** Después de hacer clic en detener, espere unos segundos para que se procese su audio.",
+        "processing_audio": "⏳ Procesando su grabación... por favor espere un momento.",
+        "upload_warning": "⏳ **Tenga en cuenta:** Subir sus datos finales al servidor seguro puede tardar hasta un minuto dependiendo de su conexión. No cierre ni actualice esta ventana hasta que vea el mensaje de éxito.",
         "success": "✅ Sus respuestas han sido enviadas de forma segura y exitosa. Ahora puede cerrar esta ventana.",
         "error_network": "⚠️ Hubo un problema de red al guardar su respuesta en la nube. Se ha guardado una copia de seguridad local.",
         "restart_info": "Para reiniciar la evaluación, utilice el botón en el menú de la barra lateral a la izquierda.",
@@ -142,7 +150,9 @@ CONTENT = {
         "audio_inst_1": "Prenez tout le temps dont vous avez besoin. L'enregistrement **ne s'arrêtera pas** si vous faites une pause pour réfléchir.",
         "audio_inst_2": "**1. Cliquez UNE FOIS sur l'icône du microphone pour commencer.**",
         "audio_inst_3": "**2. Cliquez une DEUXIÈME fois pour arrêter l'enregistrement et soumettre.**",
-        "upload_warning": "⏳ **Veuillez noter :** Le téléchargement de fichiers audio vers le serveur sécurisé peut prendre jusqu'à une minute. Ne fermez pas et n'actualisez pas cette fenêtre avant de voir le message de réussite.",
+        "audio_inst_4": "⚠️ **Important :** Après avoir cliqué sur arrêter, veuillez patienter quelques secondes pendant le traitement de votre audio.",
+        "processing_audio": "⏳ Traitement de votre enregistrement... veuillez patienter.",
+        "upload_warning": "⏳ **Veuillez noter :** Le téléchargement de vos données finales vers le serveur peut prendre jusqu'à une minute. Ne fermez pas cette fenêtre avant de voir le message de réussite.",
         "success": "✅ Vos réponses ont été soumises avec succès et en toute sécurité. Vous pouvez maintenant fermer cette fenêtre.",
         "error_network": "⚠️ Il y a eu un problème de réseau lors de l'enregistrement de votre réponse. Une sauvegarde locale a été stockée en toute sécurité.",
         "restart_info": "Pour recommencer l'évaluation, veuillez utiliser le bouton dans le menu latéral à gauche.",
@@ -169,7 +179,9 @@ CONTENT = {
         "audio_inst_1": "Не торопитесь. Запись **не** остановится, если вы сделаете паузу, чтобы подумать.",
         "audio_inst_2": "**1. Нажмите на значок микрофона ОДИН РАЗ, чтобы начать запись.**",
         "audio_inst_3": "**2. Нажмите ВТОРОЙ РАЗ, чтобы остановить запись и отправить.**",
-        "upload_warning": "⏳ **Обратите внимание:** Загрузка аудиофайлов на защищенный сервер может занять до минуты. Пожалуйста, не закрывайте и не обновляйте это окно, пока не увидите сообщение об успехе ниже.",
+        "audio_inst_4": "⚠️ **Важно:** После нажатия кнопки «Стоп», пожалуйста, подождите несколько секунд, пока ваше аудио обработается.",
+        "processing_audio": "⏳ Обработка вашей записи... пожалуйста, подождите.",
+        "upload_warning": "⏳ **Обратите внимание:** Загрузка ваших данных на защищенный сервер может занять до минуты. Пожалуйста, не закрывайте это окно, пока не увидите сообщение об успехе.",
         "success": "✅ Ваши ответы были успешно и безопасно отправлены. Теперь вы можете закрыть это окно.",
         "error_network": "⚠️ При сохранении вашего ответа в облако произошла ошибка сети. Локальная резервная копия сохранена.",
         "restart_info": "Чтобы начать оценку заново, пожалуйста, используйте кнопку в боковом меню слева.",
@@ -350,7 +362,6 @@ if st.session_state.current_step == 'language_selection':
     st.write("### 请选择您的首选语言：")
     st.write("### Por favor, seleccione su idioma preferido:")
     
-    # First row of languages
     col1, col2, col3 = st.columns(3)
     if col1.button("English", use_container_width=True):
         st.session_state.lang = "English"
@@ -371,7 +382,6 @@ if st.session_state.current_step == 'language_selection':
         st.session_state.current_step = 'intro_meal'
         st.rerun()
 
-    # Second row of languages
     col4, col5, col6 = st.columns(3)
     if col4.button("Español (Spanish)", use_container_width=True):
         st.session_state.lang = "Spanish"
@@ -444,6 +454,7 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
         st.info(t["audio_inst_1"])
         st.markdown(t["audio_inst_2"])
         st.markdown(t["audio_inst_3"])
+        st.warning(t["audio_inst_4"])
         
         audio_bytes = audio_recorder(
             key=f"mic_{st.session_state.current_step}",
@@ -451,13 +462,14 @@ elif st.session_state.current_step in ['threat_obj', 'threat_subj', 'dep_obj', '
         )
         
         if audio_bytes:
-            audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
-            advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
+            with st.spinner(t["processing_audio"]):
+                audio_path = save_audio_file(audio_bytes, f"{st.session_state.current_step}_audio")
+                advance_chat(audio_path, "audio", f"{st.session_state.current_step}_audio", next_step, ai_reply)
 
 # F. Decompression & Export
 elif st.session_state.current_step == 'decompression':
     st.info(t["upload_warning"])
-    with st.spinner("..."):
+    with st.spinner(t["processing_audio"]):
         success = export_data_to_google()
         save_data_to_json() 
         
