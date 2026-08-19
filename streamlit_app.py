@@ -174,29 +174,27 @@ elif st.session_state.stage == 'dmap_deprivation':
 # -----------------------------------------
 # STAGE 5: Decompression & Export
 # -----------------------------------------
-import json
-import os
-
-# Create a download button for the JSON file
-if os.path.exists('clinical_responses.json'):
-    with open('clinical_responses.json', 'r') as f:
-        json_data = f.read()
-        
-    st.download_button(
-        label="📥 Download JSON Data",
-        data=json_data,
-        file_name="clinical_responses.json",
-        mime="application/json"
-    )
-else:
-    st.warning("No JSON data found yet.")
-    
 elif st.session_state.stage == 'decompression':
     st.title("Thank you for sharing your narrative.")
     st.success("Your perspective is vital to building a more context-aware framework for clinical care.")
-    
     st.markdown("---")
     st.subheader("Data Successfully Saved")
     st.write("Your text responses and audio file paths have been saved to `clinical_responses.json`. Any audio recordings have been saved as `.wav` files in your project folder.")
-    
     st.json(st.session_state.responses)
+    
+    import json
+    import os
+    
+    # Create a download button for the JSON file
+    if os.path.exists('clinical_responses.json'):
+        with open('clinical_responses.json', 'r') as f:
+            json_data = f.read()
+            
+        st.download_button(
+            label="📥 Download JSON Data", 
+            data=json_data, 
+            file_name="clinical_responses.json", 
+            mime="application/json" 
+        )
+    else:
+        st.warning("No JSON data found yet.")
