@@ -395,7 +395,7 @@ elif st.session_state.current_step in ['inkblot_1', 'inkblot_2', 'inkblot_3']:
         ai_reply = t["decompression_prompt"]
 
     st.write("---")
-    st.image(image_url, use_column_width=True)
+    st.image(image_url, use_container_width=True)
     st.markdown(f"**{prompt}**")
     
     tab_text, tab_audio = st.tabs([t["tab_text"], t["tab_audio"]])
