@@ -1,2 +1,6 @@
 streamlit
+pandas
+requests
 audio-recorder-streamlit
+numpy
+matplotlib
