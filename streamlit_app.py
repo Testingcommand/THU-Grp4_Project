@@ -1,90 +1,142 @@
 import streamlit as st
-import pandas as pd
-import numpy as np
 
 # Configure the app's appearance
-st.set_page_config(page_title="NeuroContext Narrative", layout="centered")
+st.set_page_config(page_title="DMAP Narrative Instrument", layout="centered")
 
-# Initialize session state to manage the user's journey through the app
+# Initialize session states
 if 'stage' not in st.session_state:
     st.session_state.stage = 'safety_gate'
+if 'responses' not in st.session_state:
+    st.session_state.responses = {}
+if 'modality' not in st.session_state:
+    st.session_state.modality = 'text'
 
-def next_stage(stage_name):
-    st.session_state.stage = stage_name
+# Function to instantly transition between pages (fixes the double-click bug)
+def set_stage(new_stage):
+    st.session_state.stage = new_stage
+    st.rerun()
 
 # -----------------------------------------
-# PHASE 1: The Safety Gate
+# STAGE 1: The Safety Gate
 # -----------------------------------------
 if st.session_state.stage == 'safety_gate':
-    st.title("Welcome to the NeuroContext Study")
-    st.write("You are about to be asked a few questions regarding your past experiences and childhood.")
-    st.warning("Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
+    st.title("Welcome to the Narrative Context Study")
+    st.write("This instrument explores how early life experiences shape our perspectives.")
+    st.warning("You are about to be asked questions regarding childhood adversity, threat, and deprivation. Are you currently in a safe, private, and comfortable environment to reflect on these topics?")
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("Yes, I am in a safe space"):
-            next_stage('modality_selection')
+        if st.button("Yes, I am in a safe space", use_container_width=True):
+            set_stage('modality_selection')
     with col2:
-        if st.button("No, I need to exit"):
-            next_stage('safe_exit')
+        if st.button("No, I need to exit", use_container_width=True):
+            set_stage('safe_exit')
 
 # -----------------------------------------
-# PHASE 1B: Safe Exit (Triggered if "No")
+# STAGE 1B: Safe Exit 
 # -----------------------------------------
 elif st.session_state.stage == 'safe_exit':
     st.title("Your well-being is our priority.")
     st.write("It is completely okay to step away. We have securely closed your session.")
     st.info("When you feel ready and are in a private space, you can return to this link at any time.")
     if st.button("Restart Assessment"):
-        next_stage('safety_gate')
+        set_stage('safety_gate')
 
 # -----------------------------------------
-# PHASE 2: Modality Selection
+# STAGE 2: Modality Selection
 # -----------------------------------------
 elif st.session_state.stage == 'modality_selection':
-    st.title("How would you prefer to share your story today?")
-    st.write("You can choose to either type your responses or speak them out loud.")
+    st.title("Select Your Input Method")
+    st.write("How would you prefer to share your narrative today?")
     
     col1, col2 = st.columns(2)
     with col1:
-        if st.button("⌨️ I prefer to type"):
+        if st.button("⌨️ I prefer to type", use_container_width=True):
             st.session_state.modality = 'text'
-            next_stage('assessment')
+            set_stage('dmap_threat')
     with col2:
-        if st.button("🎙️ I prefer to speak"):
+        if st.button("🎙️ I prefer to speak", use_container_width=True):
             st.session_state.modality = 'audio'
-            next_stage('assessment')
+            set_stage('dmap_threat')
+            
+    st.divider()
+    if st.button("⬅️ Back"):
+        set_stage('safety_gate')
 
 # -----------------------------------------
-# PHASE 3: The Narrative Prompts
+# STAGE 3: DMAP - Threat Assessment
 # -----------------------------------------
-elif st.session_state.stage == 'assessment':
-    st.title("Subjective Appraisal")
+elif st.session_state.stage == 'dmap_threat':
+    st.title("Part 1: Experiences of Threat")
+    st.write("The following questions explore experiences involving harm or the threat of harm during your developmental years.")
     
-    with st.form("assessment_form"):
-        st.write("### 1. How would you describe your childhood in one word?")
-        q1 = st.text_input("Your answer:") if st.session_state.modality == 'text' else st.text_input("Type or dictate your answer (Audio processing integration goes here):")
-        
-        st.write("### 2. How would you describe your childhood in one sentence?")
-        q2 = st.text_area("Your answer:")
-        
-        st.write("### 3. What would you change about the way you grew up?")
-        q3 = st.text_area("Your answer:")
-        
-        submitted = st.form_submit_button("Submit Responses")
-        if submitted:
-            # Here you would typically save the data to a database or Pandas DataFrame
-            st.session_state.responses = {'Q1': q1, 'Q2': q2, 'Q3': q3}
-            next_stage('decompression')
+    input_label = "Your response:" if st.session_state.modality == 'text' else "Dictate your response (Audio integration placeholder):"
+    
+    st.write("### 1. Objective Recall")
+    st.write("Did you experience instances where you felt physically or emotionally threatened during your childhood? Briefly describe the nature of these events.")
+    threat_obj = st.text_area(input_label, value=st.session_state.responses.get('threat_obj', ''), key='t_obj')
+    
+    st.write("### 2. Subjective Appraisal")
+    st.write("How did those specific experiences shape your understanding of safety, and how do they influence your ability to trust others today?")
+    threat_subj = st.text_area(input_label, value=st.session_state.responses.get('threat_subj', ''), key='t_subj')
+    
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("⬅️ Back", use_container_width=True):
+            # Save data before leaving
+            st.session_state.responses['threat_obj'] = st.session_state.t_obj
+            st.session_state.responses['threat_subj'] = st.session_state.t_subj
+            set_stage('modality_selection')
+    with col2:
+        if st.button("Next ➡️", use_container_width=True):
+            # Save data before leaving
+            st.session_state.responses['threat_obj'] = st.session_state.t_obj
+            st.session_state.responses['threat_subj'] = st.session_state.t_subj
+            set_stage('dmap_deprivation')
 
 # -----------------------------------------
-# PHASE 4: Decompression & Closing
+# STAGE 4: DMAP - Deprivation Assessment
+# -----------------------------------------
+elif st.session_state.stage == 'dmap_deprivation':
+    st.title("Part 2: Experiences of Deprivation")
+    st.write("The following questions explore experiences involving the absence of expected cognitive, social, or emotional inputs.")
+    
+    input_label = "Your response:" if st.session_state.modality == 'text' else "Dictate your response (Audio integration placeholder):"
+    
+    st.write("### 3. Objective Recall")
+    st.write("Were there times in your childhood when you felt your basic physical or emotional needs (such as affection, resources, or guidance) were consistently not met?")
+    dep_obj = st.text_area(input_label, value=st.session_state.responses.get('dep_obj', ''), key='d_obj')
+    
+    st.write("### 4. Subjective Appraisal")
+    st.write("How has this absence of support or resources influenced how you view your own self-worth and how you connect with communities now?")
+    dep_subj = st.text_area(input_label, value=st.session_state.responses.get('dep_subj', ''), key='d_subj')
+    
+    st.divider()
+    col1, col2 = st.columns(2)
+    with col1:
+        if st.button("⬅️ Back", use_container_width=True):
+            st.session_state.responses['dep_obj'] = st.session_state.d_obj
+            st.session_state.responses['dep_subj'] = st.session_state.d_subj
+            set_stage('dmap_threat')
+    with col2:
+        if st.button("Submit Assessment ✅", use_container_width=True):
+            st.session_state.responses['dep_obj'] = st.session_state.d_obj
+            st.session_state.responses['dep_subj'] = st.session_state.d_subj
+            set_stage('decompression')
+
+# -----------------------------------------
+# STAGE 5: Decompression & Export
 # -----------------------------------------
 elif st.session_state.stage == 'decompression':
-    st.title("Thank you for sharing your experience.")
-    st.success("Your perspective is vital to our research.")
-    st.write("Recalling past experiences can sometimes be taxing. Please take a moment for yourself. Take a deep breath in... and out.")
+    st.title("Thank you for sharing your narrative.")
+    st.success("Your perspective is vital to building a more context-aware framework for clinical care.")
+    st.write("Reflecting on adversity can be challenging. Please take a moment to decompress before closing this application.")
     
     st.markdown("---")
-    st.write("**Collected Data (For Researcher View Only):**")
+    st.subheader("Raw Data Payload (For AI Backend / Researcher View)")
+    st.write("This data will be fed into the NLP sentiment analysis to calculate the divergence score against fMRI results.")
     st.json(st.session_state.responses)
+    
+    if st.button("⬅️ Back to Editing"):
+        set_stage('dmap_deprivation')
