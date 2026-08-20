@@ -129,7 +129,7 @@ CONTENT = {
         "success": "✅ Your responses have been submitted. You may now close this window.",
         
         "inv_title": "The DMAP Narrative Inventory",
-        "inv_citation": "*Adapted from https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*Adapted from [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "part1_title": "Part 1: Indicators of Threat",
         "part1_desc": "This section targets experiences that theoretically upregulate fear-learning circuits and threat vigilance.",
