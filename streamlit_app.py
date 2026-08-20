@@ -176,7 +176,7 @@ CONTENT = {
         "success": "✅ 您的回复已提交。您现在可以关闭此窗口。",
 
         "inv_title": "DMAP 叙事问卷",
-        "inv_citation": "*改编自 https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*改编自 [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "part1_title": "第一部分：威胁指标",
         "part1_desc": "本部分针对理论上会增强恐惧学习回路和威胁警觉性的经历。",
@@ -223,7 +223,7 @@ CONTENT = {
         "success": "✅ 你嘅回覆已經提交。你而家可以關閉呢個視窗。",
 
         "inv_title": "DMAP 敘事問卷",
-        "inv_citation": "*改編自 https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*改編自 [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "part1_title": "第一部分：威脅指標",
         "part1_desc": "呢部分針對理論上會增強恐懼學習同威脅警覺性嘅經歷。",
@@ -270,7 +270,7 @@ CONTENT = {
         "success": "✅ Sus respuestas han sido enviadas. Ahora puede cerrar esta ventana.",
 
         "inv_title": "El Inventario Narrativo DMAP",
-        "inv_citation": "*Adaptado de https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*Adaptado de [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "part1_title": "Parte 1: Indicadores de Amenaza",
         "part1_desc": "Esta sección aborda experiencias que aumentan la vigilancia ante amenazas.",
@@ -317,7 +317,7 @@ CONTENT = {
         "success": "✅ Vos réponses ont été soumises. Vous pouvez fermer cette fenêtre.",
 
         "inv_title": "L'Inventaire Narratif DMAP",
-        "inv_citation": "*Adapté de https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*Adapté de [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "part1_title": "Partie 1 : Indicateurs de Menace",
         "part1_desc": "Cette section cible les expériences qui augmentent la vigilance aux menaces.",
@@ -364,7 +364,7 @@ CONTENT = {
         "success": "✅ Ваши ответы отправлены. Вы можете закрыть это окно.",
 
         "inv_title": "Нарративный Опросник DMAP",
-        "inv_citation": "*Адаптировано из https://psytests.org/result?v=aceqLWU1V&b=52Zz47bBJD503*",
+        "inv_citation": "*Адаптировано из [The PsyTests Repository](https://psytests.org)*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "part1_title": "Часть 1: Индикаторы Угрозы",
         "part1_desc": "Этот раздел посвящен опыту, который повышает бдительность к угрозам.",
