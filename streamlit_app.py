@@ -17,10 +17,7 @@ st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
 # --- CSS Fix for Light/Dark Mode Icons ---
 st.markdown("""
     <style>
-        /* Adjust top margin */
         .reportview-container { margin-top: -2em; }
-        
-        /* Force header icons to be a visible neutral gray in both Light and Dark modes */
         header [data-testid="stHeaderActionElements"] button {
             color: #808495 !important;
         }
@@ -78,7 +75,6 @@ def export_data_to_google():
         return False
 
 def generate_neurotwin_chart(threat_score, deprivation_score, col_score):
-    # Removed the specific brain regions from the labels
     categories = [
         'Threat Reactivity',
         'Social Cognition',
@@ -92,7 +88,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score, col_score):
     
     patient_scores = [
         threat_score,           
-        col_score,              # Plots their Collectivism score on the Social Cognition axis
+        col_score,              
         deprivation_score,      
         deprivation_score,      
         threat_score            
@@ -105,7 +101,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score, col_score):
     patient_data = patient_scores + patient_scores[:1]
 
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    plt.xticks(angles[:-1], categories, color='black', size=11) # Slightly increased size for readability
+    plt.xticks(angles[:-1], categories, color='black', size=11)
     ax.set_rlabel_position(0)
     plt.yticks([1, 2, 3, 4, 5], ["1", "2", "3", "4", "5"], color="grey", size=8)
     plt.ylim(0, 5)
@@ -119,7 +115,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score, col_score):
     plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
     ax.spines['polar'].set_visible(False) 
     return fig
-    
+
 # ==========================================
 # 2. LANGUAGE DICTIONARY
 # ==========================================
@@ -137,6 +133,8 @@ CONTENT = {
         "decompression_prompt": "Thank you for completing this inventory. Generating your theoretical NeuroTwin topology...",
         "tab_text": "⌨️ Type Response",
         "tab_audio": "🎙️ Record Audio",
+        "btn_continue_part2": "Continue to Part 2",
+        "btn_continue_part3": "Continue to Part 3",
         "btn_continue": "Continue",
         "btn_submit_text": "Submit Assessment",
         "btn_skip": "⏭️ Skip Narrative",
@@ -197,6 +195,8 @@ CONTENT = {
         "decompression_prompt": "感谢您完成本问卷。正在生成您的理论 NeuroTwin 拓扑结构...",
         "tab_text": "⌨️ 输入回复",
         "tab_audio": "🎙️ 录制音频",
+        "btn_continue_part2": "继续进行第二部分",
+        "btn_continue_part3": "继续进行第三部分",
         "btn_continue": "继续",
         "btn_submit_text": "提交评估",
         "btn_skip": "⏭️ 跳过叙述",
@@ -257,6 +257,8 @@ CONTENT = {
         "decompression_prompt": "多謝你完成呢份問卷。緊生成你嘅理論 NeuroTwin 拓撲結構...",
         "tab_text": "⌨️ 輸入回覆",
         "tab_audio": "🎙️ 錄製錄音",
+        "btn_continue_part2": "繼續進行第二部分",
+        "btn_continue_part3": "繼續進行第三部分",
         "btn_continue": "繼續",
         "btn_submit_text": "提交評估",
         "btn_skip": "⏭️ 跳過敘述",
@@ -317,6 +319,8 @@ CONTENT = {
         "decompression_prompt": "Gracias por completar este inventario. Generando su topología teórica NeuroTwin...",
         "tab_text": "⌨️ Escribir Respuesta",
         "tab_audio": "🎙️ Grabar Audio",
+        "btn_continue_part2": "Continuar a la Parte 2",
+        "btn_continue_part3": "Continuar a la Parte 3",
         "btn_continue": "Continuar",
         "btn_submit_text": "Enviar Evaluación",
         "btn_skip": "⏭️ Omitir Narrativa",
@@ -377,6 +381,8 @@ CONTENT = {
         "decompression_prompt": "Merci d'avoir terminé cet inventaire. Génération de votre topologie théorique NeuroTwin...",
         "tab_text": "⌨️ Taper la réponse",
         "tab_audio": "🎙️ Enregistrer l'audio",
+        "btn_continue_part2": "Continuer vers la Partie 2",
+        "btn_continue_part3": "Continuer vers la Partie 3",
         "btn_continue": "Continuer",
         "btn_submit_text": "Soumettre l'évaluation",
         "btn_skip": "⏭️ Passer la narration",
@@ -437,6 +443,8 @@ CONTENT = {
         "decompression_prompt": "Спасибо. Генерация вашей теоретической топологии NeuroTwin...",
         "tab_text": "⌨️ Напечатать ответ",
         "tab_audio": "🎙️ Записать аудио",
+        "btn_continue_part2": "Продолжить к Части 2",
+        "btn_continue_part3": "Продолжить к Части 3",
         "btn_continue": "Продолжить",
         "btn_submit_text": "Отправить оценку",
         "btn_skip": "⏭️ Пропустить историю",
@@ -676,7 +684,7 @@ elif st.session_state.current_step == 'safe_exit':
     st.info("To restart the assessment, please use the sidebar button.")
 
 # --- PART 1: THREAT INVENTORY ---
-elif st.session_state.current_step == 'dmap_inventory': # Keeping the starting name so the button flow works
+elif st.session_state.current_step == 'dmap_inventory':
     st.write("---")
     st.header(t["inv_title"])
     st.markdown(t["inv_citation"])
@@ -696,8 +704,7 @@ elif st.session_state.current_step == 'dmap_inventory': # Keeping the starting n
     t7_raw = st.radio(t["t7"], options, index=None, horizontal=True)
 
     st.divider()
-    if st.button("Continue to Part 2", type="primary"):
-        # Save Threat scores locally
+    if st.button(t.get("btn_continue_part2", "Continue"), type="primary"):
         st.session_state.responses["t1"] = t1
         st.session_state.responses["t2"] = t2
         st.session_state.responses["t3"] = t3
@@ -706,12 +713,10 @@ elif st.session_state.current_step == 'dmap_inventory': # Keeping the starting n
         st.session_state.responses["t6"] = t6
         st.session_state.responses["t7"] = t7_raw
 
-        # Calculate Threat Average
         t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
         t_answered = [s for s in t_scores if s is not None]
         st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
         
-        # Move to the Deprivation page
         st.session_state.current_step = 'dmap_part2'
         st.rerun()
 
@@ -736,8 +741,7 @@ elif st.session_state.current_step == 'dmap_part2':
 
     st.divider()
     
-    if st.button("Continue to Part 3", type="primary"):
-        # Save Deprivation scores locally
+    if st.button(t.get("btn_continue_part3", "Continue"), type="primary"):
         st.session_state.responses["d1"] = d1
         st.session_state.responses["d2"] = d2
         st.session_state.responses["d3"] = d3
@@ -746,12 +750,10 @@ elif st.session_state.current_step == 'dmap_part2':
         st.session_state.responses["d6"] = d6
         st.session_state.responses["d7"] = d7_raw
 
-        # Calculate Deprivation Average
         d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
         d_answered = [s for s in d_scores if s is not None]
         st.session_state.responses["deprivation_score_avg"] = sum(d_answered) / len(d_answered) if len(d_answered) > 0 else 3.0
         
-        # Move to the Cultural Context page
         st.session_state.current_step = 'cultural_inventory'
         st.rerun()
 
@@ -773,7 +775,6 @@ elif st.session_state.current_step == 'cultural_inventory':
     st.divider()
     
     if st.button(t["btn_continue"], type="primary"):
-        # Save raw scores
         st.session_state.responses["c1_score"] = c1
         st.session_state.responses["c2_score"] = c2
         st.session_state.responses["c3_score"] = c3
@@ -781,12 +782,10 @@ elif st.session_state.current_step == 'cultural_inventory':
         st.session_state.responses["c5_score"] = c5
         st.session_state.responses["c6_score"] = c6
         
-        # Calculate Individualism (C1, C2, C3)
         i_scores = [c1, c2, c3]
         i_answered = [s for s in i_scores if s is not None]
         st.session_state.responses["ind_score_avg"] = sum(i_answered) / len(i_answered) if len(i_answered) > 0 else 3.0
 
-        # Calculate Collectivism (C4, C5, C6)
         c_scores = [c4, c5, c6]
         c_answered = [s for s in c_scores if s is not None]
         st.session_state.responses["col_score_avg"] = sum(c_answered) / len(c_answered) if len(c_answered) > 0 else 3.0
@@ -839,12 +838,11 @@ elif st.session_state.current_step == 'decompression':
         st.divider()
         st.subheader("Your NeuroTwin Topology")
         
- t_score = st.session_state.responses.get("threat_score_avg", 3.0)
+        t_score = st.session_state.responses.get("threat_score_avg", 3.0)
         d_score = st.session_state.responses.get("deprivation_score_avg", 3.0)
         ind_score = st.session_state.responses.get("ind_score_avg", 3.0)
         col_score = st.session_state.responses.get("col_score_avg", 3.0)
         
-        # Display all four metrics
         col1, col2 = st.columns(2)
         with col1:
             st.write(f"**Calculated Threat Index:** {t_score:.2f} / 5.0")
@@ -856,7 +854,6 @@ elif st.session_state.current_step == 'decompression':
         fig = generate_neurotwin_chart(t_score, d_score, col_score)
         st.pyplot(fig)
         
-# --- NEW EXPLANATION SECTION ---
         st.divider()
         st.subheader("What does this mean?")
         st.write(
@@ -866,7 +863,7 @@ elif st.session_state.current_step == 'decompression':
         
         if t_score > 3.0:
             st.markdown(
-                "- **Threat Adaptations:** Your Threat Index suggests your brain may have adapted to upregulate the *Salience Network* (regions like the Amygdala). "
+                "- **Threat Adaptations:** Your Threat Index suggests your brain may have adapted to upregulate the *Salience Network*. "
                 "This is an evolutionary superpower designed to keep you highly vigilant and safe in unpredictable environments."
             )
         if d_score > 3.0:
@@ -875,7 +872,6 @@ elif st.session_state.current_step == 'decompression':
                 "This often reflects how the brain learns to conserve energy and find motivation when external resources or support were scarce."
             )
             
-        # Explain the cultural buffering (Hypothesis 3)
         if col_score > ind_score:
             st.markdown(
                 "- **Cultural Buffering (Collectivism):** You scored higher in community-oriented values. "
