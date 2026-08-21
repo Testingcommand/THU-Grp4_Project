@@ -509,7 +509,7 @@ if st.session_state.current_step != 'dashboard':
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
-    # st.image("image_1a02d2.jpg", use_container_width=True) # Uncomment this after successfully uploading the image to GitHub
+    # st.image("Image_20260821001811_168_21.jpg", use_container_width=True) # Uncomment this after successfully uploading the image to GitHub
     st.title("NeuroTwin: Many Ways to Thrive")
     st.write("### Your story. Your choices. Many ways to thrive.")
     st.write("---")
