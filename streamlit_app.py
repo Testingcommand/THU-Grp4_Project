@@ -15,10 +15,17 @@ GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXOMcKPG7J_6cRATd6
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
 st.markdown("""
     <style>
+        /* Adjust top margin */
         .reportview-container { margin-top: -2em; }
-        #MainMenu {visibility: hidden;}
-        .stDeployButton {display:none;}
-        header {visibility: hidden;}
+        
+        /* Force header icons to be a visible neutral gray in both Light and Dark modes */
+        header [data-testid="stHeaderActionElements"] button {
+            color: #808495 !important;
+        }
+        header [data-testid="stHeaderActionElements"] svg {
+            fill: #808495 !important;
+            stroke: #808495 !important;
+        }
     </style>
 """, unsafe_allow_html=True)
 
