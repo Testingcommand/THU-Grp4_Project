@@ -118,6 +118,7 @@ CONTENT = {
         "decompression_prompt": "Thank you for completing this inventory. Generating your theoretical NeuroTwin topology...",
         "tab_text": "⌨️ Type Response",
         "tab_audio": "🎙️ Record Audio",
+        "btn_continue": "Continue",
         "btn_submit_text": "Submit Assessment",
         "btn_skip": "⏭️ Skip Narrative",
         "error_empty_text": "Please type a response or choose 'Skip'.",
@@ -129,7 +130,7 @@ CONTENT = {
         "success": "✅ Your responses have been submitted. You may now close this window.",
         
         "inv_title": "The DMAP Narrative Inventory",
-        "inv_citation": "*Adapted from [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*Adapted from [site]*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "part1_title": "Part 1: Indicators of Threat",
         "part1_desc": "This section targets experiences that theoretically upregulate fear-learning circuits and threat vigilance.",
@@ -149,8 +150,18 @@ CONTENT = {
         "d5": "D5: It was rare for adults in my life to offer praise, encouragement, or affection.",
         "d6": "D6: I did not have an adult who reliably helped me with schoolwork or taught me new skills.",
         "d7": "D7 (Reverse): My home environment felt mentally stimulating and full of opportunities to learn.",
-        "part3_title": "Part 3: Narrative Context (Optional)",
-        "part3_desc": "**How did these experiences shape how you view the world today? Please feel free to share a specific memory or reflection.**"
+        
+        "part3_title": "Part 3: Community & Cultural Context",
+        "part3_desc": "This section explores how you view yourself in relation to others.",
+        "c1": "C1: I prefer to rely on myself rather than depending on others.",
+        "c2": "C2: It is important to me that I perform better than others and stand out.",
+        "c3": "C3: I enjoy being unique and different from others in many respects.",
+        "c4": "C4: I often prioritize the goals of my family or community over my own personal goals.",
+        "c5": "C5: Maintaining harmony within my group is one of my highest priorities.",
+        "c6": "C6: I feel proud when a peer or family member succeeds, as if it were my own success.",
+
+        "part4_title": "Part 4: Narrative Context (Optional)",
+        "part4_desc": "**How did these experiences shape how you view the world today? Please feel free to share a specific memory or reflection.**"
     },
     "Mandarin": {
         "welcome": "欢迎参加叙事语境研究。\n\n您的身心健康对我们很重要。您最近有进食吗？",
@@ -165,6 +176,7 @@ CONTENT = {
         "decompression_prompt": "感谢您完成本问卷。正在生成您的理论 NeuroTwin 拓扑结构...",
         "tab_text": "⌨️ 输入回复",
         "tab_audio": "🎙️ 录制音频",
+        "btn_continue": "继续",
         "btn_submit_text": "提交评估",
         "btn_skip": "⏭️ 跳过叙述",
         "error_empty_text": "请在提交前输入回复，或选择“跳过”。",
@@ -176,7 +188,7 @@ CONTENT = {
         "success": "✅ 您的回复已提交。您现在可以关闭此窗口。",
 
         "inv_title": "DMAP 叙事问卷",
-        "inv_citation": "*改编自 [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*改编自 [site]*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "part1_title": "第一部分：威胁指标",
         "part1_desc": "本部分针对理论上会增强恐惧学习回路和威胁警觉性的经历。",
@@ -196,8 +208,18 @@ CONTENT = {
         "d5": "D5: 生活中的成年人很少给予赞扬、鼓励或喜爱。",
         "d6": "D6: 我没有一个成年人能可靠地帮助我做功课或教我新技能。",
         "d7": "D7 (反向评分): 我的家庭环境让人感到精神上的刺激，充满了学习的机会。",
-        "part3_title": "第三部分：叙事背景（可选）",
-        "part3_desc": "**这些经历如何塑造了您今天看待世界的方式？请随时分享具体的记忆或感想。**"
+        
+        "part3_title": "第三部分：社区与文化背景",
+        "part3_desc": "本部分探讨您如何看待自己与他人的关系。",
+        "c1": "C1: 我更喜欢依靠自己，而不是依赖别人。",
+        "c2": "C2: 对我来说，表现得比别人好并脱颖而出很重要。",
+        "c3": "C3: 我喜欢在很多方面与众不同。",
+        "c4": "C4: 我经常把家庭或社区的目标置于个人目标之上。",
+        "c5": "C5: 维护群体内的和谐是我最优先考虑的事情之一。",
+        "c6": "C6: 当同伴或家人取得成功时，我感到很自豪，就好像是我自己成功一样。",
+
+        "part4_title": "第四部分：叙事背景（可选）",
+        "part4_desc": "**这些经历如何塑造了您今天看待世界的方式？请随时分享具体的记忆或感想。**"
     },
     "Cantonese": {
         "welcome": "歡迎來到敘事語境研究。\n\n你嘅身心健康對我哋好重要。你最近有冇食嘢呀？",
@@ -212,6 +234,7 @@ CONTENT = {
         "decompression_prompt": "多謝你完成呢份問卷。緊生成你嘅理論 NeuroTwin 拓撲結構...",
         "tab_text": "⌨️ 輸入回覆",
         "tab_audio": "🎙️ 錄製錄音",
+        "btn_continue": "繼續",
         "btn_submit_text": "提交評估",
         "btn_skip": "⏭️ 跳過敘述",
         "error_empty_text": "請輸入回覆或選擇「跳過」。",
@@ -223,7 +246,7 @@ CONTENT = {
         "success": "✅ 你嘅回覆已經提交。你而家可以關閉呢個視窗。",
 
         "inv_title": "DMAP 敘事問卷",
-        "inv_citation": "*改編自 [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*改編自 [site]*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "part1_title": "第一部分：威脅指標",
         "part1_desc": "呢部分針對理論上會增強恐懼學習同威脅警覺性嘅經歷。",
@@ -243,8 +266,18 @@ CONTENT = {
         "d5": "D5: 生活中嘅成年人好少會讚我、鼓勵我或者錫我。",
         "d6": "D6: 我冇一個成年人可以可靠咁幫我做功課或者教我新嘢。",
         "d7": "D7 (反向評分): 我嘅家庭環境令人覺得有精神上嘅刺激，充滿學習機會。",
-        "part3_title": "第三部分：敘事背景（可選）",
-        "part3_desc": "**呢啲經歷點樣塑造咗你今日睇世界嘅方式？請隨便分享具體嘅記憶或者感想。**"
+        
+        "part3_title": "第三部分：社區與文化背景",
+        "part3_desc": "呢部分探討你點睇自己同其他人嘅關係。",
+        "c1": "C1: 我比較鍾意靠自己，而唔係依賴其他人。",
+        "c2": "C2: 對我嚟講，表現好過其他人同埋出眾係好重要嘅。",
+        "c3": "C3: 我鍾意喺好多方面同人唔同。",
+        "c4": "C4: 我成日將屋企人或者社區嘅目標放喺個人目標之上。",
+        "c5": "C5: 維持群體入面嘅和諧係我最優先考慮嘅事之一。",
+        "c6": "C6: 當朋友或者屋企人成功嗰陣，我會覺得好自豪，就好似我自己成功咁。",
+
+        "part4_title": "第四部分：敘事背景（可選）",
+        "part4_desc": "**呢啲經歷點樣塑造咗你今日睇世界嘅方式？請隨便分享具體嘅記憶或者感想。**"
     },
     "Spanish": {
         "welcome": "Bienvenido/a al Estudio de Contexto Narrativo.\n\nSu bienestar es importante para nosotros. ¿Ha comido algo recientemente?",
@@ -259,6 +292,7 @@ CONTENT = {
         "decompression_prompt": "Gracias por completar este inventario. Generando su topología teórica NeuroTwin...",
         "tab_text": "⌨️ Escribir Respuesta",
         "tab_audio": "🎙️ Grabar Audio",
+        "btn_continue": "Continuar",
         "btn_submit_text": "Enviar Evaluación",
         "btn_skip": "⏭️ Omitir Narrativa",
         "error_empty_text": "Por favor escriba una respuesta o elija 'Omitir'.",
@@ -270,7 +304,7 @@ CONTENT = {
         "success": "✅ Sus respuestas han sido enviadas. Ahora puede cerrar esta ventana.",
 
         "inv_title": "El Inventario Narrativo DMAP",
-        "inv_citation": "*Adaptado de [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*Adaptado de [site]*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "part1_title": "Parte 1: Indicadores de Amenaza",
         "part1_desc": "Esta sección aborda experiencias que aumentan la vigilancia ante amenazas.",
@@ -290,8 +324,18 @@ CONTENT = {
         "d5": "D5: Era raro que los adultos en mi vida me ofrecieran elogios, ánimo o afecto.",
         "d6": "D6: No tenía un adulto que me ayudara con la tarea escolar o me enseñara nuevas habilidades.",
         "d7": "D7 (Inverso): Mi entorno familiar se sentía mentalmente estimulante.",
-        "part3_title": "Parte 3: Contexto Narrativo (Opcional)",
-        "part3_desc": "**¿Cómo moldearon estas experiencias su visión del mundo? Por favor, comparta un recuerdo o reflexión.**"
+        
+        "part3_title": "Parte 3: Comunidad y Contexto Cultural",
+        "part3_desc": "Esta sección explora cómo te ves a ti mismo en relación con los demás.",
+        "c1": "C1: Prefiero depender de mí mismo/a en lugar de depender de otros.",
+        "c2": "C2: Es importante para mí desempeñarme mejor que los demás y destacar.",
+        "c3": "C3: Disfruto ser único/a y diferente de los demás en muchos aspectos.",
+        "c4": "C4: A menudo priorizo las metas de mi familia o comunidad sobre mis propias metas personales.",
+        "c5": "C5: Mantener la armonía dentro de mi grupo es una de mis mayores prioridades.",
+        "c6": "C6: Me siento orgulloso/a cuando un compañero o familiar tiene éxito, como si fuera mi propio éxito.",
+
+        "part4_title": "Parte 4: Contexto Narrativo (Opcional)",
+        "part4_desc": "**¿Cómo moldearon estas experiencias su visión del mundo? Por favor, comparta un recuerdo o reflexión.**"
     },
     "French": {
         "welcome": "Bienvenue dans l'Étude du Contexte Narratif.\n\nVotre bien-être est important pour nous. Avez-vous mangé quelque chose récemment ?",
@@ -306,6 +350,7 @@ CONTENT = {
         "decompression_prompt": "Merci d'avoir terminé cet inventaire. Génération de votre topologie théorique NeuroTwin...",
         "tab_text": "⌨️ Taper la réponse",
         "tab_audio": "🎙️ Enregistrer l'audio",
+        "btn_continue": "Continuer",
         "btn_submit_text": "Soumettre l'évaluation",
         "btn_skip": "⏭️ Passer la narration",
         "error_empty_text": "Veuillez taper une réponse ou choisir 'Passer'.",
@@ -317,7 +362,7 @@ CONTENT = {
         "success": "✅ Vos réponses ont été soumises. Vous pouvez fermer cette fenêtre.",
 
         "inv_title": "L'Inventaire Narratif DMAP",
-        "inv_citation": "*Adapté de [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*Adapté de [site]*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "part1_title": "Partie 1 : Indicateurs de Menace",
         "part1_desc": "Cette section cible les expériences qui augmentent la vigilance aux menaces.",
@@ -337,8 +382,18 @@ CONTENT = {
         "d5": "D5: Il était rare que les adultes de ma vie m'offrent des éloges, des encouragements ou de l'affection.",
         "d6": "D6: Je n'avais pas d'adulte qui m'aidait de manière fiable pour mes devoirs ou m'apprenait de nouvelles compétences.",
         "d7": "D7 (Inversé): Mon environnement familial me semblait mentalement stimulant.",
-        "part3_title": "Partie 3 : Contexte Narratif (Optionnel)",
-        "part3_desc": "**Comment ces expériences ont-elles façonné votre vision du monde aujourd'hui ? N'hésitez pas à partager un souvenir.**"
+        
+        "part3_title": "Partie 3 : Communauté et Contexte Culturel",
+        "part3_desc": "Cette section explore comment vous vous percevez par rapport aux autres.",
+        "c1": "C1: Je préfère compter sur moi-même plutôt que de dépendre des autres.",
+        "c2": "C2: Il est important pour moi de faire mieux que les autres et de me démarquer.",
+        "c3": "C3: J'aime être unique et différent(e) des autres à bien des égards.",
+        "c4": "C4: Je donne souvent la priorité aux objectifs de ma famille ou de ma communauté par rapport à mes propres objectifs personnels.",
+        "c5": "C5: Maintenir l'harmonie au sein de mon groupe est l'une de mes plus hautes priorités.",
+        "c6": "C6: Je suis fier/fière quand un pair ou un membre de ma famille réussit, comme si c'était mon propre succès.",
+
+        "part4_title": "Partie 4 : Contexte Narratif (Optionnel)",
+        "part4_desc": "**Comment ces expériences ont-elles façonné votre vision du monde aujourd'hui ? N'hésitez pas à partager un souvenir.**"
     },
     "Russian": {
         "welcome": "Добро пожаловать в Исследование Нарративного Контекста.\n\nВаше благополучие важно для нас. Вы недавно ели?",
@@ -353,6 +408,7 @@ CONTENT = {
         "decompression_prompt": "Спасибо. Генерация вашей теоретической топологии NeuroTwin...",
         "tab_text": "⌨️ Напечатать ответ",
         "tab_audio": "🎙️ Записать аудио",
+        "btn_continue": "Продолжить",
         "btn_submit_text": "Отправить оценку",
         "btn_skip": "⏭️ Пропустить историю",
         "error_empty_text": "Пожалуйста, введите ответ или выберите 'Пропустить'.",
@@ -364,7 +420,7 @@ CONTENT = {
         "success": "✅ Ваши ответы отправлены. Вы можете закрыть это окно.",
 
         "inv_title": "Нарративный Опросник DMAP",
-        "inv_citation": "*Адаптировано из [The PsyTests Repository](https://psytests.org)*",
+        "inv_citation": "*Адаптировано из [site]*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "part1_title": "Часть 1: Индикаторы Угрозы",
         "part1_desc": "Этот раздел посвящен опыту, который повышает бдительность к угрозам.",
@@ -384,8 +440,18 @@ CONTENT = {
         "d5": "D5: Взрослые редко хвалили, поощряли или проявляли привязанность ко мне.",
         "d6": "D6: У меня не было взрослого, который бы надежно помогал мне с уроками или учил новым навыкам.",
         "d7": "D7 (Обратная шкала): Моя домашняя обстановка была умственно стимулирующей.",
-        "part3_title": "Часть 3: Нарративный Контекст (Необязательно)",
-        "part3_desc": "**Как этот опыт сформировал то, как вы видите мир сегодня? Пожалуйста, поделитесь воспоминанием.**"
+        
+        "part3_title": "Часть 3: Сообщество и Культурный Контекст",
+        "part3_desc": "Этот раздел исследует, как вы видите себя по отношению к другим.",
+        "c1": "C1: Я предпочитаю полагаться на себя, а не зависеть от других.",
+        "c2": "C2: Для меня важно работать лучше других и выделяться.",
+        "c3": "C3: Мне нравится быть уникальным и отличаться от других во многих отношениях.",
+        "c4": "C4: Я часто ставлю цели своей семьи или сообщества выше своих личных целей.",
+        "c5": "C5: Поддержание гармонии в моей группе - один из моих главных приоритетов.",
+        "c6": "C6: Я горжусь, когда мой сверстник или член семьи добивается успеха, как если бы это был мой собственный успех.",
+
+        "part4_title": "Часть 4: Нарративный Контекст (Необязательно)",
+        "part4_desc": "**Как этот опыт сформировал то, как вы видите мир сегодня? Пожалуйста, поделитесь воспоминанием.**"
     }
 }
 
@@ -443,6 +509,7 @@ if st.session_state.current_step != 'dashboard':
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
+    # st.image("image_1a02d2.jpg", use_container_width=True) # Uncomment when image is uploaded
     st.title("NeuroTwin: Many Ways to Thrive")
     st.write("### Your story. Your choices. Many ways to thrive.")
     st.write("---")
@@ -518,7 +585,7 @@ elif st.session_state.current_step == 'safety_gate':
 elif st.session_state.current_step == 'safe_exit':
     st.info("To restart the assessment, please use the sidebar button.")
 
-# THE DMAP INVENTORY MODULE (No Auto-Select + Citation)
+# --- THE DMAP INVENTORY MODULE ---
 elif st.session_state.current_step == 'dmap_inventory':
     st.write("---")
     st.header(t["inv_title"])
@@ -552,22 +619,56 @@ elif st.session_state.current_step == 'dmap_inventory':
     d6 = st.radio(t["d6"], options, index=None, horizontal=True)
     d7_raw = st.radio(t["d7"], options, index=None, horizontal=True)
 
-    # NARRATIVE CONTEXT & SUBMISSION
     st.divider()
-    st.subheader(t["part3_title"])
-    st.markdown(t["part3_desc"])
+    
+    if st.button(t["btn_continue"], type="primary"):
+        # Calculate DMAP Scores with failsafes for empty answers
+        t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
+        t_answered = [s for s in t_scores if s is not None]
+        st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
+
+        d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
+        d_answered = [s for s in d_scores if s is not None]
+        st.session_state.responses["deprivation_score_avg"] = sum(d_answered) / len(d_answered) if len(d_answered) > 0 else 3.0
+        
+        st.session_state.current_step = 'cultural_inventory'
+        st.rerun()
+
+# --- THE CULTURAL INVENTORY MODULE ---
+elif st.session_state.current_step == 'cultural_inventory':
+    st.write("---")
+    st.header(t["part3_title"])
+    st.info(t["part3_desc"])
+    options = [1, 2, 3, 4, 5]
+    
+    c1 = st.radio(t["c1"], options, index=None, horizontal=True)
+    c2 = st.radio(t["c2"], options, index=None, horizontal=True)
+    c3 = st.radio(t["c3"], options, index=None, horizontal=True)
+    c4 = st.radio(t["c4"], options, index=None, horizontal=True)
+    c5 = st.radio(t["c5"], options, index=None, horizontal=True)
+    c6 = st.radio(t["c6"], options, index=None, horizontal=True)
+
+    st.divider()
+    
+    if st.button(t["btn_continue"], type="primary"):
+        # Save raw cultural scores
+        st.session_state.responses["c1_score"] = c1
+        st.session_state.responses["c2_score"] = c2
+        st.session_state.responses["c3_score"] = c3
+        st.session_state.responses["c4_score"] = c4
+        st.session_state.responses["c5_score"] = c5
+        st.session_state.responses["c6_score"] = c6
+        
+        st.session_state.current_step = 'narrative_recording'
+        st.rerun()
+
+# --- NARRATIVE RECORDING MODULE ---
+elif st.session_state.current_step == 'narrative_recording':
+    st.write("---")
+    st.subheader(t["part4_title"])
+    st.markdown(t["part4_desc"])
 
     tab_text, tab_audio = st.tabs([t["tab_text"], t["tab_audio"]])
-    
-    # Math Failsafe: Only average the questions they actually answered!
-    t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
-    t_answered = [score for score in t_scores if score is not None]
-    threat_avg = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
-
-    d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
-    d_answered = [score for score in d_scores if score is not None]
-    dep_avg = sum(d_answered) / len(d_answered) if len(d_answered) > 0 else 3.0
-    
     ai_reply = t["decompression_prompt"]
     next_step = "decompression"
 
@@ -576,13 +677,9 @@ elif st.session_state.current_step == 'dmap_inventory':
         col1, col2 = st.columns([3, 1])
         with col1:
             if st.button(t["btn_submit_text"], type="primary", use_container_width=True):
-                st.session_state.responses["threat_score_avg"] = threat_avg
-                st.session_state.responses["deprivation_score_avg"] = dep_avg
                 advance_chat(user_text if user_text.strip() else "[No Narrative Provided]", "text", "dmap_narrative", next_step, ai_reply)
         with col2:
             if st.button(t["btn_skip"], use_container_width=True):
-                st.session_state.responses["threat_score_avg"] = threat_avg
-                st.session_state.responses["deprivation_score_avg"] = dep_avg
                 advance_chat("[Skipped]", "text", "dmap_narrative", next_step, ai_reply)
                 
     with tab_audio:
@@ -595,12 +692,10 @@ elif st.session_state.current_step == 'dmap_inventory':
         
         if audio_bytes:
             with st.spinner(t["processing_audio"]):
-                st.session_state.responses["threat_score_avg"] = threat_avg
-                st.session_state.responses["deprivation_score_avg"] = dep_avg
                 audio_path = save_audio_file(audio_bytes, "dmap_narrative_audio")
                 advance_chat(audio_path, "audio", "dmap_narrative", next_step, ai_reply)
 
-# FINAL DECOMPRESSION & RADAR CHART
+# --- FINAL DECOMPRESSION & RADAR CHART ---
 elif st.session_state.current_step == 'decompression':
     with st.spinner(t["processing_audio"]):
         success = export_data_to_google()
@@ -608,7 +703,6 @@ elif st.session_state.current_step == 'decompression':
         
     if success:
         st.success(t["success"])
-        
         st.divider()
         st.subheader("Your NeuroTwin Topology")
         
