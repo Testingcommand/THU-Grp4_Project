@@ -10,9 +10,17 @@ from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
 # Your updated Google Apps Script Web App URL
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx8kRAmK1C79DEenbu8bQByW5ag-rPmeV0wCIeC5_NtbVjzBnHrm1ECAMjXC-K_ntOP/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXOMcKPG7J_6cRATd6DsaMiQ90NO4I-o6pqZxnYUNaYZ56Y0Zd1hUE8AW6LyP7MRwu/exec"
 
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
+st.markdown("""
+    <style>
+        .reportview-container { margin-top: -2em; }
+        #MainMenu {visibility: hidden;}
+        .stDeployButton {display:none;}
+        header {visibility: hidden;}
+    </style>
+""", unsafe_allow_html=True)
 
 # ==========================================
 # 1. HELPER FUNCTIONS & CHART
@@ -504,16 +512,44 @@ if st.session_state.admin_unlocked:
             
             st.divider()
             st.subheader("Data Management")
-            st.warning("This will only delete the local backup on this server. It does not delete data already sent to Google Sheets.")
-            if st.button("🗑️ Clear All Local Data", type="primary"):
-                for entry in data:
-                    for key, val in entry.items():
-                        if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
-                            os.remove(val)
-                with open(file_path, 'w') as f:
-                    json.dump([], f, indent=4)
-                st.success("All local data and audio files cleared!")
-                st.rerun()
+            st.warning("These actions only delete the local backup on this server. They do not delete data already sent to Google Sheets.")
+            
+            # --- NEW: Specific Participant Deletion ---
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.write("**Delete Specific Participant**")
+                participant_ids = [entry.get('id') for entry in data if 'id' in entry]
+                selected_id = st.selectbox("Select ID:", participant_ids, label_visibility="collapsed")
+                
+                if st.button("🗑️ Delete Selected"):
+                    # 1. Remove audio files for this specific ID
+                    for entry in data:
+                        if entry.get('id') == selected_id:
+                            for key, val in entry.items():
+                                if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                                    os.remove(val)
+                    
+                    # 2. Filter out the entry and save the JSON
+                    new_data = [entry for entry in data if entry.get('id') != selected_id]
+                    with open(file_path, 'w') as f:
+                        json.dump(new_data, f, indent=4)
+                        
+                    st.success(f"Participant {selected_id} deleted!")
+                    st.rerun()
+
+            # --- EXISTING: Clear All Data ---
+            with col2:
+                st.write("**Delete All Participants**")
+                if st.button("🗑️ Clear All Local Data", type="primary"):
+                    for entry in data:
+                        for key, val in entry.items():
+                            if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                                os.remove(val)
+                    with open(file_path, 'w') as f:
+                        json.dump([], f, indent=4)
+                    st.success("All local data and audio files cleared!")
+                    st.rerun()
         else:
             st.info("No responses recorded yet.")
     else:
@@ -524,8 +560,8 @@ if st.session_state.admin_unlocked:
         st.session_state.admin_unlocked = False
         st.rerun()
         
-    st.stop() 
-
+    st.stop()
+    
 # ==========================================
 # 5. RENDER CHAT HISTORY
 # ==========================================
@@ -658,6 +694,24 @@ elif st.session_state.current_step == 'dmap_inventory':
     st.divider()
     
     if st.button(t["btn_continue"], type="primary"):
+        # Save the individual raw scores
+        st.session_state.responses["t1"] = t1
+        st.session_state.responses["t2"] = t2
+        st.session_state.responses["t3"] = t3
+        st.session_state.responses["t4"] = t4
+        st.session_state.responses["t5"] = t5
+        st.session_state.responses["t6"] = t6
+        st.session_state.responses["t7"] = t7_raw
+        
+        st.session_state.responses["d1"] = d1
+        st.session_state.responses["d2"] = d2
+        st.session_state.responses["d3"] = d3
+        st.session_state.responses["d4"] = d4
+        st.session_state.responses["d5"] = d5
+        st.session_state.responses["d6"] = d6
+        st.session_state.responses["d7"] = d7_raw
+
+        # Calculate and save the averages (with math failsafes)
         t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
         t_answered = [s for s in t_scores if s is not None]
         st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
