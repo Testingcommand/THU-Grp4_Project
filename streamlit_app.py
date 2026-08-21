@@ -509,7 +509,7 @@ if st.session_state.current_step != 'dashboard':
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
-    # st.image("image_1a02d2.jpg", use_container_width=True) # Uncomment when image is uploaded
+    # st.image("image_1a02d2.jpg", use_container_width=True) # Uncomment this after successfully uploading the image to GitHub
     st.title("NeuroTwin: Many Ways to Thrive")
     st.write("### Your story. Your choices. Many ways to thrive.")
     st.write("---")
@@ -622,7 +622,6 @@ elif st.session_state.current_step == 'dmap_inventory':
     st.divider()
     
     if st.button(t["btn_continue"], type="primary"):
-        # Calculate DMAP Scores with failsafes for empty answers
         t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
         t_answered = [s for s in t_scores if s is not None]
         st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
@@ -651,7 +650,6 @@ elif st.session_state.current_step == 'cultural_inventory':
     st.divider()
     
     if st.button(t["btn_continue"], type="primary"):
-        # Save raw cultural scores
         st.session_state.responses["c1_score"] = c1
         st.session_state.responses["c2_score"] = c2
         st.session_state.responses["c3_score"] = c3
