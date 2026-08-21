@@ -713,5 +713,29 @@ elif st.session_state.current_step == 'decompression':
         fig = generate_neurotwin_chart(t_score, d_score)
         st.pyplot(fig)
         
+# --- NEW EXPLANATION SECTION ---
+        st.divider()
+        st.subheader("What does this mean?")
+        st.write(
+            "This radar chart maps your unique experiences onto theoretical brain circuits based on the **Dimensional Model of Adversity and Psychopathology (DMAP)**. "
+            "Our brains are highly neuroplastic, meaning they physically adapt to the environments we grow up in to keep us safe."
+        )
+        
+        # Dynamic text based on which score is higher
+        if t_score > 3.0:
+            st.markdown(
+                "- **Threat Adaptations:** Your Threat Index suggests your brain may have adapted to upregulate the *Salience Network* (regions like the Amygdala). "
+                "This is an evolutionary superpower designed to keep you highly vigilant and safe in unpredictable environments."
+            )
+        if d_score > 3.0:
+            st.markdown(
+                "- **Deprivation Adaptations:** Your Deprivation Index indicates adaptations in the *Frontoparietal Control and Reward Networks*. "
+                "This often reflects how the brain learns to conserve energy and find motivation when external resources or support were scarce."
+            )
+            
+        st.info(
+            "**Remember:** A 'shifted' topology is not a damaged brain; it is an adapted brain. "
+            "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and empowering experiences."
+        )
     else:
         st.error("⚠️ There was a network issue. A local backup has been safely stored.")
