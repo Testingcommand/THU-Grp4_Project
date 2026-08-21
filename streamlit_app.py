@@ -10,9 +10,11 @@ from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
 # Your updated Google Apps Script Web App URL
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyXOMcKPG7J_6cRATd6DsaMiQ90NO4I-o6pqZxnYUNaYZ56Y0Zd1hUE8AW6LyP7MRwu/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx8kRAmK1C79DEenbu8bQByW5ag-rPmeV0wCIeC5_NtbVjzBnHrm1ECAMjXC-K_ntOP/exec"
 
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
+
+# --- CSS Fix for Light/Dark Mode Icons ---
 st.markdown("""
     <style>
         /* Adjust top margin */
@@ -75,13 +77,14 @@ def export_data_to_google():
     except Exception:
         return False
 
-def generate_neurotwin_chart(threat_score, deprivation_score):
+def generate_neurotwin_chart(threat_score, deprivation_score, col_score):
+    # Removed the specific brain regions from the labels
     categories = [
-        'Threat Reactivity\n(Amygdala / PAG)',
-        'Social Cognition\n(TPJ / mPFC)',
-        'Reward Sensitivity\n(Ventral Striatum)',
-        'Cognitive Flexibility\n(dlPFC)',
-        'Interoception\n(Insula)'
+        'Threat Reactivity',
+        'Social Cognition',
+        'Reward Sensitivity',
+        'Cognitive Flexibility',
+        'Interoception'
     ]
     N = len(categories)
     
@@ -89,7 +92,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score):
     
     patient_scores = [
         threat_score,           
-        3.0,                    
+        col_score,              # Plots their Collectivism score on the Social Cognition axis
         deprivation_score,      
         deprivation_score,      
         threat_score            
@@ -102,7 +105,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score):
     patient_data = patient_scores + patient_scores[:1]
 
     fig, ax = plt.subplots(figsize=(6, 6), subplot_kw=dict(polar=True))
-    plt.xticks(angles[:-1], categories, color='black', size=10)
+    plt.xticks(angles[:-1], categories, color='black', size=11) # Slightly increased size for readability
     ax.set_rlabel_position(0)
     plt.yticks([1, 2, 3, 4, 5], ["1", "2", "3", "4", "5"], color="grey", size=8)
     plt.ylim(0, 5)
@@ -116,7 +119,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score):
     plt.legend(loc='upper right', bbox_to_anchor=(1.3, 1.1))
     ax.spines['polar'].set_visible(False) 
     return fig
-
+    
 # ==========================================
 # 2. LANGUAGE DICTIONARY
 # ==========================================
@@ -145,8 +148,10 @@ CONTENT = {
         "processing_audio": "⏳ Processing... please wait.",
         "success": "✅ Your responses have been submitted. You may now close this window.",
         
+        "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
+        
         "inv_title": "The DMAP Narrative Inventory",
-        "inv_citation": "*Adapted from [site]*",
+        "inv_citation": "*Adapted from [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), and [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "part1_title": "Part 1: Indicators of Threat",
         "part1_desc": "This section targets experiences that theoretically upregulate fear-learning circuits and threat vigilance.",
@@ -202,9 +207,11 @@ CONTENT = {
         "audio_inst_4": "⚠️ **重要提示：** 点击停止后，请等待几秒钟让系统处理。",
         "processing_audio": "⏳ 正在处理... 请稍候。",
         "success": "✅ 您的回复已提交。您现在可以关闭此窗口。",
+        
+        "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
 
         "inv_title": "DMAP 叙事问卷",
-        "inv_citation": "*改编自 [site]*",
+        "inv_citation": "*改编自 [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), 及 [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "part1_title": "第一部分：威胁指标",
         "part1_desc": "本部分针对理论上会增强恐惧学习回路和威胁警觉性的经历。",
@@ -260,9 +267,11 @@ CONTENT = {
         "audio_inst_4": "⚠️ **重要提示：** 㩒咗停止之後，請等幾秒鐘畀系統處理。",
         "processing_audio": "⏳ 處理緊... 請稍等。",
         "success": "✅ 你嘅回覆已經提交。你而家可以關閉呢個視窗。",
+        
+        "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
 
         "inv_title": "DMAP 敘事問卷",
-        "inv_citation": "*改編自 [site]*",
+        "inv_citation": "*改編自 [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), 同埋 [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "part1_title": "第一部分：威脅指標",
         "part1_desc": "呢部分針對理論上會增強恐懼學習同威脅警覺性嘅經歷。",
@@ -318,9 +327,11 @@ CONTENT = {
         "audio_inst_4": "⚠️ **Importante:** Espere unos segundos para procesar después de detener.",
         "processing_audio": "⏳ Procesando... por favor espere.",
         "success": "✅ Sus respuestas han sido enviadas. Ahora puede cerrar esta ventana.",
+        
+        "skip_note": "💙 *Recordatorio amable: Puede omitir cualquier pregunta y dejarla en blanco si prefiere no responder.*",
 
         "inv_title": "El Inventario Narrativo DMAP",
-        "inv_citation": "*Adaptado de [site]*",
+        "inv_citation": "*Adaptado de [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), y [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "part1_title": "Parte 1: Indicadores de Amenaza",
         "part1_desc": "Esta sección aborda experiencias que aumentan la vigilancia ante amenazas.",
@@ -376,9 +387,11 @@ CONTENT = {
         "audio_inst_4": "⚠️ **Important :** Patientez quelques secondes après avoir cliqué sur arrêter.",
         "processing_audio": "⏳ Traitement... veuillez patienter.",
         "success": "✅ Vos réponses ont été soumises. Vous pouvez fermer cette fenêtre.",
+        
+        "skip_note": "💙 *Petit rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez ne pas y répondre.*",
 
         "inv_title": "L'Inventaire Narratif DMAP",
-        "inv_citation": "*Adapté de [site]*",
+        "inv_citation": "*Adapté de [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), et [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "part1_title": "Partie 1 : Indicateurs de Menace",
         "part1_desc": "Cette section cible les expériences qui augmentent la vigilance aux menaces.",
@@ -434,9 +447,11 @@ CONTENT = {
         "audio_inst_4": "⚠️ **Важно:** Подождите несколько секунд после остановки.",
         "processing_audio": "⏳ Обработка... пожалуйста, подождите.",
         "success": "✅ Ваши ответы отправлены. Вы можете закрыть это окно.",
+        
+        "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым, если не хотите отвечать.*",
 
         "inv_title": "Нарративный Опросник DMAP",
-        "inv_citation": "*Адаптировано из [site]*",
+        "inv_citation": "*Адаптировано из [PsyTests](https://psytests.org), [SPARQtools](https://sparqtools.org/mobility-measure/self-construal-scale/), и [Psychometric Scales](https://psychometricscales.com/?scale=horizontal-vertical-individualism)*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "part1_title": "Часть 1: Индикаторы Угрозы",
         "part1_desc": "Этот раздел посвящен опыту, который повышает бдительность к угрозам.",
@@ -521,7 +536,6 @@ if st.session_state.admin_unlocked:
             st.subheader("Data Management")
             st.warning("These actions only delete the local backup on this server. They do not delete data already sent to Google Sheets.")
             
-            # --- NEW: Specific Participant Deletion ---
             col1, col2 = st.columns(2)
             
             with col1:
@@ -530,14 +544,12 @@ if st.session_state.admin_unlocked:
                 selected_id = st.selectbox("Select ID:", participant_ids, label_visibility="collapsed")
                 
                 if st.button("🗑️ Delete Selected"):
-                    # 1. Remove audio files for this specific ID
                     for entry in data:
                         if entry.get('id') == selected_id:
                             for key, val in entry.items():
                                 if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
                                     os.remove(val)
                     
-                    # 2. Filter out the entry and save the JSON
                     new_data = [entry for entry in data if entry.get('id') != selected_id]
                     with open(file_path, 'w') as f:
                         json.dump(new_data, f, indent=4)
@@ -545,7 +557,6 @@ if st.session_state.admin_unlocked:
                     st.success(f"Participant {selected_id} deleted!")
                     st.rerun()
 
-            # --- EXISTING: Clear All Data ---
             with col2:
                 st.write("**Delete All Participants**")
                 if st.button("🗑️ Clear All Local Data", type="primary"):
@@ -567,8 +578,8 @@ if st.session_state.admin_unlocked:
         st.session_state.admin_unlocked = False
         st.rerun()
         
-    st.stop()
-    
+    st.stop() 
+
 # ==========================================
 # 5. RENDER CHAT HISTORY
 # ==========================================
@@ -664,14 +675,14 @@ elif st.session_state.current_step == 'safety_gate':
 elif st.session_state.current_step == 'safe_exit':
     st.info("To restart the assessment, please use the sidebar button.")
 
-# --- THE DMAP INVENTORY MODULE ---
-elif st.session_state.current_step == 'dmap_inventory':
+# --- PART 1: THREAT INVENTORY ---
+elif st.session_state.current_step == 'dmap_inventory': # Keeping the starting name so the button flow works
     st.write("---")
     st.header(t["inv_title"])
     st.markdown(t["inv_citation"])
+    st.markdown(t["skip_note"])
     st.markdown(t["scale_desc"])
     
-    # DIMENSION 1: THREAT
     st.subheader(t["part1_title"])
     st.info(t["part1_desc"])
     options = [1, 2, 3, 4, 5]
@@ -685,10 +696,35 @@ elif st.session_state.current_step == 'dmap_inventory':
     t7_raw = st.radio(t["t7"], options, index=None, horizontal=True)
 
     st.divider()
+    if st.button("Continue to Part 2", type="primary"):
+        # Save Threat scores locally
+        st.session_state.responses["t1"] = t1
+        st.session_state.responses["t2"] = t2
+        st.session_state.responses["t3"] = t3
+        st.session_state.responses["t4"] = t4
+        st.session_state.responses["t5"] = t5
+        st.session_state.responses["t6"] = t6
+        st.session_state.responses["t7"] = t7_raw
 
-    # DIMENSION 2: DEPRIVATION
+        # Calculate Threat Average
+        t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
+        t_answered = [s for s in t_scores if s is not None]
+        st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
+        
+        # Move to the Deprivation page
+        st.session_state.current_step = 'dmap_part2'
+        st.rerun()
+
+# --- PART 2: DEPRIVATION INVENTORY ---
+elif st.session_state.current_step == 'dmap_part2':
+    st.write("---")
+    st.header(t["inv_title"])
+    st.markdown(t["skip_note"])
+    st.markdown(t["scale_desc"])
+
     st.subheader(t["part2_title"])
     st.info(t["part2_desc"])
+    options = [1, 2, 3, 4, 5]
     
     d1 = st.radio(t["d1"], options, index=None, horizontal=True)
     d2 = st.radio(t["d2"], options, index=None, horizontal=True)
@@ -700,16 +736,8 @@ elif st.session_state.current_step == 'dmap_inventory':
 
     st.divider()
     
-    if st.button(t["btn_continue"], type="primary"):
-        # Save the individual raw scores
-        st.session_state.responses["t1"] = t1
-        st.session_state.responses["t2"] = t2
-        st.session_state.responses["t3"] = t3
-        st.session_state.responses["t4"] = t4
-        st.session_state.responses["t5"] = t5
-        st.session_state.responses["t6"] = t6
-        st.session_state.responses["t7"] = t7_raw
-        
+    if st.button("Continue to Part 3", type="primary"):
+        # Save Deprivation scores locally
         st.session_state.responses["d1"] = d1
         st.session_state.responses["d2"] = d2
         st.session_state.responses["d3"] = d3
@@ -718,15 +746,12 @@ elif st.session_state.current_step == 'dmap_inventory':
         st.session_state.responses["d6"] = d6
         st.session_state.responses["d7"] = d7_raw
 
-        # Calculate and save the averages (with math failsafes)
-        t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
-        t_answered = [s for s in t_scores if s is not None]
-        st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 3.0
-
+        # Calculate Deprivation Average
         d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
         d_answered = [s for s in d_scores if s is not None]
         st.session_state.responses["deprivation_score_avg"] = sum(d_answered) / len(d_answered) if len(d_answered) > 0 else 3.0
         
+        # Move to the Cultural Context page
         st.session_state.current_step = 'cultural_inventory'
         st.rerun()
 
@@ -734,6 +759,7 @@ elif st.session_state.current_step == 'dmap_inventory':
 elif st.session_state.current_step == 'cultural_inventory':
     st.write("---")
     st.header(t["part3_title"])
+    st.markdown(t["skip_note"])
     st.info(t["part3_desc"])
     options = [1, 2, 3, 4, 5]
     
@@ -747,12 +773,23 @@ elif st.session_state.current_step == 'cultural_inventory':
     st.divider()
     
     if st.button(t["btn_continue"], type="primary"):
+        # Save raw scores
         st.session_state.responses["c1_score"] = c1
         st.session_state.responses["c2_score"] = c2
         st.session_state.responses["c3_score"] = c3
         st.session_state.responses["c4_score"] = c4
         st.session_state.responses["c5_score"] = c5
         st.session_state.responses["c6_score"] = c6
+        
+        # Calculate Individualism (C1, C2, C3)
+        i_scores = [c1, c2, c3]
+        i_answered = [s for s in i_scores if s is not None]
+        st.session_state.responses["ind_score_avg"] = sum(i_answered) / len(i_answered) if len(i_answered) > 0 else 3.0
+
+        # Calculate Collectivism (C4, C5, C6)
+        c_scores = [c4, c5, c6]
+        c_answered = [s for s in c_scores if s is not None]
+        st.session_state.responses["col_score_avg"] = sum(c_answered) / len(c_answered) if len(c_answered) > 0 else 3.0
         
         st.session_state.current_step = 'narrative_recording'
         st.rerun()
@@ -761,6 +798,7 @@ elif st.session_state.current_step == 'cultural_inventory':
 elif st.session_state.current_step == 'narrative_recording':
     st.write("---")
     st.subheader(t["part4_title"])
+    st.markdown(t["skip_note"])
     st.markdown(t["part4_desc"])
 
     tab_text, tab_audio = st.tabs([t["tab_text"], t["tab_audio"]])
@@ -801,16 +839,24 @@ elif st.session_state.current_step == 'decompression':
         st.divider()
         st.subheader("Your NeuroTwin Topology")
         
-        t_score = st.session_state.responses.get("threat_score_avg", 3.0)
+ t_score = st.session_state.responses.get("threat_score_avg", 3.0)
         d_score = st.session_state.responses.get("deprivation_score_avg", 3.0)
+        ind_score = st.session_state.responses.get("ind_score_avg", 3.0)
+        col_score = st.session_state.responses.get("col_score_avg", 3.0)
         
-        st.write(f"**Calculated Threat Index:** {t_score:.2f} / 5.0")
-        st.write(f"**Calculated Deprivation Index:** {d_score:.2f} / 5.0")
+        # Display all four metrics
+        col1, col2 = st.columns(2)
+        with col1:
+            st.write(f"**Calculated Threat Index:** {t_score:.2f} / 5.0")
+            st.write(f"**Calculated Deprivation Index:** {d_score:.2f} / 5.0")
+        with col2:
+            st.write(f"**Individualism Index:** {ind_score:.2f} / 5.0")
+            st.write(f"**Collectivism Index:** {col_score:.2f} / 5.0")
         
-        fig = generate_neurotwin_chart(t_score, d_score)
+        fig = generate_neurotwin_chart(t_score, d_score, col_score)
         st.pyplot(fig)
         
-        # --- NEW EXPLANATION SECTION ---
+# --- NEW EXPLANATION SECTION ---
         st.divider()
         st.subheader("What does this mean?")
         st.write(
@@ -827,6 +873,18 @@ elif st.session_state.current_step == 'decompression':
             st.markdown(
                 "- **Deprivation Adaptations:** Your Deprivation Index indicates adaptations in the *Frontoparietal Control and Reward Networks*. "
                 "This often reflects how the brain learns to conserve energy and find motivation when external resources or support were scarce."
+            )
+            
+        # Explain the cultural buffering (Hypothesis 3)
+        if col_score > ind_score:
+            st.markdown(
+                "- **Cultural Buffering (Collectivism):** You scored higher in community-oriented values. "
+                "Research suggests this interdependent worldview heavily engages the *Default Mode Network* (social cognition), meaning you likely process past adversity through the lens of community survival rather than isolation."
+            )
+        elif ind_score > col_score:
+            st.markdown(
+                "- **Cultural Buffering (Individualism):** You scored higher in independent values. "
+                "This worldview often relies on self-reliance and personal agency to buffer against adversity, relying on internal cognitive flexibility."
             )
             
         st.info(
