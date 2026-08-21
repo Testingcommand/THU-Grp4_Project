@@ -9,7 +9,8 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyKRANC_nZCdQPnYQOUKfh-9-_bvweg-ZaCaabrRTi1tD7EGyyAPep3dhReVFZVhTW0/exec"
+# Your updated Google Apps Script Web App URL
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx8kRAmK1C79DEenbu8bQByW5ag-rPmeV0wCIeC5_NtbVjzBnHrm1ECAMjXC-K_ntOP/exec"
 
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
 
@@ -488,6 +489,41 @@ with st.sidebar:
 if st.session_state.admin_unlocked:
     st.title("Admin Dashboard")
     st.write("Welcome to the secure administrative view.")
+    
+    file_path = 'clinical_responses.json'
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        if data:
+            df = pd.DataFrame(data)
+            st.subheader("Participant Submissions (Local Backup)")
+            st.dataframe(df, use_container_width=True)
+            
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button(label="📥 Download Local Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv")
+            
+            st.divider()
+            st.subheader("Data Management")
+            st.warning("This will only delete the local backup on this server. It does not delete data already sent to Google Sheets.")
+            if st.button("🗑️ Clear All Local Data", type="primary"):
+                for entry in data:
+                    for key, val in entry.items():
+                        if isinstance(val, str) and val.endswith('.wav') and os.path.exists(val):
+                            os.remove(val)
+                with open(file_path, 'w') as f:
+                    json.dump([], f, indent=4)
+                st.success("All local data and audio files cleared!")
+                st.rerun()
+        else:
+            st.info("No responses recorded yet.")
+    else:
+        st.info("The local database file has not been created yet.")
+        
+    st.divider()
+    if st.button("Logout"):
+        st.session_state.admin_unlocked = False
+        st.rerun()
+        
     st.stop() 
 
 # ==========================================
@@ -509,7 +545,7 @@ if st.session_state.current_step != 'dashboard':
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
-    # st.image("Image_20260821001811_168_21.jpg", use_container_width=True) # Uncomment this after successfully uploading the image to GitHub
+    # st.image("image_1a02d2.jpg", use_container_width=True) # Uncomment this after successfully uploading the image to GitHub
     st.title("NeuroTwin: Many Ways to Thrive")
     st.write("### Your story. Your choices. Many ways to thrive.")
     st.write("---")
@@ -713,7 +749,7 @@ elif st.session_state.current_step == 'decompression':
         fig = generate_neurotwin_chart(t_score, d_score)
         st.pyplot(fig)
         
-# --- NEW EXPLANATION SECTION ---
+        # --- NEW EXPLANATION SECTION ---
         st.divider()
         st.subheader("What does this mean?")
         st.write(
@@ -721,7 +757,6 @@ elif st.session_state.current_step == 'decompression':
             "Our brains are highly neuroplastic, meaning they physically adapt to the environments we grow up in to keep us safe."
         )
         
-        # Dynamic text based on which score is higher
         if t_score > 3.0:
             st.markdown(
                 "- **Threat Adaptations:** Your Threat Index suggests your brain may have adapted to upregulate the *Salience Network* (regions like the Amygdala). "
@@ -735,7 +770,8 @@ elif st.session_state.current_step == 'decompression':
             
         st.info(
             "**Remember:** A 'shifted' topology is not a damaged brain; it is an adapted brain. "
-            "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and empowering experiences."
+            "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and culturally supportive experiences."
         )
+        
     else:
         st.error("⚠️ There was a network issue. A local backup has been safely stored.")
