@@ -710,106 +710,106 @@ if st.session_state.get('admin_unlocked', False):
             
     st.divider()
     
-   # --- Local Data Backup ---
-        file_path = 'clinical_responses.json'
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-            if data:
-                df = pd.DataFrame(data)
-                st.subheader("Participant Submissions (Local)")
-                st.dataframe(df, use_container_width=True)
-                
-                # --- UPGRADED: Participant Detail View & Radar Map ---
-                st.divider()
-                st.subheader("Participant Clinical Profile")
-                participant_ids = [entry.get('id') for entry in data if 'id' in entry]
-                selected_detail_id = st.selectbox("Select ID to View Details:", ["-- Select ID --"] + participant_ids)
-                
-                if selected_detail_id != "-- Select ID --":
-                    participant_data = next((item for item in data if item.get("id") == selected_detail_id), None)
-                    if participant_data:
-                        col_chart, col_details = st.columns([1, 1])
-                        
-                        # LEFT COLUMN: The Radar Map & Scores
-                        with col_chart:
-                            st.write("**NeuroTwin Topology Map**")
-                            t_score = participant_data.get("threat_score_avg", 0)
-                            d_score = participant_data.get("deprivation_score_avg", 0)
-                            w_score = participant_data.get("war_score_avg", 0)
-                            c_score = participant_data.get("col_score_avg", 3.0)
-                            
-                            fig = generate_neurotwin_chart(t_score, d_score, w_score, c_score)
-                            st.pyplot(fig)
-                            
-                            st.info(f"**Scores:** Threat: {t_score:.2f} | Deprivation: {d_score:.2f} | War: {w_score:.2f} | Collectivism: {c_score:.2f}")
-
-                        # RIGHT COLUMN: Clean Narratives & Audio Playback
-                        with col_details:
-                            st.write("**Narrative Responses**")
-                            narratives = {
-                                "Threat 1": participant_data.get("threat_narrative_1", ""),
-                                "Threat 2": participant_data.get("threat_narrative_2", ""),
-                                "Deprivation 1": participant_data.get("dep_narrative_1", ""),
-                                "Deprivation 2": participant_data.get("dep_narrative_2", ""),
-                                "Final (Change)": participant_data.get("final_narrative_1", ""),
-                                "Final (One Word)": participant_data.get("final_narrative_2", ""),
-                                "Final (Unsafe)": participant_data.get("final_narrative_3", "")
-                            }
-                            
-                            # Print text responses cleanly
-                            for title, text in narratives.items():
-                                if text and text != "..." and text.strip():
-                                    st.markdown(f"**{title}:** {text}")
-                            
-                            st.write("---")
-                            st.write("**Audio Recordings**")
-                            # Find and create playback buttons for any saved audio
-                            audio_keys = [k for k in participant_data.keys() if k.endswith("_audio")]
-                            has_audio = False
-                            for ak in audio_keys:
-                                audio_path = participant_data[ak]
-                                if os.path.exists(audio_path):
-                                    has_audio = True
-                                    clean_title = ak.replace("_audio", "").replace("_", " ").title()
-                                    st.write(f"*{clean_title}*")
-                                    st.audio(audio_path)
-                            
-                            if not has_audio:
-                                st.write("No audio recorded for this participant.")
-                        
-                        # Keep the raw JSON hidden in a dropdown just in case you need it
-                        with st.expander("View Raw Developer JSON Data"):
-                            st.json(participant_data)
-                
-                st.divider()
-                
-                # --- Data Management ---
-                col1, col2 = st.columns(2)
-                with col1:
-                    csv = df.to_csv(index=False).encode('utf-8')
-                    st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv", use_container_width=True)
-                with col2:
-                    selected_del_id = st.selectbox("Select ID to Delete:", ["-- Select ID --"] + participant_ids, label_visibility="collapsed")
-                    if st.button("🗑️ Delete Selected Participant", use_container_width=True) and selected_del_id != "-- Select ID --":
-                        new_data = [entry for entry in data if entry.get('id') != selected_del_id]
-                        with open(file_path, 'w') as f:
-                            json.dump(new_data, f, indent=4)
-                        st.success(f"Participant {selected_del_id} deleted!")
-                        st.rerun()
-
-                st.warning("⚠️ Proceed with caution. This will delete the entire local JSON backup on this server.")
-                if st.button("🚨 Clear All Local Data", type="primary"):
-                    with open(file_path, 'w') as f:
-                        json.dump([], f, indent=4)
-                    st.success("All local data cleared!")
-                    st.rerun()
-            else:
-                st.info("No responses recorded yet.")
-        else:
-            st.info("The local database file has not been created yet.")
+    # --- Local Data Backup ---
+    file_path = 'clinical_responses.json'
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        if data:
+            df = pd.DataFrame(data)
+            st.subheader("Participant Submissions (Local)")
+            st.dataframe(df, use_container_width=True)
             
-        st.stop() # Prevents the rest of the public app from rendering when admin is logged in!
+            # --- UPGRADED: Participant Detail View & Radar Map ---
+            st.divider()
+            st.subheader("Participant Clinical Profile")
+            participant_ids = [entry.get('id') for entry in data if 'id' in entry]
+            selected_detail_id = st.selectbox("Select ID to View Details:", ["-- Select ID --"] + participant_ids)
+            
+            if selected_detail_id != "-- Select ID --":
+                participant_data = next((item for item in data if item.get("id") == selected_detail_id), None)
+                if participant_data:
+                    col_chart, col_details = st.columns([1, 1])
+                    
+                    # LEFT COLUMN: The Radar Map & Scores
+                    with col_chart:
+                        st.write("**NeuroTwin Topology Map**")
+                        t_score = participant_data.get("threat_score_avg", 0)
+                        d_score = participant_data.get("deprivation_score_avg", 0)
+                        w_score = participant_data.get("war_score_avg", 0)
+                        c_score = participant_data.get("col_score_avg", 3.0)
+                        
+                        fig = generate_neurotwin_chart(t_score, d_score, w_score, c_score)
+                        st.pyplot(fig)
+                        
+                        st.info(f"**Scores:** Threat: {t_score:.2f} | Deprivation: {d_score:.2f} | War: {w_score:.2f} | Collectivism: {c_score:.2f}")
+
+                    # RIGHT COLUMN: Clean Narratives & Audio Playback
+                    with col_details:
+                        st.write("**Narrative Responses**")
+                        narratives = {
+                            "Threat 1": participant_data.get("threat_narrative_1", ""),
+                            "Threat 2": participant_data.get("threat_narrative_2", ""),
+                            "Deprivation 1": participant_data.get("dep_narrative_1", ""),
+                            "Deprivation 2": participant_data.get("dep_narrative_2", ""),
+                            "Final (Change)": participant_data.get("final_narrative_1", ""),
+                            "Final (One Word)": participant_data.get("final_narrative_2", ""),
+                            "Final (Unsafe)": participant_data.get("final_narrative_3", "")
+                        }
+                        
+                        # Print text responses cleanly
+                        for title, text in narratives.items():
+                            if text and text != "..." and text.strip():
+                                st.markdown(f"**{title}:** {text}")
+                        
+                        st.write("---")
+                        st.write("**Audio Recordings**")
+                        # Find and create playback buttons for any saved audio
+                        audio_keys = [k for k in participant_data.keys() if k.endswith("_audio")]
+                        has_audio = False
+                        for ak in audio_keys:
+                            audio_path = participant_data[ak]
+                            if os.path.exists(audio_path):
+                                has_audio = True
+                                clean_title = ak.replace("_audio", "").replace("_", " ").title()
+                                st.write(f"*{clean_title}*")
+                                st.audio(audio_path)
+                        
+                        if not has_audio:
+                            st.write("No audio recorded for this participant.")
+                    
+                    # Keep the raw JSON hidden in a dropdown just in case you need it
+                    with st.expander("View Raw Developer JSON Data"):
+                        st.json(participant_data)
+            
+            st.divider()
+            
+            # --- Data Management ---
+            col1, col2 = st.columns(2)
+            with col1:
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv", use_container_width=True)
+            with col2:
+                selected_del_id = st.selectbox("Select ID to Delete:", ["-- Select ID --"] + participant_ids, label_visibility="collapsed")
+                if st.button("🗑️ Delete Selected Participant", use_container_width=True) and selected_del_id != "-- Select ID --":
+                    new_data = [entry for entry in data if entry.get('id') != selected_del_id]
+                    with open(file_path, 'w') as f:
+                        json.dump(new_data, f, indent=4)
+                    st.success(f"Participant {selected_del_id} deleted!")
+                    st.rerun()
+
+            st.warning("⚠️ Proceed with caution. This will delete the entire local JSON backup on this server.")
+            if st.button("🚨 Clear All Local Data", type="primary"):
+                with open(file_path, 'w') as f:
+                    json.dump([], f, indent=4)
+                st.success("All local data cleared!")
+                st.rerun()
+        else:
+            st.info("No responses recorded yet.")
+    else:
+        st.info("The local database file has not been created yet.")
+        
+    st.stop() # Prevents the rest of the public app from rendering when admin is logged in!
 
 # ==========================================
 # STUDY STATUS GATE (PUBLIC VIEW)
