@@ -30,6 +30,31 @@ st.markdown("""
 # ==========================================
 # HELPER FUNCTIONS 
 # ==========================================
+STATUS_FILE = "app_status.json"
+
+def get_app_status():
+    if os.path.exists(STATUS_FILE):
+        with open(STATUS_FILE, 'r') as f:
+            return json.load(f).get("is_open", True)
+    return True
+
+def set_app_status(is_open):
+    with open(STATUS_FILE, 'w') as f:
+        json.dump({"is_open": is_open}, f)
+
+def save_data_to_json():
+    file_path = 'clinical_responses.json'
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            db = json.load(f)
+    else:
+        db = []
+    # Only append if this specific participant ID isn't already in the database
+    if not any(entry.get('id') == st.session_state.responses['id'] for entry in db):
+        db.append(st.session_state.responses)
+        with open(file_path, 'w') as f:
+            json.dump(db, f, indent=4)
+
 def save_audio_file(audio_bytes, question_key):
     filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
     with open(filename, "wb") as f:
@@ -42,7 +67,6 @@ def export_data_to_google():
         "text_data": st.session_state.responses,
         "audio_files": []
     }
-    # Package any saved audio files to send to Google Drive
     for key, value in st.session_state.responses.items():
         if isinstance(value, str) and value.endswith('.wav') and os.path.exists(value):
             with open(value, "rb") as f:
@@ -110,7 +134,7 @@ CONTENT = {
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
-        "audio_hint": "🎙️ *You can type your response or click the microphone to record audio.*",
+        "audio_hint": "🎙️ **Audio:** Click the microphone to start, and click again to stop (auto-stops after 5 mins). *Note: Audio files may take a few moments to upload when you click Continue.*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "btn_continue": "Continue",
         "part1_title": "Part 1: Indicators of Threat",
@@ -174,7 +198,7 @@ CONTENT = {
         "break_msg": "请慢慢来。保留此窗口打开，准备好后点击下方按钮继续。",
         "btn_resume": "我准备好继续了",
         "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
-        "audio_hint": "🎙️ *您可以输入回复，或者点击麦克风录制音频。*",
+        "audio_hint": "🎙️ **录音:** 点击麦克风开始录音，再次点击停止（5分钟后自动停止）。*注意：点击继续后，音频文件可能需要一些时间上传。*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "btn_continue": "继续",
         "part1_title": "第一部分：威胁指标",
@@ -238,7 +262,7 @@ CONTENT = {
         "break_msg": "慢慢嚟。保留呢個視窗打開，準備好之後㩒下面個掣繼續。",
         "btn_resume": "我準備好繼續喇",
         "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
-        "audio_hint": "🎙️ *你可以輸入回覆，或者㩒咪高峰錄音。*",
+        "audio_hint": "🎙️ **錄音:** 㩒咪高峰開始錄音，再㩒一次停止（5分鐘後會自動停）。*注意：㩒繼續之後，音頻文件可能需要啲時間上傳。*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "btn_continue": "繼續",
         "part1_title": "第一部分：威脅指標",
@@ -302,7 +326,7 @@ CONTENT = {
         "break_msg": "Tómese el tiempo que necesite. Deje esta ventana abierta y haga clic abajo cuando esté listo/a.",
         "btn_resume": "Estoy listo/a para continuar",
         "skip_note": "💙 *Recordatorio: Puede omitir cualquier pregunta y dejarla en blanco si lo prefiere.*",
-        "audio_hint": "🎙️ *Puede escribir su respuesta o hacer clic en el micrófono para grabar audio.*",
+        "audio_hint": "🎙️ **Audio:** Haga clic en el micrófono para comenzar y vuelva a hacer clic para detener (se detiene automáticamente después de 5 min). *Nota: Los archivos de audio pueden tardar unos momentos en cargarse al hacer clic en Continuar.*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "btn_continue": "Continuar",
         "part1_title": "Parte 1: Indicadores de Amenaza",
@@ -366,7 +390,7 @@ CONTENT = {
         "break_msg": "Prenez votre temps. Laissez cette fenêtre ouverte et cliquez ci-dessous lorsque vous êtes prêt(e).",
         "btn_resume": "Je suis prêt(e) à reprendre",
         "skip_note": "💙 *Rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez.*",
-        "audio_hint": "🎙️ *Vous pouvez taper votre réponse ou cliquer sur le microphone pour enregistrer.*",
+        "audio_hint": "🎙️ **Audio:** Cliquez sur le microphone pour commencer, et cliquez à nouveau pour arrêter (arrêt automatique après 5 min). *Remarque : Le téléchargement des fichiers audio peut prendre quelques instants après avoir cliqué sur Continuer.*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "btn_continue": "Continuer",
         "part1_title": "Partie 1 : Indicateurs de Menace",
@@ -430,7 +454,7 @@ CONTENT = {
         "break_msg": "Не торопитесь. Оставьте окно открытым и нажмите ниже, когда будете готовы.",
         "btn_resume": "Я готов(а) продолжить",
         "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым.*",
-        "audio_hint": "🎙️ *Вы можете напечатать ответ или нажать на микрофон для записи.*",
+        "audio_hint": "🎙️ **Аудио:** Нажмите на микрофон, чтобы начать, и еще раз, чтобы остановить (автоматически остановится через 5 мин). *Примечание: Загрузка аудиофайлов может занять некоторое время при нажатии кнопки 'Продолжить'.*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "btn_continue": "Продолжить",
         "part1_title": "Часть 1: Индикаторы Угрозы",
@@ -467,7 +491,7 @@ CONTENT = {
         "c3": "C3: Решения, затрагивающие мою семью или общину, должны приниматься сообща.",
         "c4": "C4: Я бы описал(а) свою личность как тесно связанную с группами, к которым я принадлежу.",
         "c5": "C5: Когда я добиваюсь успеха, я чувствую, что это заслуга поддержки окружающих.",
-        "c6": "C6: Если бы мне пришлось выбирать между личными достижениями и благополучием группы, я бы выбрал(а) группу.",
+        "c6": "C6: Если бы мне пришлось выбирать между личных достижениях и благополучием группы, я бы выбрал(а) группу.",
         "part5_title": "Часть 5: Нарративный Контекст",
         "final_q1": "Если бы вы могли изменить одну вещь в своем детстве, что бы это было?",
         "final_q2": "Одним словом, как этот опыт сформировал вас сегодняшнего?",
@@ -494,7 +518,7 @@ CONTENT = {
         "break_msg": "İstediğiniz kadar zaman ayırın. Hazır olduğunuzda devam etmek için aşağıya tıklayın.",
         "btn_resume": "Devam etmeye hazırım",
         "skip_note": "💙 *Hatırlatma: Cevaplamak istemediğiniz soruları boş bırakabilirsiniz.*",
-        "audio_hint": "🎙️ *Yanıtınızı yazabilir veya ses kaydetmek için mikrofona tıklayabilirsiniz.*",
+        "audio_hint": "🎙️ **Ses:** Başlamak için mikrofona tıklayın, durdurmak için tekrar tıklayın (5 dk sonra otomatik durur). *Not: Devam'a tıkladığınızda ses dosyalarının yüklenmesi biraz zaman alabilir.*",
         "scale_desc": "**Ölçek:** `1=Hiçbir zaman` | `2=Nadiren` | `3=Bazen` | `4=Sıklıkla` | `5=Her zaman`",
         "btn_continue": "Devam et",
         "part1_title": "Bölüm 1: Tehdit Göstergeleri",
@@ -558,7 +582,7 @@ CONTENT = {
         "break_msg": "Nehmen Sie sich die Zeit, die Sie brauchen. Klicken Sie unten, wenn Sie bereit sind.",
         "btn_resume": "Ich bin bereit fortzufahren",
         "skip_note": "💙 *Hinweis: Sie können jede Frage überspringen und leer lassen.*",
-        "audio_hint": "🎙️ *Sie können Ihre Antwort tippen oder auf das Mikrofon klicken, um Audio aufzunehmen.*",
+        "audio_hint": "🎙️ **Audio:** Klicken Sie auf das Mikrofon, um zu starten, und erneut, um zu stoppen (stoppt automatisch nach 5 Min). *Hinweis: Das Hochladen von Audiodateien kann einen Moment dauern.*",
         "scale_desc": "**Skala:** `1=Nie wahr` | `2=Selten wahr` | `3=Manchmal wahr` | `4=Oft wahr` | `5=Sehr oft wahr`",
         "btn_continue": "Fortfahren",
         "part1_title": "Teil 1: Indikatoren für Bedrohung",
@@ -621,17 +645,44 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-    if st.query_params.get("admin") == "true":
-        st.divider()
+    st.divider()
+    
+    if not st.session_state.get('admin_unlocked', False):
+        admin_password = st.text_input("Admin Password", type="password")
+        if st.button("Login"):
+            if admin_password == st.secrets.get("admin_password", "1234"): 
+                st.session_state.admin_unlocked = True
+                st.rerun()
+            else:
+                st.error("Incorrect Password")
+                
+    if st.session_state.get('admin_unlocked', False):
         st.write("Welcome to the secure administrative view.")
         
+        # --- Study Status Toggle ---
+        st.subheader("Study Status")
+        current_status = get_app_status()
+        if current_status:
+            st.success("🟢 The study is currently OPEN.")
+            if st.button("Close Study", type="primary"):
+                set_app_status(False)
+                st.rerun()
+        else:
+            st.error("🔴 The study is currently CLOSED.")
+            if st.button("Reopen Study", type="primary"):
+                set_app_status(True)
+                st.rerun()
+                
+        st.divider()
+        
+        # --- Local Data Backup ---
         file_path = 'clinical_responses.json'
         if os.path.exists(file_path):
             with open(file_path, 'r') as f:
                 data = json.load(f)
             if data:
                 df = pd.DataFrame(data)
-                st.subheader("Participant Submissions (Local Backup)")
+                st.subheader("Participant Submissions (Local)")
                 st.dataframe(df, use_container_width=True)
                 
                 csv = df.to_csv(index=False).encode('utf-8')
@@ -658,7 +709,20 @@ with st.sidebar:
                 st.info("No responses recorded yet.")
         else:
             st.info("The local database file has not been created yet.")
+            
+        st.divider()
+        if st.button("Logout"):
+            st.session_state.admin_unlocked = False
+            st.rerun()
         st.stop() 
+
+# ==========================================
+# STUDY STATUS GATE (PUBLIC VIEW)
+# ==========================================
+if not get_app_status() and not st.session_state.get('admin_unlocked', False):
+    st.title("NeuroTwin: Many Ways to Thrive")
+    st.info("Thank you for your interest! This study is currently closed to new responses.")
+    st.stop()
 
 # ==========================================
 # THE STATE MACHINE 
@@ -667,7 +731,7 @@ t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
     st.title("NeuroTwin: Many Ways to Thrive")
-    st.write("### Your story. Your choices. Many ways to thrive.")
+    st.write("### Your story. Your choices. Many Ways to thrive.")
     st.write("---")
     st.write("### Please select your preferred language:")
     
@@ -740,11 +804,11 @@ elif st.session_state.current_step == 'dmap_part1':
     
     st.write(t["t_narrative_1"])
     tn1_text = st.text_area("...", label_visibility="collapsed", key="tn1")
-    tn1_audio = audio_recorder(key="mic_tn1")
+    tn1_audio = audio_recorder(key="mic_tn1", pause_threshold=300.0)
     
     st.write(t["t_narrative_2"])
     tn2_text = st.text_area("...", label_visibility="collapsed", key="tn2")
-    tn2_audio = audio_recorder(key="mic_tn2")
+    tn2_audio = audio_recorder(key="mic_tn2", pause_threshold=300.0)
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
@@ -798,11 +862,11 @@ elif st.session_state.current_step == 'dmap_part2':
     
     st.write(t["d_narrative_1"])
     dn1_text = st.text_area("...", label_visibility="collapsed", key="dn1")
-    dn1_audio = audio_recorder(key="mic_dn1")
+    dn1_audio = audio_recorder(key="mic_dn1", pause_threshold=300.0)
     
     st.write(t["d_narrative_2"])
     dn2_text = st.text_area("...", label_visibility="collapsed", key="dn2")
-    dn2_audio = audio_recorder(key="mic_dn2")
+    dn2_audio = audio_recorder(key="mic_dn2", pause_threshold=300.0)
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
@@ -876,15 +940,15 @@ elif st.session_state.current_step == 'narrative_recording':
 
     st.write(t["final_q1"])
     fn1_text = st.text_input("...", label_visibility="collapsed", key="fn1")
-    fn1_audio = audio_recorder(key="mic_fn1")
+    fn1_audio = audio_recorder(key="mic_fn1", pause_threshold=300.0)
 
     st.write(t["final_q2"])
     fn2_text = st.text_input("...", label_visibility="collapsed", key="fn2")
-    fn2_audio = audio_recorder(key="mic_fn2")
+    fn2_audio = audio_recorder(key="mic_fn2", pause_threshold=300.0)
 
     st.write(t["final_q3"])
     fn3_text = st.text_input("...", label_visibility="collapsed", key="fn3")
-    fn3_audio = audio_recorder(key="mic_fn3")
+    fn3_audio = audio_recorder(key="mic_fn3", pause_threshold=300.0)
 
     st.divider()
     if st.button(t["btn_continue"], type="primary", use_container_width=True):
@@ -929,10 +993,10 @@ elif st.session_state.current_step == 'crisis_resources':
 elif st.session_state.current_step == 'decompression':
     with st.spinner("Processing your responses..."):
         export_data_to_google()
+        save_data_to_json() # THIS RESTORES THE LOCAL BACKUP FOR YOUR ADMIN DASHBOARD!
         
     st.success("Thank you. Your responses have been securely recorded.")
     
-    # EVERYTHING INSIDE THIS 'IF' BLOCK WILL HIDE IF SHOW_RADAR_MAP = FALSE
     if SHOW_RADAR_MAP:
         st.divider()
         t_score = st.session_state.responses.get("threat_score_avg", 0)
