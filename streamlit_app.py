@@ -645,76 +645,78 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-    st.divider()
-    
-    if not st.session_state.get('admin_unlocked', False):
-        admin_password = st.text_input("Admin Password", type="password")
-        if st.button("Login"):
-            if admin_password == st.secrets.get("admin_password", "1234"): 
-                st.session_state.admin_unlocked = True
-                st.rerun()
-            else:
-                st.error("Incorrect Password")
-                
-    if st.session_state.get('admin_unlocked', False):
-        st.write("Welcome to the secure administrative view.")
-        
-        # --- Study Status Toggle ---
-        st.subheader("Study Status")
-        current_status = get_app_status()
-        if current_status:
-            st.success("🟢 The study is currently OPEN.")
-            if st.button("Close Study", type="primary"):
-                set_app_status(False)
-                st.rerun()
-        else:
-            st.error("🔴 The study is currently CLOSED.")
-            if st.button("Reopen Study", type="primary"):
-                set_app_status(True)
-                st.rerun()
-                
+    # HIDDEN TRICK: Only show the login if the URL ends in ?admin=true
+    if st.query_params.get("admin") == "true":
         st.divider()
-        
-        # --- Local Data Backup ---
-        file_path = 'clinical_responses.json'
-        if os.path.exists(file_path):
-            with open(file_path, 'r') as f:
-                data = json.load(f)
-            if data:
-                df = pd.DataFrame(data)
-                st.subheader("Participant Submissions (Local)")
-                st.dataframe(df, use_container_width=True)
-                
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv")
-                
-                st.divider()
-                st.warning("These actions delete the local backup on this server.")
-                
-                participant_ids = [entry.get('id') for entry in data if 'id' in entry]
-                selected_id = st.selectbox("Select ID to Delete:", participant_ids)
-                if st.button("🗑️ Delete Selected"):
-                    new_data = [entry for entry in data if entry.get('id') != selected_id]
-                    with open(file_path, 'w') as f:
-                        json.dump(new_data, f, indent=4)
-                    st.success(f"Participant {selected_id} deleted!")
-                    st.rerun()
 
-                if st.button("🗑️ Clear All Local Data", type="primary"):
-                    with open(file_path, 'w') as f:
-                        json.dump([], f, indent=4)
-                    st.success("All local data cleared!")
+        if not st.session_state.get('admin_unlocked', False):
+            admin_password = st.text_input("Admin Password", type="password")
+            if st.button("Login"):
+                if admin_password == st.secrets.get("admin_password", "1234"): 
+                    st.session_state.admin_unlocked = True
+                    st.rerun()
+                else:
+                    st.error("Incorrect Password")
+                    
+        if st.session_state.get('admin_unlocked', False):
+            st.write("Welcome to the secure administrative view.")
+            
+            # --- Study Status Toggle ---
+            st.subheader("Study Status")
+            current_status = get_app_status()
+            if current_status:
+                st.success("🟢 The study is currently OPEN.")
+                if st.button("Close Study", type="primary"):
+                    set_app_status(False)
                     st.rerun()
             else:
-                st.info("No responses recorded yet.")
-        else:
-            st.info("The local database file has not been created yet.")
+                st.error("🔴 The study is currently CLOSED.")
+                if st.button("Reopen Study", type="primary"):
+                    set_app_status(True)
+                    st.rerun()
+                    
+            st.divider()
             
-        st.divider()
-        if st.button("Logout"):
-            st.session_state.admin_unlocked = False
-            st.rerun()
-        st.stop() 
+            # --- Local Data Backup ---
+            file_path = 'clinical_responses.json'
+            if os.path.exists(file_path):
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                if data:
+                    df = pd.DataFrame(data)
+                    st.subheader("Participant Submissions (Local)")
+                    st.dataframe(df, use_container_width=True)
+                    
+                    csv = df.to_csv(index=False).encode('utf-8')
+                    st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv")
+                    
+                    st.divider()
+                    st.warning("These actions delete the local backup on this server.")
+                    
+                    participant_ids = [entry.get('id') for entry in data if 'id' in entry]
+                    selected_id = st.selectbox("Select ID to Delete:", participant_ids)
+                    if st.button("🗑️ Delete Selected"):
+                        new_data = [entry for entry in data if entry.get('id') != selected_id]
+                        with open(file_path, 'w') as f:
+                            json.dump(new_data, f, indent=4)
+                        st.success(f"Participant {selected_id} deleted!")
+                        st.rerun()
+
+                    if st.button("🗑️ Clear All Local Data", type="primary"):
+                        with open(file_path, 'w') as f:
+                            json.dump([], f, indent=4)
+                        st.success("All local data cleared!")
+                        st.rerun()
+                else:
+                    st.info("No responses recorded yet.")
+            else:
+                st.info("The local database file has not been created yet.")
+                
+            st.divider()
+            if st.button("Logout"):
+                st.session_state.admin_unlocked = False
+                st.rerun()
+            st.stop() 
 
 # ==========================================
 # STUDY STATUS GATE (PUBLIC VIEW)
