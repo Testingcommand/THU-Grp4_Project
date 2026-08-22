@@ -49,11 +49,16 @@ def save_data_to_json():
             db = json.load(f)
     else:
         db = []
-    # Only append if this specific participant ID isn't already in the database
-    if not any(entry.get('id') == st.session_state.responses['id'] for entry in db):
+    
+    # Check if participant already exists in JSON; if so, replace/update them, else append
+    existing_idx = next((i for i, item in enumerate(db) if item["id"] == st.session_state.responses['id']), None)
+    if existing_idx is not None:
+        db[existing_idx] = st.session_state.responses
+    else:
         db.append(st.session_state.responses)
-        with open(file_path, 'w') as f:
-            json.dump(db, f, indent=4)
+        
+    with open(file_path, 'w') as f:
+        json.dump(db, f, indent=4)
 
 def save_audio_file(audio_bytes, question_key):
     filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
@@ -77,6 +82,15 @@ def export_data_to_google():
         return response.status_code == 200
     except Exception:
         return False
+
+def process_early_exit(status_message):
+    """Saves whatever partial data has been collected before closing the app."""
+    st.session_state.responses["post_gate_status"] = status_message
+    with st.spinner("Saving partial progress..."):
+        export_data_to_google()
+        save_data_to_json()
+    st.session_state.current_step = 'safe_exit'
+    st.rerun()
 
 def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_score):
     categories = [
@@ -130,7 +144,7 @@ CONTENT = {
         "post_gate_talk": "I would like to talk to someone",
         "crisis_msg": "If you need immediate support, please contact one of the following services:",
         "crisis_resources": "- **National Crisis Line:** Dial 988\n- **Crisis Text Line:** Text HOME to 741741",
-        "safe_exit_msg": "Your well-being is our priority. We have securely closed your session. You may close this window.",
+        "safe_exit_msg": "Your well-being is our priority. Your partial responses have been saved. \n\n*Note: To protect your privacy, if you wish to complete the assessment later, your progress will restart from the beginning.*",
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
@@ -194,7 +208,7 @@ CONTENT = {
         "post_gate_talk": "我想找人谈谈",
         "crisis_msg": "如果您需要紧急支持，请联系以下服务机构：",
         "crisis_resources": "- **危机热线:** 请拨打当地紧急心理援助热线",
-        "safe_exit_msg": "您的健康是我们的首要任务。我们已安全关闭了您的会话。",
+        "safe_exit_msg": "您的健康是我们的首要任务。您的部分回复已保存。\n\n*注意：为保护隐私，如果您希望以后完成评估，进度将重新开始。*",
         "break_msg": "请慢慢来。保留此窗口打开，准备好后点击下方按钮继续。",
         "btn_resume": "我准备好继续了",
         "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
@@ -258,7 +272,7 @@ CONTENT = {
         "post_gate_talk": "我想搵人傾吓",
         "crisis_msg": "如果你需要緊急支援，請聯絡以下機構：",
         "crisis_resources": "- **危機熱線:** 請致電當地緊急心理輔導熱線",
-        "safe_exit_msg": "你嘅健康係我哋嘅首要考慮。我哋已經安全咁關閉咗你嘅會話。",
+        "safe_exit_msg": "你嘅健康係我哋嘅首要考慮。你嘅部分回覆已經儲存。\n\n*注意：為咗保護私隱，如果你想遲啲完成評估，進度會重新開始。*",
         "break_msg": "慢慢嚟。保留呢個視窗打開，準備好之後㩒下面個掣繼續。",
         "btn_resume": "我準備好繼續喇",
         "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
@@ -322,7 +336,7 @@ CONTENT = {
         "post_gate_talk": "Me gustaría hablar con alguien",
         "crisis_msg": "Si necesita apoyo inmediato, comuníquese con uno de los siguientes servicios:",
         "crisis_resources": "- **Línea de Crisis Nacional:** Marque 988 (EE. UU.)",
-        "safe_exit_msg": "Su bienestar es nuestra prioridad. Hemos cerrado su sesión de forma segura.",
+        "safe_exit_msg": "Su bienestar es nuestra prioridad. Sus respuestas parciales han sido guardadas.\n\n*Nota: Para proteger su privacidad, si desea completar la evaluación más tarde, su progreso se reiniciará.*",
         "break_msg": "Tómese el tiempo que necesite. Deje esta ventana abierta y haga clic abajo cuando esté listo/a.",
         "btn_resume": "Estoy listo/a para continuar",
         "skip_note": "💙 *Recordatorio: Puede omitir cualquier pregunta y dejarla en blanco si lo prefiere.*",
@@ -386,7 +400,7 @@ CONTENT = {
         "post_gate_talk": "J'aimerais parler à quelqu'un",
         "crisis_msg": "Si vous avez besoin d'un soutien immédiat, veuillez contacter :",
         "crisis_resources": "- **Ligne d'assistance de crise :** Numéro d'urgence local",
-        "safe_exit_msg": "Votre bien-être est notre priorité. Nous avons fermé votre session.",
+        "safe_exit_msg": "Votre bien-être est notre priorité. Vos réponses partielles ont été enregistrées.\n\n*Remarque : Pour protéger votre vie privée, si vous souhaitez terminer l'évaluation plus tard, votre progression recommencera.*",
         "break_msg": "Prenez votre temps. Laissez cette fenêtre ouverte et cliquez ci-dessous lorsque vous êtes prêt(e).",
         "btn_resume": "Je suis prêt(e) à reprendre",
         "skip_note": "💙 *Rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez.*",
@@ -450,7 +464,7 @@ CONTENT = {
         "post_gate_talk": "Я хотел(а) бы поговорить с кем-нибудь",
         "crisis_msg": "Если вам нужна срочная поддержка, обратитесь в одну из служб:",
         "crisis_resources": "- **Телефон доверия:** Обратитесь в местную службу поддержки",
-        "safe_exit_msg": "Мы безопасно закрыли вашу сессию. Вы можете закрыть это окно.",
+        "safe_exit_msg": "Мы безопасно закрыли вашу сессию. Ваши частичные ответы сохранены.\n\n*Примечание: В целях вашей безопасности, если вы захотите завершить оценку позже, ваш прогресс будет сброшен.*",
         "break_msg": "Не торопитесь. Оставьте окно открытым и нажмите ниже, когда будете готовы.",
         "btn_resume": "Я готов(а) продолжить",
         "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым.*",
@@ -514,7 +528,7 @@ CONTENT = {
         "post_gate_talk": "Biriyle konuşmak istiyorum",
         "crisis_msg": "Acil desteğe ihtiyacınız varsa, lütfen aşağıdaki hizmetlerden biriyle iletişime geçin:",
         "crisis_resources": "- **Kriz Hattı:** Lütfen yerel acil numarayı arayın",
-        "safe_exit_msg": "Güvenliğiniz bizim önceliğimizdir. Oturumunuzu güvenle kapattık.",
+        "safe_exit_msg": "Güvenliğiniz bizim önceliğimizdir. Kısmi yanıtlarınız kaydedildi.\n\n*Not: Gizliliğinizi korumak için, anketi daha sonra tamamlamak isterseniz ilerlemeniz yeniden başlayacaktır.*",
         "break_msg": "İstediğiniz kadar zaman ayırın. Hazır olduğunuzda devam etmek için aşağıya tıklayın.",
         "btn_resume": "Devam etmeye hazırım",
         "skip_note": "💙 *Hatırlatma: Cevaplamak istemediğiniz soruları boş bırakabilirsiniz.*",
@@ -578,7 +592,7 @@ CONTENT = {
         "post_gate_talk": "Ich möchte mit jemandem sprechen",
         "crisis_msg": "Wenn Sie sofortige Unterstützung benötigen, wenden Sie sich bitte an:",
         "crisis_resources": "- **Telefonseelsorge:** Bitte rufen Sie die lokale Notrufnummer an",
-        "safe_exit_msg": "Ihr Wohlbefinden ist unsere Priorität. Wir haben Ihre Sitzung sicher beendet.",
+        "safe_exit_msg": "Ihr Wohlbefinden ist unsere Priorität. Ihre teilweisen Antworten wurden gespeichert.\n\n*Hinweis: Um Ihre Privatsphäre zu schützen, wird Ihr Fortschritt neu gestartet, wenn Sie die Bewertung später abschließen möchten.*",
         "break_msg": "Nehmen Sie sich die Zeit, die Sie brauchen. Klicken Sie unten, wenn Sie bereit sind.",
         "btn_resume": "Ich bin bereit fortzufahren",
         "skip_note": "💙 *Hinweis: Sie können jede Frage überspringen und leer lassen.*",
@@ -627,6 +641,18 @@ CONTENT = {
     }
 }
 
+# Language mapping dict to route native names to our backend keys
+LANG_MAP = {
+    "English": "English",
+    "中文 (Mandarin)": "Mandarin",
+    "粵語 (Cantonese)": "Cantonese",
+    "Español (Spanish)": "Spanish",
+    "Français (French)": "French",
+    "Русский (Russian)": "Russian",
+    "Türkçe (Turkish)": "Turkish",
+    "Deutsch (German)": "German"
+}
+
 # ==========================================
 # INITIALIZATION
 # ==========================================
@@ -637,7 +663,7 @@ if 'current_step' not in st.session_state:
     st.session_state.lang = "English"
 
 # ==========================================
-# ADMIN SIDEBAR
+# SIDEBAR (ONLY FOR PUBLIC APP)
 # ==========================================
 with st.sidebar:
     st.subheader("Assessment Controls")
@@ -648,7 +674,6 @@ with st.sidebar:
     # HIDDEN TRICK: Only show the login if the URL ends in ?admin=true
     if st.query_params.get("admin") == "true":
         st.divider()
-
         if not st.session_state.get('admin_unlocked', False):
             admin_password = st.text_input("Admin Password", type="password")
             if st.button("Login"):
@@ -657,66 +682,81 @@ with st.sidebar:
                     st.rerun()
                 else:
                     st.error("Incorrect Password")
-                    
-        if st.session_state.get('admin_unlocked', False):
-            st.write("Welcome to the secure administrative view.")
-            
-            # --- Study Status Toggle ---
-            st.subheader("Study Status")
-            current_status = get_app_status()
-            if current_status:
-                st.success("🟢 The study is currently OPEN.")
-                if st.button("Close Study", type="primary"):
-                    set_app_status(False)
-                    st.rerun()
-            else:
-                st.error("🔴 The study is currently CLOSED.")
-                if st.button("Reopen Study", type="primary"):
-                    set_app_status(True)
-                    st.rerun()
-                    
-            st.divider()
-            
-            # --- Local Data Backup ---
-            file_path = 'clinical_responses.json'
-            if os.path.exists(file_path):
-                with open(file_path, 'r') as f:
-                    data = json.load(f)
-                if data:
-                    df = pd.DataFrame(data)
-                    st.subheader("Participant Submissions (Local)")
-                    st.dataframe(df, use_container_width=True)
-                    
-                    csv = df.to_csv(index=False).encode('utf-8')
-                    st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv")
-                    
-                    st.divider()
-                    st.warning("These actions delete the local backup on this server.")
-                    
-                    participant_ids = [entry.get('id') for entry in data if 'id' in entry]
-                    selected_id = st.selectbox("Select ID to Delete:", participant_ids)
-                    if st.button("🗑️ Delete Selected"):
-                        new_data = [entry for entry in data if entry.get('id') != selected_id]
-                        with open(file_path, 'w') as f:
-                            json.dump(new_data, f, indent=4)
-                        st.success(f"Participant {selected_id} deleted!")
-                        st.rerun()
-
-                    if st.button("🗑️ Clear All Local Data", type="primary"):
-                        with open(file_path, 'w') as f:
-                            json.dump([], f, indent=4)
-                        st.success("All local data cleared!")
-                        st.rerun()
-                else:
-                    st.info("No responses recorded yet.")
-            else:
-                st.info("The local database file has not been created yet.")
-                
-            st.divider()
+        else:
             if st.button("Logout"):
                 st.session_state.admin_unlocked = False
                 st.rerun()
-            st.stop() 
+
+# ==========================================
+# ADMIN DASHBOARD (FULL SCREEN)
+# ==========================================
+if st.session_state.get('admin_unlocked', False):
+    st.title("Admin Dashboard")
+    st.write("Welcome to the secure administrative view.")
+    
+    # --- Study Status Toggle ---
+    st.subheader("Study Status")
+    current_status = get_app_status()
+    if current_status:
+        st.success("🟢 The study is currently OPEN.")
+        if st.button("Close Study", type="primary"):
+            set_app_status(False)
+            st.rerun()
+    else:
+        st.error("🔴 The study is currently CLOSED.")
+        if st.button("Reopen Study", type="primary"):
+            set_app_status(True)
+            st.rerun()
+            
+    st.divider()
+    
+    # --- Local Data Backup ---
+    file_path = 'clinical_responses.json'
+    if os.path.exists(file_path):
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+        if data:
+            df = pd.DataFrame(data)
+            st.subheader("Participant Submissions (Local)")
+            st.dataframe(df, use_container_width=True)
+            
+            # --- NEW: Specific Participant Detail View ---
+            st.subheader("Participant Details")
+            participant_ids = [entry.get('id') for entry in data if 'id' in entry]
+            selected_detail_id = st.selectbox("Select ID to View Details:", ["-- Select ID --"] + participant_ids)
+            if selected_detail_id != "-- Select ID --":
+                participant_data = next((item for item in data if item.get("id") == selected_detail_id), None)
+                if participant_data:
+                    st.json(participant_data)
+            
+            st.divider()
+            
+            # --- Data Management ---
+            col1, col2 = st.columns(2)
+            with col1:
+                csv = df.to_csv(index=False).encode('utf-8')
+                st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv", use_container_width=True)
+            with col2:
+                selected_del_id = st.selectbox("Select ID to Delete:", ["-- Select ID --"] + participant_ids, label_visibility="collapsed")
+                if st.button("🗑️ Delete Selected Participant", use_container_width=True) and selected_del_id != "-- Select ID --":
+                    new_data = [entry for entry in data if entry.get('id') != selected_del_id]
+                    with open(file_path, 'w') as f:
+                        json.dump(new_data, f, indent=4)
+                    st.success(f"Participant {selected_del_id} deleted!")
+                    st.rerun()
+
+            st.warning("⚠️ Proceed with caution. This will delete the entire local JSON backup on this server.")
+            if st.button("🚨 Clear All Local Data", type="primary"):
+                with open(file_path, 'w') as f:
+                    json.dump([], f, indent=4)
+                st.success("All local data cleared!")
+                st.rerun()
+        else:
+            st.info("No responses recorded yet.")
+    else:
+        st.info("The local database file has not been created yet.")
+        
+    st.stop() # Prevents the rest of the public app from rendering when admin is logged in!
 
 # ==========================================
 # STUDY STATUS GATE (PUBLIC VIEW)
@@ -737,12 +777,14 @@ if st.session_state.current_step == 'dashboard':
     st.write("---")
     st.write("### Please select your preferred language:")
     
-    langs = ["English", "Mandarin", "Cantonese", "Spanish", "French", "Russian", "Turkish", "German"]
+    # Native Language Buttons!
+    display_langs = list(LANG_MAP.keys())
     cols = st.columns(4)
-    for i, lang in enumerate(langs):
-        if cols[i%4].button(lang, use_container_width=True):
-            st.session_state.lang = lang
-            st.session_state.responses['language'] = lang
+    for i, display_lang in enumerate(display_langs):
+        if cols[i%4].button(display_lang, use_container_width=True):
+            backend_lang = LANG_MAP[display_lang]
+            st.session_state.lang = backend_lang
+            st.session_state.responses['language'] = backend_lang
             st.session_state.current_step = 'pre_gate_1'
             st.rerun()
             
@@ -758,8 +800,7 @@ elif st.session_state.current_step == 'pre_gate_1':
         st.session_state.current_step = 'pre_gate_2'
         st.rerun()
     if col2.button(t["gate1_no"], use_container_width=True):
-        st.session_state.current_step = 'safe_exit'
-        st.rerun()
+        process_early_exit("Early Exit (Gate 1)")
 
 elif st.session_state.current_step == 'pre_gate_2':
     st.write("---")
@@ -769,12 +810,11 @@ elif st.session_state.current_step == 'pre_gate_2':
         st.session_state.current_step = 'dmap_part1'
         st.rerun()
     if col2.button(t["gate2_no"], use_container_width=True):
-        st.session_state.current_step = 'safe_exit'
-        st.rerun()
+        process_early_exit("Early Exit (Gate 2)")
 
 elif st.session_state.current_step == 'safe_exit':
     st.info(t["safe_exit_msg"])
-    if st.button("Restart"):
+    if st.button("Restart New Session"):
         st.session_state.clear()
         st.rerun()
 
@@ -840,8 +880,7 @@ elif st.session_state.current_step == 'mid_gate':
         st.session_state.current_step = 'break_screen'
         st.rerun()
     if st.button(t["mid_gate_stop"], use_container_width=True):
-        st.session_state.current_step = 'safe_exit'
-        st.rerun()
+        process_early_exit("Early Exit (Mid-Gate)")
 
 # --- PART 2: DEPRIVATION ---
 elif st.session_state.current_step == 'dmap_part2':
@@ -995,7 +1034,7 @@ elif st.session_state.current_step == 'crisis_resources':
 elif st.session_state.current_step == 'decompression':
     with st.spinner("Processing your responses..."):
         export_data_to_google()
-        save_data_to_json() # THIS RESTORES THE LOCAL BACKUP FOR YOUR ADMIN DASHBOARD!
+        save_data_to_json() 
         
     st.success("Thank you. Your responses have been securely recorded.")
     
