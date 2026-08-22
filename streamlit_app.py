@@ -7,14 +7,15 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
+from audio_recorder_streamlit import audio_recorder
 
 # ==========================================
 # APP CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzn15OGyoLn63kf3TN62iDPRVWMDGragOWEGdYiTweO3_tdUYcyFc_JzN8A5p2hFV5W/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
 
 # TOGGLE THIS TO FALSE TO HIDE THE RADAR MAP AND EXPLANATIONS AT THE END
-SHOW_RADAR_MAP = True 
+SHOW_RADAR_MAP = False 
 
 st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
 
@@ -29,12 +30,24 @@ st.markdown("""
 # ==========================================
 # HELPER FUNCTIONS 
 # ==========================================
+def save_audio_file(audio_bytes, question_key):
+    filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
+    with open(filename, "wb") as f:
+        f.write(audio_bytes)
+    return filename
+
 def export_data_to_google():
     payload = {
         "id": st.session_state.responses['id'],
         "text_data": st.session_state.responses,
         "audio_files": []
     }
+    # Package any saved audio files to send to Google Drive
+    for key, value in st.session_state.responses.items():
+        if isinstance(value, str) and value.endswith('.wav') and os.path.exists(value):
+            with open(value, "rb") as f:
+                encoded_audio = base64.b64encode(f.read()).decode('utf-8')
+                payload["audio_files"].append({"filename": value, "data": encoded_audio})
     try:
         response = requests.post(GOOGLE_WEBAPP_URL, json=payload)
         return response.status_code == 200
@@ -42,7 +55,6 @@ def export_data_to_google():
         return False
 
 def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_score):
-    # Brain regions added back to the categories
     categories = [
         'Threat Reactivity\n(Amygdala / PAG)', 
         'Social Cognition\n(TPJ / mPFC)', 
@@ -98,6 +110,7 @@ CONTENT = {
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
+        "audio_hint": "🎙️ *You can type your response or click the microphone to record audio.*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "btn_continue": "Continue",
         "part1_title": "Part 1: Indicators of Threat",
@@ -161,6 +174,7 @@ CONTENT = {
         "break_msg": "请慢慢来。保留此窗口打开，准备好后点击下方按钮继续。",
         "btn_resume": "我准备好继续了",
         "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
+        "audio_hint": "🎙️ *您可以输入回复，或者点击麦克风录制音频。*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "btn_continue": "继续",
         "part1_title": "第一部分：威胁指标",
@@ -224,6 +238,7 @@ CONTENT = {
         "break_msg": "慢慢嚟。保留呢個視窗打開，準備好之後㩒下面個掣繼續。",
         "btn_resume": "我準備好繼續喇",
         "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
+        "audio_hint": "🎙️ *你可以輸入回覆，或者㩒咪高峰錄音。*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "btn_continue": "繼續",
         "part1_title": "第一部分：威脅指標",
@@ -287,6 +302,7 @@ CONTENT = {
         "break_msg": "Tómese el tiempo que necesite. Deje esta ventana abierta y haga clic abajo cuando esté listo/a.",
         "btn_resume": "Estoy listo/a para continuar",
         "skip_note": "💙 *Recordatorio: Puede omitir cualquier pregunta y dejarla en blanco si lo prefiere.*",
+        "audio_hint": "🎙️ *Puede escribir su respuesta o hacer clic en el micrófono para grabar audio.*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "btn_continue": "Continuar",
         "part1_title": "Parte 1: Indicadores de Amenaza",
@@ -350,6 +366,7 @@ CONTENT = {
         "break_msg": "Prenez votre temps. Laissez cette fenêtre ouverte et cliquez ci-dessous lorsque vous êtes prêt(e).",
         "btn_resume": "Je suis prêt(e) à reprendre",
         "skip_note": "💙 *Rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez.*",
+        "audio_hint": "🎙️ *Vous pouvez taper votre réponse ou cliquer sur le microphone pour enregistrer.*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "btn_continue": "Continuer",
         "part1_title": "Partie 1 : Indicateurs de Menace",
@@ -413,6 +430,7 @@ CONTENT = {
         "break_msg": "Не торопитесь. Оставьте окно открытым и нажмите ниже, когда будете готовы.",
         "btn_resume": "Я готов(а) продолжить",
         "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым.*",
+        "audio_hint": "🎙️ *Вы можете напечатать ответ или нажать на микрофон для записи.*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "btn_continue": "Продолжить",
         "part1_title": "Часть 1: Индикаторы Угрозы",
@@ -476,6 +494,7 @@ CONTENT = {
         "break_msg": "İstediğiniz kadar zaman ayırın. Hazır olduğunuzda devam etmek için aşağıya tıklayın.",
         "btn_resume": "Devam etmeye hazırım",
         "skip_note": "💙 *Hatırlatma: Cevaplamak istemediğiniz soruları boş bırakabilirsiniz.*",
+        "audio_hint": "🎙️ *Yanıtınızı yazabilir veya ses kaydetmek için mikrofona tıklayabilirsiniz.*",
         "scale_desc": "**Ölçek:** `1=Hiçbir zaman` | `2=Nadiren` | `3=Bazen` | `4=Sıklıkla` | `5=Her zaman`",
         "btn_continue": "Devam et",
         "part1_title": "Bölüm 1: Tehdit Göstergeleri",
@@ -539,6 +558,7 @@ CONTENT = {
         "break_msg": "Nehmen Sie sich die Zeit, die Sie brauchen. Klicken Sie unten, wenn Sie bereit sind.",
         "btn_resume": "Ich bin bereit fortzufahren",
         "skip_note": "💙 *Hinweis: Sie können jede Frage überspringen und leer lassen.*",
+        "audio_hint": "🎙️ *Sie können Ihre Antwort tippen oder auf das Mikrofon klicken, um Audio aufzunehmen.*",
         "scale_desc": "**Skala:** `1=Nie wahr` | `2=Selten wahr` | `3=Manchmal wahr` | `4=Oft wahr` | `5=Sehr oft wahr`",
         "btn_continue": "Fortfahren",
         "part1_title": "Teil 1: Indikatoren für Bedrohung",
@@ -715,15 +735,25 @@ elif st.session_state.current_step == 'dmap_part1':
     t7_raw = st.radio(t["t7"], options, index=None, horizontal=True)
     
     st.divider()
-    st.write("**Narrative Reflection (Optional)**")
-    t_narrative_1 = st.text_area(t["t_narrative_1"])
-    t_narrative_2 = st.text_area(t["t_narrative_2"])
+    st.write("**Narrative Reflection**")
+    st.info(t["audio_hint"])
+    
+    st.write(t["t_narrative_1"])
+    tn1_text = st.text_area("...", label_visibility="collapsed", key="tn1")
+    tn1_audio = audio_recorder(key="mic_tn1")
+    
+    st.write(t["t_narrative_2"])
+    tn2_text = st.text_area("...", label_visibility="collapsed", key="tn2")
+    tn2_audio = audio_recorder(key="mic_tn2")
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
             "t1": t1, "t2": t2, "t3": t3, "t4": t4, "t5": t5, "t6": t6, "t7": t7_raw,
-            "threat_narrative_1": t_narrative_1, "threat_narrative_2": t_narrative_2
+            "threat_narrative_1": tn1_text, "threat_narrative_2": tn2_text
         })
+        if tn1_audio: st.session_state.responses["threat_narrative_1_audio"] = save_audio_file(tn1_audio, "threat_narrative_1")
+        if tn2_audio: st.session_state.responses["threat_narrative_2_audio"] = save_audio_file(tn2_audio, "threat_narrative_2")
+
         t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
         t_answered = [s for s in t_scores if s is not None]
         st.session_state.responses["threat_score_avg"] = sum(t_answered) / len(t_answered) if len(t_answered) > 0 else 0
@@ -763,15 +793,25 @@ elif st.session_state.current_step == 'dmap_part2':
     d7_raw = st.radio(t["d7"], options, index=None, horizontal=True)
 
     st.divider()
-    st.write("**Narrative Reflection (Optional)**")
-    d_narrative_1 = st.text_area(t["d_narrative_1"])
-    d_narrative_2 = st.text_area(t["d_narrative_2"])
+    st.write("**Narrative Reflection**")
+    st.info(t["audio_hint"])
+    
+    st.write(t["d_narrative_1"])
+    dn1_text = st.text_area("...", label_visibility="collapsed", key="dn1")
+    dn1_audio = audio_recorder(key="mic_dn1")
+    
+    st.write(t["d_narrative_2"])
+    dn2_text = st.text_area("...", label_visibility="collapsed", key="dn2")
+    dn2_audio = audio_recorder(key="mic_dn2")
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
             "d1": d1, "d2": d2, "d3": d3, "d4": d4, "d5": d5, "d6": d6, "d7": d7_raw,
-            "dep_narrative_1": d_narrative_1, "dep_narrative_2": d_narrative_2
+            "dep_narrative_1": dn1_text, "dep_narrative_2": dn2_text
         })
+        if dn1_audio: st.session_state.responses["dep_narrative_1_audio"] = save_audio_file(dn1_audio, "dep_narrative_1")
+        if dn2_audio: st.session_state.responses["dep_narrative_2_audio"] = save_audio_file(dn2_audio, "dep_narrative_2")
+
         d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
         d_answered = [s for s in d_scores if s is not None]
         st.session_state.responses["deprivation_score_avg"] = sum(d_answered) / len(d_answered) if len(d_answered) > 0 else 0
@@ -832,17 +872,29 @@ elif st.session_state.current_step == 'narrative_recording':
     st.write("---")
     st.header(t["part5_title"])
     st.markdown(t["skip_note"])
+    st.info(t["audio_hint"])
 
-    q1 = st.text_input(t["final_q1"])
-    q2 = st.text_input(t["final_q2"])
-    q3 = st.text_input(t["final_q3"])
+    st.write(t["final_q1"])
+    fn1_text = st.text_input("...", label_visibility="collapsed", key="fn1")
+    fn1_audio = audio_recorder(key="mic_fn1")
 
+    st.write(t["final_q2"])
+    fn2_text = st.text_input("...", label_visibility="collapsed", key="fn2")
+    fn2_audio = audio_recorder(key="mic_fn2")
+
+    st.write(t["final_q3"])
+    fn3_text = st.text_input("...", label_visibility="collapsed", key="fn3")
+    fn3_audio = audio_recorder(key="mic_fn3")
+
+    st.divider()
     if st.button(t["btn_continue"], type="primary", use_container_width=True):
         st.session_state.responses.update({
-            "final_narrative_1": q1,
-            "final_narrative_2": q2,
-            "final_narrative_3": q3
+            "final_narrative_1": fn1_text, "final_narrative_2": fn2_text, "final_narrative_3": fn3_text
         })
+        if fn1_audio: st.session_state.responses["final_narrative_1_audio"] = save_audio_file(fn1_audio, "final_narrative_1")
+        if fn2_audio: st.session_state.responses["final_narrative_2_audio"] = save_audio_file(fn2_audio, "final_narrative_2")
+        if fn3_audio: st.session_state.responses["final_narrative_3_audio"] = save_audio_file(fn3_audio, "final_narrative_3")
+        
         st.session_state.current_step = 'post_gate'
         st.rerun()
 
