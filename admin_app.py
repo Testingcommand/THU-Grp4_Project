@@ -7,9 +7,9 @@ import matplotlib.pyplot as plt
 # ==========================================
 # ADMIN CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxg6SHAnefwfDFm-F4DF_iRKyYkrQtNK6QUGGxBQXWsAJCgqUu1jBcOW-Jk4-1qaYRl/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyIoRvEhh4RZg28fKsEQ6M34frZZwH13aSai_ZV0wPMWiuOK_Gcwec5M8v_lLRYifyn/exec"
 
-# Pull secrets from Streamlit's secure vault instead of hardcoding them!
+# These pull securely from Streamlit Cloud Secrets!
 ADMIN_API_KEY = st.secrets["admin_api_key"]
 TEAM_PASSWORD = st.secrets["team_password"]
 
@@ -31,7 +31,7 @@ if not st.session_state.authenticated:
             st.rerun()
         else:
             st.error("Incorrect password.")
-    st.stop() # Stops the rest of the app from loading until password is correct
+    st.stop() 
 
 # ==========================================
 # HELPER FUNCTIONS
@@ -44,6 +44,14 @@ def fetch_participant_data():
         return []
     except Exception:
         return []
+
+def delete_participant_record(participant_id):
+    payload = {"action": "delete_participant", "participant_id": participant_id, "key": ADMIN_API_KEY}
+    try:
+        res = requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=15, allow_redirects=True)
+        return "success" in res.text
+    except Exception:
+        return False
 
 def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_score):
     categories = [
@@ -107,7 +115,6 @@ st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Driv
 
 st.subheader("Study Status")
 
-# Fetch from Google Sheets only on first load, then update instantly in memory
 if "study_is_open" not in st.session_state:
     st.session_state.study_is_open = get_study_status()
 
@@ -156,7 +163,6 @@ st.divider()
 # ==========================================
 st.subheader("Individual Clinical Profile & Topology")
 
-# Handle missing ID column gracefully if sheet is slightly different
 if "Participant ID" in df.columns:
     participant_ids = df["Participant ID"].dropna().unique().tolist()
 else:
@@ -209,3 +215,13 @@ if selected_id != "-- Select ID --":
         st.write("---")
         st.write(f"**Assessment Exit Status:** `{p_data.get('Post-Assessment Status', 'Completed')}`")
         st.write(f"**Primary Language:** `{p_data.get('Language', 'Unknown')}`")
+
+    # The New Delete Button Section
+    st.divider()
+    st.warning("⚠️ **Danger Zone**")
+    if st.button(f"🗑️ Delete Trial Data for ID: {selected_id}", type="primary"):
+        if delete_participant_record(selected_id):
+            st.success(f"Successfully deleted {selected_id}. Refreshing the dashboard...")
+            st.rerun()
+        else:
+            st.error("Failed to delete record. Ensure your Google Apps Script is updated and deployed as a New Version.")
