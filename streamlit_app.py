@@ -5,7 +5,7 @@ import requests
 import base64
 import pandas as pd
 import numpy as np
-import matplotlib.subplots as plt
+import matplotlib.pyplot as plt
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
