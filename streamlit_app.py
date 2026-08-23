@@ -3,7 +3,6 @@ import json
 import os
 import requests
 import base64
-import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
@@ -12,12 +11,12 @@ from audio_recorder_streamlit import audio_recorder
 # ==========================================
 # APP CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzz5tL3Cs9abvrhZbGSFygP-zhp3D8v0xcK84vqfJHNpp8pCvtF7g8q7bSJnEO7rxYF/exec"
 
-# TOGGLE THIS TO FALSE TO HIDE THE RADAR MAP AND EXPLANATIONS AT THE END
+# Set to False to keep topology charts internal to researchers only
 SHOW_RADAR_MAP = False 
 
-st.set_page_config(page_title="NeuroTwin Narrative AI", layout="centered")
+st.set_page_config(page_title="NeuroTwin Assessment", layout="centered")
 
 st.markdown("""
     <style>
@@ -28,56 +27,37 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # ==========================================
-# HELPER FUNCTIONS 
+# HELPER FUNCTIONS (WRITE-ONLY)
 # ==========================================
-STATUS_FILE = "app_status.json"
-
-def get_app_status():
-    if os.path.exists(STATUS_FILE):
-        with open(STATUS_FILE, 'r') as f:
-            return json.load(f).get("is_open", True)
-    return True
-
-def set_app_status(is_open):
-    with open(STATUS_FILE, 'w') as f:
-        json.dump({"is_open": is_open}, f)
-
-def save_data_to_json():
-    file_path = 'clinical_responses.json'
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            db = json.load(f)
-    else:
-        db = []
-    
-    existing_idx = next((i for i, item in enumerate(db) if item["id"] == st.session_state.responses['id']), None)
-    if existing_idx is not None:
-        db[existing_idx] = st.session_state.responses
-    else:
-        db.append(st.session_state.responses)
-        
-    with open(file_path, 'w') as f:
-        json.dump(db, f, indent=4)
-
-def save_audio_file(audio_bytes, question_key):
-    filename = f"audio_{st.session_state.responses['id']}_{question_key}.wav"
+def save_temp_audio(audio_bytes, question_key):
+    filename = f"temp_audio_{st.session_state.responses['id']}_{question_key}.wav"
     with open(filename, "wb") as f:
         f.write(audio_bytes)
     return filename
 
 def export_data_to_google():
     payload = {
+        "action": "submit",
         "id": st.session_state.responses['id'],
         "text_data": st.session_state.responses,
         "audio_files": []
     }
-    for key, value in st.session_state.responses.items():
+    temp_files = []
+    for key, value in list(st.session_state.responses.items()):
         if isinstance(value, str) and value.endswith('.wav') and os.path.exists(value):
             with open(value, "rb") as f:
                 encoded_audio = base64.b64encode(f.read()).decode('utf-8')
                 payload["audio_files"].append({"filename": value, "data": encoded_audio})
+            temp_files.append(value)
+            
     try:
-        response = requests.post(GOOGLE_WEBAPP_URL, json=payload)
+        response = requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=20)
+        # Clean up temporary local audio files immediately after transmission
+        for f in temp_files:
+            try:
+                os.remove(f)
+            except OSError:
+                pass
         return response.status_code == 200
     except Exception:
         return False
@@ -86,11 +66,9 @@ def process_early_exit(status_message):
     st.session_state.responses["post_gate_status"] = status_message
     with st.spinner("Saving partial progress..."):
         export_data_to_google()
-        save_data_to_json()
     st.session_state.current_step = 'safe_exit'
     st.rerun()
 
-# --- NEW NARRATIVE INPUT HELPER (Tabs + Playback) ---
 def render_narrative_input(prompt_text, key_prefix, t):
     st.write(prompt_text)
     tab_text, tab_audio = st.tabs([t["tab_type"], t["tab_record"]])
@@ -100,12 +78,11 @@ def render_narrative_input(prompt_text, key_prefix, t):
         
     with tab_audio:
         audio_val = audio_recorder(key=f"mic_{key_prefix}", pause_threshold=300.0)
-        # If audio is recorded, show the playback widget and a success message!
         if audio_val:
             st.audio(audio_val, format="audio/wav")
             st.success(t["audio_success"])
             
-    st.write("---") # Adds a clean visual divider between questions
+    st.write("---")
     return text_val, audio_val
 
 def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_score):
@@ -140,7 +117,7 @@ def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_sco
     return fig
 
 # ==========================================
-# FULL LANGUAGE DICTIONARY
+# LANGUAGE DICTIONARY
 # ==========================================
 CONTENT = {
     "English": {
@@ -164,7 +141,7 @@ CONTENT = {
         "post_gate_talk": "I would like to talk to someone",
         "crisis_msg": "If you need immediate support, please contact one of the following services:",
         "crisis_resources": "- **National Crisis Line:** Dial 988\n- **Crisis Text Line:** Text HOME to 741741",
-        "safe_exit_msg": "Your well-being is our priority. Your partial responses have been saved. \n\n*Note: To protect your privacy, if you wish to complete the assessment later, your progress will restart from the beginning.*",
+        "safe_exit_msg": "Your well-being is our priority. Your partial responses have been securely saved.\n\n*Note: To protect your privacy, if you wish to complete the assessment later, your progress will restart from the beginning.*",
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
@@ -271,7 +248,7 @@ CONTENT = {
         "w1": "W1: 我成长的地区周围发生过武装冲突、爆炸或军事行动。",
         "w2": "W2: 因为暴力或冲突，我被迫离开我的家园或社区。",
         "w3": "W3: 我目睹了人们因冲突或有组织的暴力而受重伤或被杀。",
-        "w4": "W4: 我失去了家人或亲近的人，原因归咎于战争或政治暴力。",
+        "w4": "W4: 我丢失了家人或亲近的人，原因归咎于战争或政治暴力。",
         "w5": "W5: 我生活在一种必须不断分辨谁值得信任、谁可能有危险的环境中。",
         "w6": "W6: 我的社区或街区被冲突或有组织的暴力摧毁或严重破坏。",
         "w7": "W7 (反向评分): 即使在困难时期，我的社区依然保持稳定，我感到一种集体的安全感。",
@@ -569,7 +546,7 @@ CONTENT = {
         "c3": "C3: Решения, затрагивающие мою семью или общину, должны приниматься сообща.",
         "c4": "C4: Я бы описал(а) свою личность как тесно связанную с группами, к которым я принадлежу.",
         "c5": "C5: Когда я добиваюсь успеха, я чувствую, что это заслуга поддержки окружающих.",
-        "c6": "C6: Если бы мне пришлось выбирать между личных достижениях и благополучием группы, я бы выбрал(а) группу.",
+        "c6": "C6: Если бы мне пришлось выбирать между личными достижениями и благополучием группы, я бы выбрал(а) группу.",
         "part5_title": "Часть 5: Нарративный Контекст",
         "final_q1": "Если бы вы могли изменить одну вещь в своем детстве, что бы это было?",
         "final_q2": "Одним словом, как этот опыт сформировал вас сегодняшнего?",
@@ -642,10 +619,10 @@ CONTENT = {
         "c4": "C4: Kişisel kimliğimi ait olduğum gruplarla yakından bağlantılı olarak tanımlarım.",
         "c5": "C5: Başarılı olduğumda, bunun sadece kendi çabam değil, çevremin desteği sayesinde olduğunu hissederim.",
         "c6": "C6: Kişisel başarı ile grubumun refahı arasında seçim yapmam gerekseydi, grubumu seçerdim.",
-        "part5_title": "Bölüm 5: Anlatı Bağlamı",
-        "final_q1": "Çocukluğunuz hakkında bir şeyi değiştirebilseydiniz, bu ne olurdu?",
-        "final_q2": "Tek bir kelimeyle, o deneyim bugünkü sizi nasıl şekillendirdi?",
-        "final_q3": "Tek bir cümleyle, kendinizi güvensiz hissettiğinizde ne yaparsınız?"
+        "part5_title": "第五部分：叙事背景",
+        "final_q1": "如果您能改变关于您童年的一件事，那会是什么？",
+        "final_q2": "用一个词来形容，那段经历如何塑造了今天的您？",
+        "final_q3": "用一句话概括，当您感到不安全时，您会怎么做？"
     },
     "German": {
         "meal_q": "Ihr Wohlbefinden ist uns wichtig. Haben Sie kürzlich etwas gegessen?",
@@ -721,7 +698,6 @@ CONTENT = {
     }
 }
 
-# Language mapping dict to route native names to our backend keys
 LANG_MAP = {
     "English": "English",
     "中文 (Mandarin)": "Mandarin",
@@ -743,7 +719,7 @@ if 'current_step' not in st.session_state:
     st.session_state.lang = "English"
 
 # ==========================================
-# SIDEBAR (ONLY FOR PUBLIC APP)
+# SIDEBAR
 # ==========================================
 with st.sidebar:
     st.subheader("Assessment Controls")
@@ -751,166 +727,8 @@ with st.sidebar:
         st.session_state.clear()
         st.rerun()
 
-    # HIDDEN TRICK: Only show the login if the URL ends in ?admin=true
-    if st.query_params.get("admin") == "true":
-        st.divider()
-        
-        # --- NEW ANTI-BRUTE-FORCE LOCKOUT ---
-        if 'login_attempts' not in st.session_state:
-            st.session_state.login_attempts = 0
-            
-        if not st.session_state.get('admin_unlocked', False):
-            if st.session_state.login_attempts >= 3:
-                st.error("🚨 Security Lockout: Too many failed login attempts. Access denied.")
-            else:
-                admin_password = st.text_input("Admin Password", type="password")
-                if st.button("Login"):
-                    if admin_password == st.secrets.get("admin_password", "1234"): 
-                        st.session_state.admin_unlocked = True
-                        st.session_state.login_attempts = 0 # Reset on success
-                        st.rerun()
-                    else:
-                        st.session_state.login_attempts += 1
-                        st.error(f"Incorrect Password. Attempts remaining: {3 - st.session_state.login_attempts}")
-        else:
-            if st.button("Logout"):
-                st.session_state.admin_unlocked = False
-                st.rerun()
-
 # ==========================================
-# ADMIN DASHBOARD (FULL SCREEN)
-# ==========================================
-if st.session_state.get('admin_unlocked', False):
-    st.title("Admin Dashboard")
-    st.write("Welcome to the secure administrative view.")
-    
-    # --- Study Status Toggle ---
-    st.subheader("Study Status")
-    current_status = get_app_status()
-    if current_status:
-        st.success("🟢 The study is currently OPEN.")
-        if st.button("Close Study", type="primary"):
-            set_app_status(False)
-            st.rerun()
-    else:
-        st.error("🔴 The study is currently CLOSED.")
-        if st.button("Reopen Study", type="primary"):
-            set_app_status(True)
-            st.rerun()
-            
-    st.divider()
-    
-    # --- Local Data Backup ---
-    file_path = 'clinical_responses.json'
-    if os.path.exists(file_path):
-        with open(file_path, 'r') as f:
-            data = json.load(f)
-        if data:
-            df = pd.DataFrame(data)
-            st.subheader("Participant Submissions (Local)")
-            st.dataframe(df, use_container_width=True)
-            
-            # --- UPGRADED: Participant Detail View & Radar Map ---
-            st.divider()
-            st.subheader("Participant Clinical Profile")
-            participant_ids = [entry.get('id') for entry in data if 'id' in entry]
-            selected_detail_id = st.selectbox("Select ID to View Details:", ["-- Select ID --"] + participant_ids)
-            
-            if selected_detail_id != "-- Select ID --":
-                participant_data = next((item for item in data if item.get("id") == selected_detail_id), None)
-                if participant_data:
-                    col_chart, col_details = st.columns([1, 1])
-                    
-                    # LEFT COLUMN: The Radar Map & Scores
-                    with col_chart:
-                        st.write("**NeuroTwin Topology Map**")
-                        t_score = participant_data.get("threat_score_avg", 0)
-                        d_score = participant_data.get("deprivation_score_avg", 0)
-                        w_score = participant_data.get("war_score_avg", 0)
-                        c_score = participant_data.get("col_score_avg", 3.0)
-                        
-                        fig = generate_neurotwin_chart(t_score, d_score, w_score, c_score)
-                        st.pyplot(fig)
-                        
-                        st.info(f"**Scores:** Threat: {t_score:.2f} | Deprivation: {d_score:.2f} | War: {w_score:.2f} | Collectivism: {c_score:.2f}")
-
-                    # RIGHT COLUMN: Clean Narratives & Audio Playback
-                    with col_details:
-                        st.write("**Narrative Responses**")
-                        narratives = {
-                            "Threat 1": participant_data.get("threat_narrative_1", ""),
-                            "Threat 2": participant_data.get("threat_narrative_2", ""),
-                            "Deprivation 1": participant_data.get("dep_narrative_1", ""),
-                            "Deprivation 2": participant_data.get("dep_narrative_2", ""),
-                            "Final (Change)": participant_data.get("final_narrative_1", ""),
-                            "Final (One Word)": participant_data.get("final_narrative_2", ""),
-                            "Final (Unsafe)": participant_data.get("final_narrative_3", "")
-                        }
-                        
-                        # Print text responses cleanly
-                        for title, text in narratives.items():
-                            if text and text != "..." and text.strip():
-                                st.markdown(f"**{title}:** {text}")
-                        
-                        st.write("---")
-                        st.write("**Audio Recordings**")
-                        # Find and create playback buttons for any saved audio
-                        audio_keys = [k for k in participant_data.keys() if k.endswith("_audio")]
-                        has_audio = False
-                        for ak in audio_keys:
-                            audio_path = participant_data[ak]
-                            if os.path.exists(audio_path):
-                                has_audio = True
-                                clean_title = ak.replace("_audio", "").replace("_", " ").title()
-                                st.write(f"*{clean_title}*")
-                                st.audio(audio_path)
-                        
-                        if not has_audio:
-                            st.write("No audio recorded for this participant.")
-                    
-                    # Keep the raw JSON hidden in a dropdown just in case you need it
-                    with st.expander("View Raw Developer JSON Data"):
-                        st.json(participant_data)
-            
-            st.divider()
-            
-            # --- Data Management ---
-            col1, col2 = st.columns(2)
-            with col1:
-                csv = df.to_csv(index=False).encode('utf-8')
-                st.download_button(label="📥 Download Data as CSV", data=csv, file_name="dmap_local_backup.csv", mime="text/csv", use_container_width=True)
-            with col2:
-                selected_del_id = st.selectbox("Select ID to Delete:", ["-- Select ID --"] + participant_ids, label_visibility="collapsed")
-                if st.button("🗑️ Delete Selected Participant", use_container_width=True) and selected_del_id != "-- Select ID --":
-                    new_data = [entry for entry in data if entry.get('id') != selected_del_id]
-                    with open(file_path, 'w') as f:
-                        json.dump(new_data, f, indent=4)
-                    st.success(f"Participant {selected_del_id} deleted!")
-                    st.rerun()
-
-            st.warning("⚠️ Proceed with caution. This will delete the entire local JSON backup on this server.")
-            if st.button("🚨 Clear All Local Data", type="primary"):
-                with open(file_path, 'w') as f:
-                    json.dump([], f, indent=4)
-                st.success("All local data cleared!")
-                st.rerun()
-        else:
-            st.info("No responses recorded yet.")
-    else:
-        st.info("The local database file has not been created yet.")
-        
-    st.stop() # Prevents the rest of the public app from rendering when admin is logged in!
-
-# ==========================================
-# STUDY STATUS GATE (PUBLIC VIEW)
-# ==========================================
-if not get_app_status() and not st.session_state.get('admin_unlocked', False):
-    st.title("NeuroTwin: Many Ways to Thrive")
-    st.info("Thank you for your interest! This study is currently closed to new responses.")
-    st.stop()
-
-# ==========================================
-# THE STATE MACHINE 
+# THE STATE MACHINE
 # ==========================================
 t = CONTENT[st.session_state.lang]
 
@@ -920,7 +738,6 @@ if st.session_state.current_step == 'dashboard':
     st.write("---")
     st.write("### Please select your preferred language:")
     
-    # Native Language Buttons!
     display_langs = list(LANG_MAP.keys())
     cols = st.columns(4)
     for i, display_lang in enumerate(display_langs):
@@ -934,7 +751,6 @@ if st.session_state.current_step == 'dashboard':
     st.divider()
     st.info("The NeuroTwin instrument uses the DMAP framework to map theoretical brain circuit topologies. Your data is strictly confidential and anonymized.")
 
-# --- GATES ---
 elif st.session_state.current_step == 'intro_meal':
     st.write("---")
     st.subheader(t["meal_q"])
@@ -1013,8 +829,8 @@ elif st.session_state.current_step == 'dmap_part1':
             "t1": t1, "t2": t2, "t3": t3, "t4": t4, "t5": t5, "t6": t6, "t7": t7_raw,
             "threat_narrative_1": tn1_text, "threat_narrative_2": tn2_text
         })
-        if tn1_audio: st.session_state.responses["threat_narrative_1_audio"] = save_audio_file(tn1_audio, "threat_narrative_1")
-        if tn2_audio: st.session_state.responses["threat_narrative_2_audio"] = save_audio_file(tn2_audio, "threat_narrative_2")
+        if tn1_audio: st.session_state.responses["threat_narrative_1_audio"] = save_temp_audio(tn1_audio, "threat_narrative_1")
+        if tn2_audio: st.session_state.responses["threat_narrative_2_audio"] = save_temp_audio(tn2_audio, "threat_narrative_2")
 
         t_scores = [t1, t2, t3, t4, t5, t6, (6 - t7_raw) if t7_raw is not None else None]
         t_answered = [s for s in t_scores if s is not None]
@@ -1066,8 +882,8 @@ elif st.session_state.current_step == 'dmap_part2':
             "d1": d1, "d2": d2, "d3": d3, "d4": d4, "d5": d5, "d6": d6, "d7": d7_raw,
             "dep_narrative_1": dn1_text, "dep_narrative_2": dn2_text
         })
-        if dn1_audio: st.session_state.responses["dep_narrative_1_audio"] = save_audio_file(dn1_audio, "dep_narrative_1")
-        if dn2_audio: st.session_state.responses["dep_narrative_2_audio"] = save_audio_file(dn2_audio, "dep_narrative_2")
+        if dn1_audio: st.session_state.responses["dep_narrative_1_audio"] = save_temp_audio(dn1_audio, "dep_narrative_1")
+        if dn2_audio: st.session_state.responses["dep_narrative_2_audio"] = save_temp_audio(dn2_audio, "dep_narrative_2")
 
         d_scores = [d1, d2, d3, d4, d5, d6, (6 - d7_raw) if d7_raw is not None else None]
         d_answered = [s for s in d_scores if s is not None]
@@ -1142,9 +958,9 @@ elif st.session_state.current_step == 'narrative_recording':
         st.session_state.responses.update({
             "final_narrative_1": fn1_text, "final_narrative_2": fn2_text, "final_narrative_3": fn3_text
         })
-        if fn1_audio: st.session_state.responses["final_narrative_1_audio"] = save_audio_file(fn1_audio, "final_narrative_1")
-        if fn2_audio: st.session_state.responses["final_narrative_2_audio"] = save_audio_file(fn2_audio, "final_narrative_2")
-        if fn3_audio: st.session_state.responses["final_narrative_3_audio"] = save_audio_file(fn3_audio, "final_narrative_3")
+        if fn1_audio: st.session_state.responses["final_narrative_1_audio"] = save_temp_audio(fn1_audio, "final_narrative_1")
+        if fn2_audio: st.session_state.responses["final_narrative_2_audio"] = save_temp_audio(fn2_audio, "final_narrative_2")
+        if fn3_audio: st.session_state.responses["final_narrative_3_audio"] = save_temp_audio(fn3_audio, "final_narrative_3")
         
         st.session_state.current_step = 'post_gate'
         st.rerun()
@@ -1180,7 +996,6 @@ elif st.session_state.current_step == 'crisis_resources':
 elif st.session_state.current_step == 'decompression':
     with st.spinner("Processing your responses..."):
         export_data_to_google()
-        save_data_to_json() 
         
     st.success("Thank you. Your responses have been securely recorded.")
     
@@ -1207,28 +1022,6 @@ elif st.session_state.current_step == 'decompression':
         st.write(
             "This radar chart maps your unique experiences onto theoretical brain circuits based on the **Dimensional Model of Adversity and Psychopathology (DMAP)**. "
             "Our brains are highly neuroplastic, meaning they physically adapt to the environments we grow up in to keep us safe."
-        )
-        
-        if t_score > 3.0 or w_score > 3.0:
-            st.markdown(
-                "- **Threat Adaptations:** Your scores suggest your brain may have adapted to upregulate the *Salience Network* (regions like the Amygdala). "
-                "This is an evolutionary superpower designed to keep you highly vigilant and safe in unpredictable environments."
-            )
-        if d_score > 3.0:
-            st.markdown(
-                "- **Deprivation Adaptations:** Your Deprivation Index indicates adaptations in the *Frontoparietal Control and Reward Networks*. "
-                "This often reflects how the brain learns to conserve energy and find motivation when external resources or support were scarce."
-            )
-            
-        if col_score > 3.0:
-            st.markdown(
-                "- **Cultural Buffering:** You scored higher in community-oriented values. "
-                "Research suggests this interdependent worldview heavily engages the *Default Mode Network* (social cognition), meaning you likely process past adversity through the lens of community survival rather than isolation."
-            )
-            
-        st.info(
-            "**Remember:** A 'shifted' topology is not a damaged brain; it is an adapted brain. "
-            "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and culturally supportive experiences."
         )
         
         st.warning(t["disclaimer_msg"])
