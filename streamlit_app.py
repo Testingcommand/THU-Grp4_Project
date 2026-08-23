@@ -12,7 +12,7 @@ from audio_recorder_streamlit import audio_recorder
 # ==========================================
 # APP CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx3bY3Sw-LYJybiwPK76vo6Tsb5_9O57TOgWQEmf7Sfnl8aZvlibSCtjH8LA2hYDUIy/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
 
 # TOGGLE THIS TO FALSE TO HIDE THE RADAR MAP AND EXPLANATIONS AT THE END
 SHOW_RADAR_MAP = False 
@@ -50,7 +50,6 @@ def save_data_to_json():
     else:
         db = []
     
-    # Check if participant already exists in JSON; if so, replace/update them, else append
     existing_idx = next((i for i, item in enumerate(db) if item["id"] == st.session_state.responses['id']), None)
     if existing_idx is not None:
         db[existing_idx] = st.session_state.responses
@@ -84,13 +83,30 @@ def export_data_to_google():
         return False
 
 def process_early_exit(status_message):
-    """Saves whatever partial data has been collected before closing the app."""
     st.session_state.responses["post_gate_status"] = status_message
     with st.spinner("Saving partial progress..."):
         export_data_to_google()
         save_data_to_json()
     st.session_state.current_step = 'safe_exit'
     st.rerun()
+
+# --- NEW NARRATIVE INPUT HELPER (Tabs + Playback) ---
+def render_narrative_input(prompt_text, key_prefix, t):
+    st.write(prompt_text)
+    tab_text, tab_audio = st.tabs([t["tab_type"], t["tab_record"]])
+    
+    with tab_text:
+        text_val = st.text_area("...", label_visibility="collapsed", key=f"text_{key_prefix}")
+        
+    with tab_audio:
+        audio_val = audio_recorder(key=f"mic_{key_prefix}", pause_threshold=300.0)
+        # If audio is recorded, show the playback widget and a success message!
+        if audio_val:
+            st.audio(audio_val, format="audio/wav")
+            st.success(t["audio_success"])
+            
+    st.write("---") # Adds a clean visual divider between questions
+    return text_val, audio_val
 
 def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_score):
     categories = [
@@ -152,7 +168,10 @@ CONTENT = {
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
-        "audio_hint": "🎙️ **Audio:** Click the microphone to start, and click again to stop (auto-stops after 5 mins). *Note: Audio files may take a few moments to upload when you click Continue.*",
+        "audio_hint": "🎙️ **How to answer:** Choose to either type your response OR record audio for the questions below.",
+        "tab_type": "⌨️ Type Response",
+        "tab_record": "🎙️ Record Audio",
+        "audio_success": "✅ Audio captured successfully! You can play it back above.",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "btn_continue": "Continue",
         "disclaimer_msg": "⚠️ **Disclaimer:** This visualization is for research and educational purposes only. It is not a clinical diagnosis or professional medical assessment. If you are experiencing distress, please consult a qualified healthcare professional.",
@@ -221,7 +240,10 @@ CONTENT = {
         "break_msg": "请慢慢来。保留此窗口打开，准备好后点击下方按钮继续。",
         "btn_resume": "我准备好继续了",
         "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
-        "audio_hint": "🎙️ **录音:** 点击麦克风开始录音，再次点击停止（5分钟后自动停止）。*注意：点击继续后，音频文件可能需要一些时间上传。*",
+        "audio_hint": "🎙️ **如何回答：** 请选择输入文字或录制音频。",
+        "tab_type": "⌨️ 输入文字",
+        "tab_record": "🎙️ 录制音频",
+        "audio_success": "✅ 录音成功！您可以在上方播放。",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "btn_continue": "继续",
         "disclaimer_msg": "⚠️ **免责声明:** 此图表仅用于研究和教育目的。它不是临床诊断或专业医疗评估。如果您感到不适，请咨询合格的心理健康专业人员。",
@@ -290,7 +312,10 @@ CONTENT = {
         "break_msg": "慢慢嚟。保留呢個視窗打開，準備好之後㩒下面個掣繼續。",
         "btn_resume": "我準備好繼續喇",
         "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
-        "audio_hint": "🎙️ **錄音:** 㩒咪高峰開始錄音，再㩒一次停止（5分鐘後會自動停）。*注意：㩒繼續之後，音頻文件可能需要啲時間上傳。*",
+        "audio_hint": "🎙️ **點樣回答：** 請選擇打字或者錄音嚟回答下面嘅問題。",
+        "tab_type": "⌨️ 輸入文字",
+        "tab_record": "🎙️ 錄製錄音",
+        "audio_success": "✅ 錄音成功！你喺上面可以播返嚟聽。",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "btn_continue": "繼續",
         "disclaimer_msg": "⚠️ **免責聲明:** 呢個圖表只係用嚟做研究同教育用途。佢唔係臨床診斷或者專業醫療評估。如果你覺得唔舒服，請尋求合資格嘅心理健康專業人士協助。",
@@ -359,7 +384,10 @@ CONTENT = {
         "break_msg": "Tómese el tiempo que necesite. Deje esta ventana abierta y haga clic abajo cuando esté listo/a.",
         "btn_resume": "Estoy listo/a para continuar",
         "skip_note": "💙 *Recordatorio: Puede omitir cualquier pregunta y dejarla en blanco si lo prefiere.*",
-        "audio_hint": "🎙️ **Audio:** Haga clic en el micrófono para comenzar y vuelva a hacer clic para detener (se detiene automáticamente después de 5 min). *Nota: Los archivos de audio pueden tardar unos momentos en cargarse al hacer clic en Continuar.*",
+        "audio_hint": "🎙️ **Cómo responder:** Elija escribir su respuesta O grabar un audio.",
+        "tab_type": "⌨️ Escribir Respuesta",
+        "tab_record": "🎙️ Grabar Audio",
+        "audio_success": "✅ ¡Audio capturado con éxito! Puede escucharlo arriba.",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "btn_continue": "Continuar",
         "disclaimer_msg": "⚠️ **Descargo de responsabilidad:** Esta visualización es solo para fines de investigación y educativos. No es un diagnóstico clínico ni una evaluación médica profesional. Si siente angustia, consulte a un profesional de la salud calificado.",
@@ -428,7 +456,10 @@ CONTENT = {
         "break_msg": "Prenez votre temps. Laissez cette fenêtre ouverte et cliquez ci-dessous lorsque vous êtes prêt(e).",
         "btn_resume": "Je suis prêt(e) à reprendre",
         "skip_note": "💙 *Rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez.*",
-        "audio_hint": "🎙️ **Audio:** Cliquez sur le microphone pour commencer, et cliquez à nouveau pour arrêter (arrêt automatique après 5 min). *Remarque : Le téléchargement des fichiers audio peut prendre quelques instants après avoir cliqué sur Continuer.*",
+        "audio_hint": "🎙️ **Comment répondre :** Choisissez de taper votre réponse OU d'enregistrer un fichier audio.",
+        "tab_type": "⌨️ Taper la réponse",
+        "tab_record": "🎙️ Enregistrer l'audio",
+        "audio_success": "✅ Audio capturé avec succès ! Vous pouvez l'écouter ci-dessus.",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "btn_continue": "Continuer",
         "disclaimer_msg": "⚠️ **Avis de non-responsabilité :** Cette visualisation est uniquement à des fins de recherche et d'éducation. Ce n'est pas un diagnostic clinique ou une évaluation médicale professionnelle. Si vous ressentez de la détresse, veuillez consulter un professionnel de la santé qualifié.",
@@ -497,7 +528,10 @@ CONTENT = {
         "break_msg": "Не торопитесь. Оставьте окно открытым и нажмите ниже, когда будете готовы.",
         "btn_resume": "Я готов(а) продолжить",
         "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым.*",
-        "audio_hint": "🎙️ **Аудио:** Нажмите на микрофон, чтобы начать, и еще раз, чтобы остановить (автоматически остановится через 5 мин). *Примечание: Загрузка аудиофайлов может занять некоторое время при нажатии кнопки 'Продолжить'.*",
+        "audio_hint": "🎙️ **Как ответить:** Выберите ввод текста ИЛИ запись аудио.",
+        "tab_type": "⌨️ Ввести текст",
+        "tab_record": "🎙️ Записать аудио",
+        "audio_success": "✅ Аудио успешно записано! Вы можете прослушать его выше.",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "btn_continue": "Продолжить",
         "disclaimer_msg": "⚠️ **Отказ от ответственности:** Эта визуализация предназначена только для исследовательских и образовательных целей. Это не клинический диагноз или профессиональная медицинская оценка. Если вы испытываете стресс, обратитесь к квалифицированному специалисту.",
@@ -566,7 +600,10 @@ CONTENT = {
         "break_msg": "İstediğiniz kadar zaman ayırın. Hazır olduğunuzda devam etmek için aşağıya tıklayın.",
         "btn_resume": "Devam etmeye hazırım",
         "skip_note": "💙 *Hatırlatma: Cevaplamak istemediğiniz soruları boş bırakabilirsiniz.*",
-        "audio_hint": "🎙️ **Ses:** Başlamak için mikrofona tıklayın, durdurmak için tekrar tıklayın (5 dk sonra otomatik durur). *Not: Devam'a tıkladığınızda ses dosyalarının yüklenmesi biraz zaman alabilir.*",
+        "audio_hint": "🎙️ **Nasıl cevaplanır:** Lütfen yanıtınızı yazmayı VEYA ses kaydetmeyi seçin.",
+        "tab_type": "⌨️ Yanıt Yaz",
+        "tab_record": "🎙️ Ses Kaydet",
+        "audio_success": "✅ Ses başarıyla kaydedildi! Yukarıdan dinleyebilirsiniz.",
         "scale_desc": "**Ölçek:** `1=Hiçbir zaman` | `2=Nadiren` | `3=Bazen` | `4=Sıklıkla` | `5=Her zaman`",
         "btn_continue": "Devam et",
         "disclaimer_msg": "⚠️ **Sorumluluk Reddi:** Bu görselleştirme yalnızca araştırma ve eğitim amaçlıdır. Klinik bir teşhis veya profesyonel tıbbi değerlendirme değildir. Sıkıntı yaşıyorsanız, lütfen uzman bir sağlık uzmanına danışın.",
@@ -635,7 +672,10 @@ CONTENT = {
         "break_msg": "Nehmen Sie sich die Zeit, die Sie brauchen. Klicken Sie unten, wenn Sie bereit sind.",
         "btn_resume": "Ich bin bereit fortzufahren",
         "skip_note": "💙 *Hinweis: Sie können jede Frage überspringen und leer lassen.*",
-        "audio_hint": "🎙️ **Audio:** Klicken Sie auf das Mikrofon, um zu starten, und erneut, um zu stoppen (stoppt automatisch nach 5 Min). *Hinweis: Das Hochladen von Audiodateien kann einen Moment dauern.*",
+        "audio_hint": "🎙️ **Wie antworten:** Wählen Sie, ob Sie Ihre Antwort tippen ODER Audio aufnehmen möchten.",
+        "tab_type": "⌨️ Antwort tippen",
+        "tab_record": "🎙️ Audio aufnehmen",
+        "audio_success": "✅ Audio erfolgreich aufgenommen! Sie können es oben abspielen.",
         "scale_desc": "**Skala:** `1=Nie wahr` | `2=Selten wahr` | `3=Manchmal wahr` | `4=Oft wahr` | `5=Sehr oft wahr`",
         "btn_continue": "Fortfahren",
         "disclaimer_msg": "⚠️ **Haftungsausschluss:** Diese Visualisierung dient nur zu Forschungs- und Bildungszwecken. Es handelt sich nicht um eine klinische Diagnose oder professionelle medizinische Beurteilung. Wenn Sie in Not sind, wenden Sie sich bitte an qualifiziertes Fachpersonal.",
@@ -955,13 +995,8 @@ elif st.session_state.current_step == 'dmap_part1':
     st.write("**Narrative Reflection**")
     st.info(t["audio_hint"])
     
-    st.write(t["t_narrative_1"])
-    tn1_text = st.text_area("...", label_visibility="collapsed", key="tn1")
-    tn1_audio = audio_recorder(key="mic_tn1", pause_threshold=300.0)
-    
-    st.write(t["t_narrative_2"])
-    tn2_text = st.text_area("...", label_visibility="collapsed", key="tn2")
-    tn2_audio = audio_recorder(key="mic_tn2", pause_threshold=300.0)
+    tn1_text, tn1_audio = render_narrative_input(t["t_narrative_1"], "tn1", t)
+    tn2_text, tn2_audio = render_narrative_input(t["t_narrative_2"], "tn2", t)
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
@@ -1013,13 +1048,8 @@ elif st.session_state.current_step == 'dmap_part2':
     st.write("**Narrative Reflection**")
     st.info(t["audio_hint"])
     
-    st.write(t["d_narrative_1"])
-    dn1_text = st.text_area("...", label_visibility="collapsed", key="dn1")
-    dn1_audio = audio_recorder(key="mic_dn1", pause_threshold=300.0)
-    
-    st.write(t["d_narrative_2"])
-    dn2_text = st.text_area("...", label_visibility="collapsed", key="dn2")
-    dn2_audio = audio_recorder(key="mic_dn2", pause_threshold=300.0)
+    dn1_text, dn1_audio = render_narrative_input(t["d_narrative_1"], "dn1", t)
+    dn2_text, dn2_audio = render_narrative_input(t["d_narrative_2"], "dn2", t)
 
     if st.button(t["btn_continue"], type="primary"):
         st.session_state.responses.update({
@@ -1093,17 +1123,9 @@ elif st.session_state.current_step == 'narrative_recording':
     st.markdown(t["skip_note"])
     st.info(t["audio_hint"])
 
-    st.write(t["final_q1"])
-    fn1_text = st.text_input("...", label_visibility="collapsed", key="fn1")
-    fn1_audio = audio_recorder(key="mic_fn1", pause_threshold=300.0)
-
-    st.write(t["final_q2"])
-    fn2_text = st.text_input("...", label_visibility="collapsed", key="fn2")
-    fn2_audio = audio_recorder(key="mic_fn2", pause_threshold=300.0)
-
-    st.write(t["final_q3"])
-    fn3_text = st.text_input("...", label_visibility="collapsed", key="fn3")
-    fn3_audio = audio_recorder(key="mic_fn3", pause_threshold=300.0)
+    fn1_text, fn1_audio = render_narrative_input(t["final_q1"], "fn1", t)
+    fn2_text, fn2_audio = render_narrative_input(t["final_q2"], "fn2", t)
+    fn3_text, fn3_audio = render_narrative_input(t["final_q3"], "fn3", t)
 
     st.divider()
     if st.button(t["btn_continue"], type="primary", use_container_width=True):
