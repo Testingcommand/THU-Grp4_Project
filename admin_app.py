@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 # ADMIN CONFIGURATION
 # ==========================================
 GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
-ADMIN_API_KEY = "NEUROTWIN_RESEARCH_SECRET_KEY_2026"
+ADMIN_API_KEY = "NEUROTWIN_RESEARCH_SECRET_KEY_2026" # Ensure this matches Apps Script!
 
 st.set_page_config(page_title="NeuroTwin Clinical Portal", layout="wide")
 
@@ -52,12 +52,6 @@ def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_sco
     ax.spines['polar'].set_visible(False) 
     return fig
 
-# ==========================================
-# DASHBOARD UI & STATUS TOGGLE
-# ==========================================
-st.title("🛡️ NeuroTwin Secure Clinical Portal")
-st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Drive")
-
 # Functions to command Google Sheets
 def set_study_status(is_open):
     status_str = "OPEN" if is_open else "CLOSED"
@@ -76,7 +70,13 @@ def get_study_status():
         return True
     return True
 
-# The Visual Toggle Buttons
+# ==========================================
+# DASHBOARD UI & STATUS TOGGLE
+# ==========================================
+st.title("🛡️ NeuroTwin Secure Clinical Portal")
+st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Drive")
+
+# --- 1. The Visual Toggle Buttons ---
 st.subheader("Study Status")
 current_status = get_study_status()
 
@@ -93,12 +93,35 @@ else:
         
 st.divider()
 
-# -- (The rest of your fetching data spinner goes exactly here) --
+# --- 2. Fetch the Data ---
+with st.spinner("Fetching latest clinical responses..."):
+    data = fetch_participant_data()
+
+if not data:
+    st.info("No recorded participant sessions found yet. (Data will appear here once participants submit!)")
+    st.stop()
+
+# THIS IS THE MISSING VARIABLE:
+df = pd.DataFrame(data)
+
+st.subheader("Submissions Ledger")
+st.dataframe(df, use_container_width=True)
+
+csv = df.to_csv(index=False).encode('utf-8')
+st.download_button(
+    label="📥 Download Full Study Dataset (CSV)",
+    data=csv,
+    file_name="neurotwin_study_export.csv",
+    mime="text/csv"
+)
+
+st.divider()
 
 # ==========================================
 # PARTICIPANT PROFILE INSPECTOR
 # ==========================================
 st.subheader("Individual Clinical Profile & Topology")
+# (Now the code knows what 'df' is!)
 participant_ids = df["Participant ID"].dropna().unique().tolist()
 selected_id = st.selectbox("Select Participant ID to inspect:", ["-- Select ID --"] + participant_ids)
 
