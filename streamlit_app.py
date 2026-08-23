@@ -5,7 +5,7 @@ import requests
 import base64
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.subplots as plt
 from datetime import datetime
 from audio_recorder_streamlit import audio_recorder
 
@@ -151,6 +151,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Audio:** Click the microphone to start, and click again to stop (auto-stops after 5 mins). *Note: Audio files may take a few moments to upload when you click Continue.*",
         "scale_desc": "**Scale:** `1=Never true` | `2=Rarely true` | `3=Sometimes true` | `4=Often true` | `5=Very often true`",
         "btn_continue": "Continue",
+        "disclaimer_msg": "⚠️ **Disclaimer:** This visualization is for research and educational purposes only. It is not a clinical diagnosis or professional medical assessment. If you are experiencing distress, please consult a qualified healthcare professional.",
         "part1_title": "Part 1: Indicators of Threat",
         "t1": "T1: I felt a constant need to be on guard or 'walk on eggshells' in my own home.",
         "t2": "T2: Adults in my life used intense anger, fear, or intimidation to control my behavior.",
@@ -215,6 +216,7 @@ CONTENT = {
         "audio_hint": "🎙️ **录音:** 点击麦克风开始录音，再次点击停止（5分钟后自动停止）。*注意：点击继续后，音频文件可能需要一些时间上传。*",
         "scale_desc": "**评分表:** `1=从不` | `2=很少` | `3=有时` | `4=经常` | `5=总是`",
         "btn_continue": "继续",
+        "disclaimer_msg": "⚠️ **免责声明:** 此图表仅用于研究和教育目的。它不是临床诊断或专业医疗评估。如果您感到不适，请咨询合格的心理健康专业人员。",
         "part1_title": "第一部分：威胁指标",
         "t1": "T1: 在自己家里，我感到需要时刻保持警惕或如履薄冰。",
         "t2": "T2: 生活中的成年人使用强烈的愤怒、恐惧或恐吓来控制我的行为。",
@@ -279,6 +281,7 @@ CONTENT = {
         "audio_hint": "🎙️ **錄音:** 㩒咪高峰開始錄音，再㩒一次停止（5分鐘後會自動停）。*注意：㩒繼續之後，音頻文件可能需要啲時間上傳。*",
         "scale_desc": "**評分表:** `1=從來唔係` | `2=好少` | `3=有時` | `4=經常` | `5=一直都係`",
         "btn_continue": "繼續",
+        "disclaimer_msg": "⚠️ **免責聲明:** 呢個圖表只係用嚟做研究同教育用途。佢唔係臨床診斷或者專業醫療評估。如果你覺得唔舒服，請尋求合資格嘅心理健康專業人士協助。",
         "part1_title": "第一部分：威脅指標",
         "t1": "T1: 喺自己屋企，我會覺得需要時刻保持警惕或者步步為營。",
         "t2": "T2: 生活中嘅成年人會用強烈嘅憤怒、恐懼或者恐嚇嚟控制我。",
@@ -343,6 +346,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Audio:** Haga clic en el micrófono para comenzar y vuelva a hacer clic para detener (se detiene automáticamente después de 5 min). *Nota: Los archivos de audio pueden tardar unos momentos en cargarse al hacer clic en Continuar.*",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "btn_continue": "Continuar",
+        "disclaimer_msg": "⚠️ **Descargo de responsabilidad:** Esta visualización es solo para fines de investigación y educativos. No es un diagnóstico clínico ni una evaluación médica profesional. Si siente angustia, consulte a un profesional de la salud calificado.",
         "part1_title": "Parte 1: Indicadores de Amenaza",
         "t1": "T1: Sentía la necesidad constante de estar en guardia en mi propia casa.",
         "t2": "T2: Los adultos usaban ira intensa, miedo o intimidación para controlarme.",
@@ -407,6 +411,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Audio:** Cliquez sur le microphone pour commencer, et cliquez à nouveau pour arrêter (arrêt automatique après 5 min). *Remarque : Le téléchargement des fichiers audio peut prendre quelques instants après avoir cliqué sur Continuer.*",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "btn_continue": "Continuer",
+        "disclaimer_msg": "⚠️ **Avis de non-responsabilité :** Cette visualisation est uniquement à des fins de recherche et d'éducation. Ce n'est pas un diagnostic clinique ou une évaluation médicale professionnelle. Si vous ressentez de la détresse, veuillez consulter un professionnel de la santé qualifié.",
         "part1_title": "Partie 1 : Indicateurs de Menace",
         "t1": "T1: Je ressentais un besoin constant d'être sur mes gardes dans ma propre maison.",
         "t2": "T2: Les adultes utilisaient une colère intense ou l'intimidation pour me contrôler.",
@@ -471,6 +476,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Аудио:** Нажмите на микрофон, чтобы начать, и еще раз, чтобы остановить (автоматически остановится через 5 мин). *Примечание: Загрузка аудиофайлов может занять некоторое время при нажатии кнопки 'Продолжить'.*",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "btn_continue": "Продолжить",
+        "disclaimer_msg": "⚠️ **Отказ от ответственности:** Эта визуализация предназначена только для исследовательских и образовательных целей. Это не клинический диагноз или профессиональная медицинская оценка. Если вы испытываете стресс, обратитесь к квалифицированному специалисту.",
         "part1_title": "Часть 1: Индикаторы Угрозы",
         "t1": "T1: Я чувствовал(а) постоянную необходимость быть начеку в собственном доме.",
         "t2": "T2: Взрослые использовали сильный гнев, страх или запугивание, чтобы контролировать меня.",
@@ -535,6 +541,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Ses:** Başlamak için mikrofona tıklayın, durdurmak için tekrar tıklayın (5 dk sonra otomatik durur). *Not: Devam'a tıkladığınızda ses dosyalarının yüklenmesi biraz zaman alabilir.*",
         "scale_desc": "**Ölçek:** `1=Hiçbir zaman` | `2=Nadiren` | `3=Bazen` | `4=Sıklıkla` | `5=Her zaman`",
         "btn_continue": "Devam et",
+        "disclaimer_msg": "⚠️ **Sorumluluk Reddi:** Bu görselleştirme yalnızca araştırma ve eğitim amaçlıdır. Klinik bir teşhis veya profesyonel tıbbi değerlendirme değildir. Sıkıntı yaşıyorsanız, lütfen uzman bir sağlık uzmanına danışın.",
         "part1_title": "Bölüm 1: Tehdit Göstergeleri",
         "t1": "T1: Kendi evimde sürekli tetikte olma veya 'yumurta kabukları üzerinde yürüme' ihtiyacı hissettim.",
         "t2": "T2: Hayatımdaki yetişkinler davranışlarımı kontrol etmek için öfke, korku veya sindirme kullandı.",
@@ -599,6 +606,7 @@ CONTENT = {
         "audio_hint": "🎙️ **Audio:** Klicken Sie auf das Mikrofon, um zu starten, und erneut, um zu stoppen (stoppt automatisch nach 5 Min). *Hinweis: Das Hochladen von Audiodateien kann einen Moment dauern.*",
         "scale_desc": "**Skala:** `1=Nie wahr` | `2=Selten wahr` | `3=Manchmal wahr` | `4=Oft wahr` | `5=Sehr oft wahr`",
         "btn_continue": "Fortfahren",
+        "disclaimer_msg": "⚠️ **Haftungsausschluss:** Diese Visualisierung dient nur zu Forschungs- und Bildungszwecken. Es handelt sich nicht um eine klinische Diagnose oder professionelle medizinische Beurteilung. Wenn Sie in Not sind, wenden Sie sich bitte an qualifiziertes Fachpersonal.",
         "part1_title": "Teil 1: Indikatoren für Bedrohung",
         "t1": "T1: Ich spürte in meinem eigenen Zuhause ständig das Bedürfnis, auf der Hut zu sein.",
         "t2": "T2: Erwachsene nutzten extreme Wut, Angst oder Einschüchterung, um mich zu kontrollieren.",
@@ -1137,3 +1145,6 @@ elif st.session_state.current_step == 'decompression':
             "**Remember:** A 'shifted' topology is not a damaged brain; it is an adapted brain. "
             "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and culturally supportive experiences."
         )
+        
+        # Medical Disclaimer added here!
+        st.warning(t["disclaimer_msg"])
