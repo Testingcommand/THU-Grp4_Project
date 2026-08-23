@@ -53,32 +53,47 @@ def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_sco
     return fig
 
 # ==========================================
-# DASHBOARD UI
+# DASHBOARD UI & STATUS TOGGLE
 # ==========================================
 st.title("🛡️ NeuroTwin Secure Clinical Portal")
 st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Drive")
 
-with st.spinner("Fetching latest clinical responses..."):
-    data = fetch_participant_data()
+# Functions to command Google Sheets
+def set_study_status(is_open):
+    status_str = "OPEN" if is_open else "CLOSED"
+    payload = {"action": "set_status", "status": status_str, "key": ADMIN_API_KEY}
+    try:
+        requests.post(GOOGLE_WEBAPP_URL, json=payload)
+    except Exception:
+        pass
 
-if not data:
-    st.info("No recorded participant sessions found yet.")
-    st.stop()
+def get_study_status():
+    try:
+        res = requests.get(f"{GOOGLE_WEBAPP_URL}?action=get_status")
+        if res.status_code == 200:
+            return res.json().get("is_open", True)
+    except Exception:
+        return True
+    return True
 
-df = pd.DataFrame(data)
+# The Visual Toggle Buttons
+st.subheader("Study Status")
+current_status = get_study_status()
 
-st.subheader("Submissions Ledger")
-st.dataframe(df, use_container_width=True)
-
-csv = df.to_csv(index=False).encode('utf-8')
-st.download_button(
-    label="📥 Download Full Study Dataset (CSV)",
-    data=csv,
-    file_name="neurotwin_study_export.csv",
-    mime="text/csv"
-)
-
+if current_status:
+    st.success("🟢 The study is currently OPEN to new participants.")
+    if st.button("Close Study", type="primary"):
+        set_study_status(False)
+        st.rerun()
+else:
+    st.error("🔴 The study is currently CLOSED.")
+    if st.button("Reopen Study", type="primary"):
+        set_study_status(True)
+        st.rerun()
+        
 st.divider()
+
+# -- (The rest of your fetching data spinner goes exactly here) --
 
 # ==========================================
 # PARTICIPANT PROFILE INSPECTOR
