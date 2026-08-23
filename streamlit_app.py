@@ -128,6 +128,10 @@ def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_sco
 # ==========================================
 CONTENT = {
     "English": {
+        "meal_q": "Your well-being is important to us. Have you had a meal or something to eat recently?",
+        "btn_meal_yes": "Yes, I have eaten",
+        "btn_meal_no": "No, not recently",
+        "meal_reply": "*Tip: We gently encourage you to grab a snack before beginning.*",
         "gate1_q": "Are you currently in a safe, private, and comfortable environment to reflect on personal topics?",
         "gate1_yes": "Yes, I am in a safe space",
         "gate1_no": "No, I need to exit",
@@ -193,6 +197,10 @@ CONTENT = {
         "final_q3": "In one sentence, what do you do when you feel unsafe?"
     },
     "Mandarin": {
+        "meal_q": "您的身心健康对我们很重要。您最近有进食吗？",
+        "btn_meal_yes": "是的，我吃过了",
+        "btn_meal_no": "没有，最近没吃",
+        "meal_reply": "*提示：我们建议您在开始前先吃点零食。*",
         "gate1_q": "您目前是否处于一个安全、私密且舒适的环境中来反思个人话题？",
         "gate1_yes": "是的，我在安全的空间",
         "gate1_no": "不在，我需要退出",
@@ -258,6 +266,10 @@ CONTENT = {
         "final_q3": "用一句话概括，当您感到不安全时，您会怎么做？"
     },
     "Cantonese": {
+        "meal_q": "你嘅身心健康對我哋好重要。你最近有冇食嘢呀？",
+        "btn_meal_yes": "有呀，我食咗喇",
+        "btn_meal_no": "冇呀，最近未食",
+        "meal_reply": "*提示：我哋建議你開始之前先食少少嘢。*",
         "gate1_q": "你而家係咪喺一個安全、私密同舒適嘅環境入面進行反思？",
         "gate1_yes": "係，我喺安全嘅空間",
         "gate1_no": "唔係，我需要退出",
@@ -323,6 +335,10 @@ CONTENT = {
         "final_q3": "用一句話嚟講，當你覺得唔安全嗰陣，你會做啲乜？"
     },
     "Spanish": {
+        "meal_q": "Su bienestar es importante para nosotros. ¿Ha comido algo recientemente?",
+        "btn_meal_yes": "Sí, he comido",
+        "btn_meal_no": "No, no recientemente",
+        "meal_reply": "*Consejo: Le animamos amablemente a comer un bocadillo antes de comenzar.*",
         "gate1_q": "¿Se encuentra actualmente en un entorno seguro, privado y cómodo para reflexionar sobre temas personales?",
         "gate1_yes": "Sí, estoy en un espacio seguro",
         "gate1_no": "No, necesito salir",
@@ -388,6 +404,10 @@ CONTENT = {
         "final_q3": "En una oración, ¿qué hace cuando se siente inseguro/a?"
     },
     "French": {
+        "meal_q": "Votre bien-être est important pour nous. Avez-vous mangé quelque chose récemment ?",
+        "btn_meal_yes": "Oui, j'ai mangé",
+        "btn_meal_no": "Non, pas récemment",
+        "meal_reply": "*Conseil : Nous vous encourageons à prendre une collation avant de commencer.*",
         "gate1_q": "Êtes-vous actuellement dans un environnement sûr, privé et confortable pour réfléchir à des sujets personnels ?",
         "gate1_yes": "Oui, je suis dans un espace sûr",
         "gate1_no": "Non, je dois quitter",
@@ -453,6 +473,10 @@ CONTENT = {
         "final_q3": "En une phrase, que faites-vous lorsque vous vous sentez en insécurité ?"
     },
     "Russian": {
+        "meal_q": "Ваше благополучие важно для нас. Вы недавно ели?",
+        "btn_meal_yes": "Да, я поел(а)",
+        "btn_meal_no": "Нет, недавно не ел(а)",
+        "meal_reply": "*Совет: Мы рекомендуем перекусить перед началом.*",
         "gate1_q": "Находитесь ли вы сейчас в безопасной, уединенной и комфортной обстановке?",
         "gate1_yes": "Да, я в безопасности",
         "gate1_no": "Нет, мне нужно выйти",
@@ -518,6 +542,10 @@ CONTENT = {
         "final_q3": "Одним предложением, что вы делаете, когда чувствуете себя в опасности?"
     },
     "Turkish": {
+        "meal_q": "Sağlığınız bizim için önemlidir. Yakın zamanda yemek yediniz mi?",
+        "btn_meal_yes": "Evet, yedim",
+        "btn_meal_no": "Hayır, yemedim",
+        "meal_reply": "*İpucu: Başlamadan önce hafif bir şeyler atıştırmanızı nazikçe öneririz.*",
         "gate1_q": "Şu anda kişisel konular üzerine düşünmek için güvenli, özel ve rahat bir ortamda mısınız?",
         "gate1_yes": "Evet, güvenli bir alandayım",
         "gate1_no": "Hayır, çıkmam gerekiyor",
@@ -583,6 +611,10 @@ CONTENT = {
         "final_q3": "Tek bir cümleyle, kendinizi güvensiz hissettiğinizde ne yaparsınız?"
     },
     "German": {
+        "meal_q": "Ihr Wohlbefinden ist uns wichtig. Haben Sie kürzlich etwas gegessen?",
+        "btn_meal_yes": "Ja, ich habe gegessen",
+        "btn_meal_no": "Nein, nicht vor kurzem",
+        "meal_reply": "*Tipp: Wir empfehlen Ihnen, vor Beginn einen Snack zu sich zu nehmen.*",
         "gate1_q": "Befinden Sie sich an einem sicheren, privaten Ort, um über persönliche Themen nachzudenken?",
         "gate1_yes": "Ja, ich bin an einem sicheren Ort",
         "gate1_no": "Nein, ich muss abbrechen",
@@ -846,13 +878,31 @@ if st.session_state.current_step == 'dashboard':
             backend_lang = LANG_MAP[display_lang]
             st.session_state.lang = backend_lang
             st.session_state.responses['language'] = backend_lang
-            st.session_state.current_step = 'pre_gate_1'
+            st.session_state.current_step = 'intro_meal'
             st.rerun()
             
     st.divider()
     st.info("The NeuroTwin instrument uses the DMAP framework to map theoretical brain circuit topologies. Your data is strictly confidential and anonymized.")
 
 # --- GATES ---
+elif st.session_state.current_step == 'intro_meal':
+    st.write("---")
+    st.subheader(t["meal_q"])
+    col1, col2 = st.columns(2)
+    if col1.button(t["btn_meal_yes"], use_container_width=True):
+        st.session_state.current_step = 'pre_gate_1'
+        st.rerun()
+    if col2.button(t["btn_meal_no"], use_container_width=True):
+        st.session_state.current_step = 'meal_warning'
+        st.rerun()
+
+elif st.session_state.current_step == 'meal_warning':
+    st.write("---")
+    st.info(t["meal_reply"])
+    if st.button(t["btn_continue"], type="primary"):
+        st.session_state.current_step = 'pre_gate_1'
+        st.rerun()
+
 elif st.session_state.current_step == 'pre_gate_1':
     st.write("---")
     st.subheader(t["gate1_q"])
@@ -948,6 +998,7 @@ elif st.session_state.current_step == 'dmap_part2':
     st.write("---")
     st.header(t["part2_title"])
     st.markdown(t["skip_note"])
+    st.markdown(t["scale_desc"])
     
     options = [1, 2, 3, 4, 5]
     d1 = st.radio(t["d1"], options, index=None, horizontal=True)
@@ -990,6 +1041,7 @@ elif st.session_state.current_step == 'dmap_part3':
     st.write("---")
     st.header(t["part3_title"])
     st.markdown(t["skip_note"])
+    st.markdown(t["scale_desc"])
     
     options = [1, 2, 3, 4, 5]
     w1 = st.radio(t["w1"], options, index=None, horizontal=True)
@@ -1014,6 +1066,7 @@ elif st.session_state.current_step == 'cultural_inventory':
     st.write("---")
     st.header(t["part4_title"])
     st.markdown(t["skip_note"])
+    st.markdown(t["scale_desc"])
     
     options = [1, 2, 3, 4, 5]
     c1 = st.radio(t["c1"], options, index=None, horizontal=True)
@@ -1146,5 +1199,4 @@ elif st.session_state.current_step == 'decompression':
             "Just as the brain adapts to past adversity, it continues to rewire itself through new, safe, and culturally supportive experiences."
         )
         
-        # Medical Disclaimer added here!
         st.warning(t["disclaimer_msg"])
