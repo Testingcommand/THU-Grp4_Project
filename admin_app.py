@@ -113,23 +113,31 @@ def get_study_status():
 st.title("🛡️ NeuroTwin Secure Clinical Portal")
 st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Drive")
 
-st.subheader("Study Status")
+col_status, col_refresh = st.columns([3, 1])
 
-if "study_is_open" not in st.session_state:
-    st.session_state.study_is_open = get_study_status()
+with col_status:
+    st.subheader("Study Status")
+    if "study_is_open" not in st.session_state:
+        st.session_state.study_is_open = get_study_status()
 
-if st.session_state.study_is_open:
-    st.success("🟢 The study is currently OPEN to new participants.")
-    if st.button("Close Study", type="primary"):
-        if set_study_status(False): 
-            st.session_state.study_is_open = False
-            st.rerun()
-else:
-    st.error("🔴 The study is currently CLOSED.")
-    if st.button("Reopen Study", type="primary"):
-        if set_study_status(True):
-            st.session_state.study_is_open = True
-            st.rerun()
+    if st.session_state.study_is_open:
+        st.success("🟢 The study is currently OPEN to new participants.")
+        if st.button("Close Study", type="primary"):
+            if set_study_status(False): 
+                st.session_state.study_is_open = False
+                st.rerun()
+    else:
+        st.error("🔴 The study is currently CLOSED.")
+        if st.button("Reopen Study", type="primary"):
+            if set_study_status(True):
+                st.session_state.study_is_open = True
+                st.rerun()
+
+with col_refresh:
+    st.write("") # Spacing
+    st.write("") 
+    if st.button("🔄 Refresh Data", use_container_width=True):
+        st.rerun()
         
 st.divider()
 
@@ -230,7 +238,7 @@ if selected_id != "-- Select ID --":
         st.write(f"**Assessment Exit Status:** `{p_data.get('Post-Assessment Status', 'Completed')}`")
         st.write(f"**Primary Language:** `{p_data.get('Language', 'Unknown')}`")
 
-    # The New Delete Button Section
+    # The Delete Button Section
     st.divider()
     st.warning("⚠️ **Danger Zone**")
     if st.button(f"🗑️ Delete Trial Data for ID: {selected_id}", type="primary"):
