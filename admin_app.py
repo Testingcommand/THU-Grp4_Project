@@ -8,8 +8,10 @@ import matplotlib.pyplot as plt
 # ADMIN CONFIGURATION
 # ==========================================
 GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxg6SHAnefwfDFm-F4DF_iRKyYkrQtNK6QUGGxBQXWsAJCgqUu1jBcOW-Jk4-1qaYRl/exec"
-ADMIN_API_KEY = "NEUROTWIN_RESEARCH_SECRET_KEY_2026" 
-TEAM_PASSWORD = "neurobiology" # Password for your fellow researchers
+
+# Pull secrets from Streamlit's secure vault instead of hardcoding them!
+ADMIN_API_KEY = st.secrets["admin_api_key"]
+TEAM_PASSWORD = st.secrets["team_password"]
 
 st.set_page_config(page_title="NeuroTwin Clinical Portal", layout="wide")
 
