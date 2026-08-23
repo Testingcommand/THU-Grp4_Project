@@ -754,14 +754,24 @@ with st.sidebar:
     # HIDDEN TRICK: Only show the login if the URL ends in ?admin=true
     if st.query_params.get("admin") == "true":
         st.divider()
+        
+        # --- NEW ANTI-BRUTE-FORCE LOCKOUT ---
+        if 'login_attempts' not in st.session_state:
+            st.session_state.login_attempts = 0
+            
         if not st.session_state.get('admin_unlocked', False):
-            admin_password = st.text_input("Admin Password", type="password")
-            if st.button("Login"):
-                if admin_password == st.secrets.get("admin_password", "1234"): 
-                    st.session_state.admin_unlocked = True
-                    st.rerun()
-                else:
-                    st.error("Incorrect Password")
+            if st.session_state.login_attempts >= 3:
+                st.error("🚨 Security Lockout: Too many failed login attempts. Access denied.")
+            else:
+                admin_password = st.text_input("Admin Password", type="password")
+                if st.button("Login"):
+                    if admin_password == st.secrets.get("admin_password", "1234"): 
+                        st.session_state.admin_unlocked = True
+                        st.session_state.login_attempts = 0 # Reset on success
+                        st.rerun()
+                    else:
+                        st.session_state.login_attempts += 1
+                        st.error(f"Incorrect Password. Attempts remaining: {3 - st.session_state.login_attempts}")
         else:
             if st.button("Logout"):
                 st.session_state.admin_unlocked = False
