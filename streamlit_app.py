@@ -11,7 +11,7 @@ from audio_recorder_streamlit import audio_recorder
 # ==========================================
 # APP CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzz5tL3Cs9abvrhZbGSFygP-zhp3D8v0xcK84vqfJHNpp8pCvtF7g8q7bSJnEO7rxYF/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx-7bFYeTgIcxCTv_vCFdhjvY72HiyLsG0yrECv0gH13WcqK39OpG3HQAKdgIllULi0/exec"
 
 # Set to False to keep topology charts internal to researchers only
 SHOW_RADAR_MAP = False 
