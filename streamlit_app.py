@@ -728,8 +728,28 @@ with st.sidebar:
         st.rerun()
 
 # ==========================================
+# STUDY STATUS GATE (PUBLIC VIEW)
+# ==========================================
+@st.cache_data(ttl=60) # Caches the check for 60 seconds so it doesn't overwhelm Google
+def check_study_status():
+    try:
+        res = requests.get(f"{GOOGLE_WEBAPP_URL}?action=get_status", timeout=10)
+        if res.status_code == 200:
+            return res.json().get("is_open", True)
+    except Exception:
+        return True # Defaults to open if there is a glitch
+    return True
+
+if not check_study_status():
+    st.title("NeuroTwin: Many Ways to Thrive")
+    st.info("Thank you for your interest! This study is currently closed to new responses.")
+    st.stop()
+
+# ==========================================
 # THE STATE MACHINE
 # ==========================================
+t = CONTENT[st.session_state.lang]
+# -- (The rest of your public app goes here) --
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
