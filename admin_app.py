@@ -57,13 +57,14 @@ def set_study_status(is_open):
     status_str = "OPEN" if is_open else "CLOSED"
     payload = {"action": "set_status", "status": status_str, "key": ADMIN_API_KEY}
     try:
-        requests.post(GOOGLE_WEBAPP_URL, json=payload)
+        # Added allow_redirects and timeout for stability
+        requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=15, allow_redirects=True)
     except Exception:
         pass
 
 def get_study_status():
     try:
-        res = requests.get(f"{GOOGLE_WEBAPP_URL}?action=get_status")
+        res = requests.get(f"{GOOGLE_WEBAPP_URL}?action=get_status", timeout=15)
         if res.status_code == 200:
             return res.json().get("is_open", True)
     except Exception:
@@ -78,17 +79,22 @@ st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Driv
 
 # --- 1. The Visual Toggle Buttons ---
 st.subheader("Study Status")
-current_status = get_study_status()
 
-if current_status:
+# Fetch from Google Sheets only on first load, then update instantly in memory
+if "study_is_open" not in st.session_state:
+    st.session_state.study_is_open = get_study_status()
+
+if st.session_state.study_is_open:
     st.success("🟢 The study is currently OPEN to new participants.")
     if st.button("Close Study", type="primary"):
         set_study_status(False)
+        st.session_state.study_is_open = False
         st.rerun()
 else:
     st.error("🔴 The study is currently CLOSED.")
     if st.button("Reopen Study", type="primary"):
         set_study_status(True)
+        st.session_state.study_is_open = True
         st.rerun()
         
 st.divider()
