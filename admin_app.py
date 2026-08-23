@@ -7,11 +7,33 @@ import matplotlib.pyplot as plt
 # ==========================================
 # ADMIN CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
-ADMIN_API_KEY = "NEUROTWIN_RESEARCH_SECRET_KEY_2026" # Ensure this matches Apps Script!
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxg6SHAnefwfDFm-F4DF_iRKyYkrQtNK6QUGGxBQXWsAJCgqUu1jBcOW-Jk4-1qaYRl/exec"
+ADMIN_API_KEY = "NEUROTWIN_RESEARCH_SECRET_KEY_2026" 
+TEAM_PASSWORD = "neurobiology" # Password for your fellow researchers
 
 st.set_page_config(page_title="NeuroTwin Clinical Portal", layout="wide")
 
+# ==========================================
+# PASSWORD LOCKOUT
+# ==========================================
+if "authenticated" not in st.session_state:
+    st.session_state.authenticated = False
+
+if not st.session_state.authenticated:
+    st.title("🔒 Restricted Access")
+    st.info("Please enter the research team password to access the clinical portal.")
+    pwd_input = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if pwd_input == TEAM_PASSWORD:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+    st.stop() # Stops the rest of the app from loading until password is correct
+
+# ==========================================
+# HELPER FUNCTIONS
+# ==========================================
 def fetch_participant_data():
     try:
         res = requests.get(f"{GOOGLE_WEBAPP_URL}?key={ADMIN_API_KEY}", timeout=15)
@@ -52,7 +74,6 @@ def generate_neurotwin_chart(threat_score, deprivation_score, war_score, col_sco
     ax.spines['polar'].set_visible(False) 
     return fig
 
-# Functions to command Google Sheets
 def set_study_status(is_open):
     status_str = "OPEN" if is_open else "CLOSED"
     payload = {"action": "set_status", "status": status_str, "key": ADMIN_API_KEY}
@@ -82,7 +103,6 @@ def get_study_status():
 st.title("🛡️ NeuroTwin Secure Clinical Portal")
 st.caption("Live Clinical Data Stream • Synchronized with Google Sheets & Drive")
 
-# --- 1. The Visual Toggle Buttons ---
 st.subheader("Study Status")
 
 # Fetch from Google Sheets only on first load, then update instantly in memory
@@ -92,21 +112,21 @@ if "study_is_open" not in st.session_state:
 if st.session_state.study_is_open:
     st.success("🟢 The study is currently OPEN to new participants.")
     if st.button("Close Study", type="primary"):
-        # ONLY update the UI if Google Sheets confirms it worked
         if set_study_status(False): 
             st.session_state.study_is_open = False
             st.rerun()
 else:
     st.error("🔴 The study is currently CLOSED.")
     if st.button("Reopen Study", type="primary"):
-        # ONLY update the UI if Google Sheets confirms it worked
         if set_study_status(True):
             st.session_state.study_is_open = True
             st.rerun()
         
 st.divider()
 
-# --- 2. Fetch the Data ---
+# ==========================================
+# FETCH AND DISPLAY DATA
+# ==========================================
 with st.spinner("Fetching latest clinical responses..."):
     data = fetch_participant_data()
 
@@ -114,7 +134,6 @@ if not data:
     st.info("No recorded participant sessions found yet. (Data will appear here once participants submit!)")
     st.stop()
 
-# THIS IS THE MISSING VARIABLE:
 df = pd.DataFrame(data)
 
 st.subheader("Submissions Ledger")
@@ -134,8 +153,13 @@ st.divider()
 # PARTICIPANT PROFILE INSPECTOR
 # ==========================================
 st.subheader("Individual Clinical Profile & Topology")
-# (Now the code knows what 'df' is!)
-participant_ids = df["Participant ID"].dropna().unique().tolist()
+
+# Handle missing ID column gracefully if sheet is slightly different
+if "Participant ID" in df.columns:
+    participant_ids = df["Participant ID"].dropna().unique().tolist()
+else:
+    participant_ids = []
+
 selected_id = st.selectbox("Select Participant ID to inspect:", ["-- Select ID --"] + participant_ids)
 
 if selected_id != "-- Select ID --":
