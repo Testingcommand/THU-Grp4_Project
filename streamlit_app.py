@@ -18,11 +18,26 @@ SHOW_RADAR_MAP = False
 
 st.set_page_config(page_title="NeuroTwin Assessment", layout="centered")
 
+# Added .sticky-legend CSS for the mobile floating scale
 st.markdown("""
     <style>
         .reportview-container { margin-top: -2em; }
         header [data-testid="stHeaderActionElements"] button { color: #808495 !important; }
         header [data-testid="stHeaderActionElements"] svg { fill: #808495 !important; stroke: #808495 !important; }
+        
+        .sticky-legend {
+            position: sticky;
+            top: 3.5rem;
+            z-index: 999;
+            background-color: var(--background-color);
+            padding: 10px;
+            border-radius: 8px;
+            border: 2px solid var(--primary-color);
+            box-shadow: 0px 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            font-size: 0.95em;
+            margin-bottom: 1.5rem;
+        }
     </style>
 """, unsafe_allow_html=True)
 
@@ -52,7 +67,6 @@ def export_data_to_google():
             
     try:
         response = requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=20)
-        # Clean up temporary local audio files immediately after transmission
         for f in temp_files:
             try:
                 os.remove(f)
@@ -145,7 +159,7 @@ CONTENT = {
         "break_msg": "Take all the time you need. Leave this window open, and click below when you are ready to resume.",
         "btn_resume": "I am ready to resume",
         "skip_note": "💙 *Gentle reminder: You may skip any question and leave it blank if you prefer not to answer.*",
-        "audio_hint": "🎙️ **How to answer:** Choose to either type your response OR record audio for the questions below.",
+        "audio_hint": "🎙️ **How to answer:** Choose to type your response OR record audio. \n\n*To record:* Click the microphone icon once to start, speak clearly, and click it again to stop.",
         "tab_type": "⌨️ Type Response",
         "tab_record": "🎙️ Record Audio",
         "audio_success": "✅ Audio captured successfully! You can play it back above.",
@@ -159,7 +173,7 @@ CONTENT = {
         "t4": "T4: My environment felt unpredictable; I never knew what mood my caretakers would be in.",
         "t5": "T5: I was subjected to physical discipline that felt excessive, unsafe, or unpredictable.",
         "t6": "T6: People I depended on made me feel physically or emotionally unsafe.",
-        "t7": "T7 (Reverse): When I made a mistake, I trusted that I would be corrected gently rather than harshly.",
+        "t7": "T7 🚨 :red[**(REVERSE SCORING - Read Carefully)**]: When I made a mistake, I trusted that I would be corrected gently rather than harshly.",
         "t_narrative_1": "Did you experience instances where you felt physically or emotionally threatened during your childhood? Briefly describe the nature of these events.",
         "t_narrative_2": "How did those specific experiences influence your ability to trust others today?",
         "part2_title": "Part 2: Indicators of Deprivation",
@@ -169,7 +183,7 @@ CONTENT = {
         "d4": "D4: I was frequently left alone or unsupervised for longer than was appropriate for my age.",
         "d5": "D5: It was rare for adults in my life to offer praise, encouragement, or affection.",
         "d6": "D6: I did not have an adult who reliably helped me with schoolwork or taught me new skills.",
-        "d7": "D7 (Reverse): My home environment felt mentally stimulating and full of opportunities to learn.",
+        "d7": "D7 🚨 :red[**(REVERSE SCORING - Read Carefully)**]: My home environment felt mentally stimulating and full of opportunities to learn.",
         "d_narrative_1": "Were there times in your childhood when you felt your basic physical or emotional needs were consistently not met?",
         "d_narrative_2": "How has this absence of support or resources influenced how you connect with others now?",
         "part3_title": "Part 3: War & Conflict Exposure",
@@ -179,7 +193,7 @@ CONTENT = {
         "w4": "W4: I lost a family member or someone close to me to war, armed conflict, or political violence.",
         "w5": "W5: I lived in an environment where I had to constantly figure out who could be trusted and who might be dangerous.",
         "w6": "W6: My community or neighborhood was destroyed or seriously disrupted by conflict or organized violence.",
-        "w7": "W7 (Reverse): Even during difficult times, my community remained stable and I felt a sense of collective safety.",
+        "w7": "W7 🚨 :red[**(REVERSE SCORING - Read Carefully)**]: Even during difficult times, my community remained stable and I felt a sense of collective safety.",
         "part4_title": "Part 4: Community & Cultural Context",
         "c1": "C1: When something goes wrong in my life, the first thing I do is reach out to the people around me.",
         "c2": "C2: I see myself as part of a group first, and as an individual second.",
@@ -217,7 +231,7 @@ CONTENT = {
         "break_msg": "请慢慢来。保留此窗口打开，准备好后点击下方按钮继续。",
         "btn_resume": "我准备好继续了",
         "skip_note": "💙 *温馨提示：如果您不想回答某些问题，可以随时跳过并留空。*",
-        "audio_hint": "🎙️ **如何回答：** 请选择输入文字或录制音频。",
+        "audio_hint": "🎙️ **如何回答：** 请选择输入文字或录制音频。 \n\n*要录音:* 点击麦克风图标开始，清楚地说话，再次点击即可停止。",
         "tab_type": "⌨️ 输入文字",
         "tab_record": "🎙️ 录制音频",
         "audio_success": "✅ 录音成功！您可以在上方播放。",
@@ -231,7 +245,7 @@ CONTENT = {
         "t4": "T4: 我的环境感觉不可预测；我永远不知道照顾我的人会是什么心情。",
         "t5": "T5: 我遭受过感觉过度、不安全或不可预测的身体惩罚。",
         "t6": "T6: 我依赖的人让我感到身体或情感上不安全。",
-        "t7": "T7 (反向评分): 当我犯错时，我相信自己会得到温和的纠正，而不是严厉的惩罚。",
+        "t7": "T7 🚨 :red[**(反向评分 - 请仔细阅读)**]: 当我犯错时，我相信自己会得到温和的纠正，而不是严厉的惩罚。",
         "t_narrative_1": "在您的童年时期，您是否经历过在身体或情感上受到威胁的情况？请简要描述这些事件的性质。",
         "t_narrative_2": "这些具体的经历如何影响了您今天信任他人的能力？",
         "part2_title": "第二部分：匮乏指标",
@@ -241,7 +255,7 @@ CONTENT = {
         "d4": "D4: 我经常被单独留下或无人看管，时间超过了我这个年龄应有的限度。",
         "d5": "D5: 生活中的成年人很少给予赞扬、鼓励或喜爱。",
         "d6": "D6: 我没有一个成年人能可靠地帮助我做功课或教我新技能。",
-        "d7": "D7 (反向评分): 我的家庭环境让人感到精神上的刺激，充满了学习的机会。",
+        "d7": "D7 🚨 :red[**(反向评分 - 请仔细阅读)**]: 我的家庭环境让人感到精神上的刺激，充满了学习的机会。",
         "d_narrative_1": "在您的童年时期，是否有那么一段时间您觉得基本的身体或情感需求一直没有得到满足？",
         "d_narrative_2": "这种支持或资源的缺失如何影响了您现在与他人的联系方式？",
         "part3_title": "第三部分：战争与冲突暴露",
@@ -251,7 +265,7 @@ CONTENT = {
         "w4": "W4: 我丢失了家人或亲近的人，原因归咎于战争或政治暴力。",
         "w5": "W5: 我生活在一种必须不断分辨谁值得信任、谁可能有危险的环境中。",
         "w6": "W6: 我的社区或街区被冲突或有组织的暴力摧毁或严重破坏。",
-        "w7": "W7 (反向评分): 即使在困难时期，我的社区依然保持稳定，我感到一种集体的安全感。",
+        "w7": "W7 🚨 :red[**(反向评分 - 请仔细阅读)**]: 即使在困难时期，我的社区依然保持稳定，我感到一种集体的安全感。",
         "part4_title": "第四部分：社区与文化背景",
         "c1": "C1: 当我的生活出现问题时，我做的第一件事就是向周围的人求助。",
         "c2": "C2: 我首先把自己看作群体的一部分，其次才是一个个体。",
@@ -289,7 +303,7 @@ CONTENT = {
         "break_msg": "慢慢嚟。保留呢個視窗打開，準備好之後㩒下面個掣繼續。",
         "btn_resume": "我準備好繼續喇",
         "skip_note": "💙 *溫馨提示：如果你唔想答某啲問題，可以隨時跳過留空。*",
-        "audio_hint": "🎙️ **點樣回答：** 請選擇打字或者錄音嚟回答下面嘅問題。",
+        "audio_hint": "🎙️ **點樣回答：** 請選擇打字或者錄音嚟回答。 \n\n*要錄音:* 㩒一下咪高風圖示開始，講完再㩒多一下停止。",
         "tab_type": "⌨️ 輸入文字",
         "tab_record": "🎙️ 錄製錄音",
         "audio_success": "✅ 錄音成功！你喺上面可以播返嚟聽。",
@@ -303,7 +317,7 @@ CONTENT = {
         "t4": "T4: 我嘅環境感覺好難預測；我永遠唔知照顧我嘅人會有咩心情。",
         "t5": "T5: 我受過覺得過度、唔安全或者難以預料嘅體罰。",
         "t6": "T6: 我依賴嘅人令我喺身體或者情感上覺得唔安全。",
-        "t7": "T7 (反向評分): 當我做錯事，我信自己會得到溫和嘅教導，而唔係嚴厲嘅懲罰。",
+        "t7": "T7 🚨 :red[**(反向評分 - 請仔細閱讀)**]: 當我做錯事，我信自己會得到溫和嘅教導，而唔係嚴厲嘅懲罰。",
         "t_narrative_1": "喺你嘅童年，你有冇試過喺身體或者情感上受到威脅？請簡單形容吓呢啲事。",
         "t_narrative_2": "呢啲具體嘅經歷點樣影響你今日信任其他人嘅能力？",
         "part2_title": "第二部分：匱乏指標",
@@ -313,7 +327,7 @@ CONTENT = {
         "d4": "D4: 我成日俾人單獨留低或者無人睇管，時間超過咗我呢個年紀應有嘅限度。",
         "d5": "D5: 生活中嘅成年人好少會讚我、鼓勵我或者錫我。",
         "d6": "D6: 我冇一個成年人可以可靠咁幫我做功課或者教我新嘢。",
-        "d7": "D7 (反向評分): 我嘅家庭環境令人覺得有精神上嘅刺激，充滿學習機會。",
+        "d7": "D7 🚨 :red[**(反向評分 - 請仔細閱讀)**]: 我嘅家庭環境令人覺得有精神上嘅刺激，充滿學習機會。",
         "d_narrative_1": "喺你嘅童年，有冇試過覺得自己基本嘅身體或者情感需求一直得唔到滿足？",
         "d_narrative_2": "呢種缺乏支援或者資源嘅情況點樣影響你而家同其他人嘅關係？",
         "part3_title": "第三部分：戰爭與衝突暴露",
@@ -323,7 +337,7 @@ CONTENT = {
         "w4": "W4: 我有屋企人或者親近嘅人因為戰爭或者政治暴力過身。",
         "w5": "W5: 我生活喺一個要不斷去分辨邊個信得過、邊個有危險嘅環境。",
         "w6": "W6: 我嘅社區或者街坊俾衝突或者有組織暴力破壞或者嚴重影響。",
-        "w7": "W7 (反向評分): 就算喺艱難時期，我嘅社區都保持穩定，我有一種集體嘅安全感。",
+        "w7": "W7 🚨 :red[**(反向評分 - 請仔細閱讀)**]: 就算喺艱難時期，我嘅社區都保持穩定，我有一種集體嘅安全感。",
         "part4_title": "第四部分：社區與文化背景",
         "c1": "C1: 當我生活出問題嗰陣，我第一時間會去搵身邊嘅人幫手。",
         "c2": "C2: 我首先當自己係群體嘅一部分，然後先係一個個體。",
@@ -361,13 +375,13 @@ CONTENT = {
         "break_msg": "Tómese el tiempo que necesite. Deje esta ventana abierta y haga clic abajo cuando esté listo/a.",
         "btn_resume": "Estoy listo/a para continuar",
         "skip_note": "💙 *Recordatorio: Puede omitir cualquier pregunta y dejarla en blanco si lo prefiere.*",
-        "audio_hint": "🎙️ **Cómo responder:** Elija escribir su respuesta O grabar un audio.",
+        "audio_hint": "🎙️ **Cómo responder:** Elija escribir su respuesta OR grabar un audio. \n\n*Para grabar:* Haga clic en el ícono del micrófono para comenzar, hable y haga clic nuevamente para detenerse.",
         "tab_type": "⌨️ Escribir Respuesta",
         "tab_record": "🎙️ Grabar Audio",
         "audio_success": "✅ ¡Audio capturado con éxito! Puede escucharlo arriba.",
         "scale_desc": "**Escala:** `1=Nunca` | `2=Raramente` | `3=A veces` | `4=A menudo` | `5=Muy a menudo`",
         "btn_continue": "Continuar",
-        "disclaimer_msg": "⚠️ **Descargo de responsabilidad:** Esta visualización es solo para fines de investigación y educativos. No es un diagnóstico clínico ni una evaluación médica profesional. Si siente angustia, consulte a un profesional de la salud calificado.",
+        "disclaimer_msg": "⚠️ **Descargo de responsabilidad:** Esta visualización es solo para fines de investigación y educativos. No es un diagnóstico clínico ni una evaluación médica profesional.",
         "part1_title": "Parte 1: Indicadores de Amenaza",
         "t1": "T1: Sentía la necesidad constante de estar en guardia en mi propia casa.",
         "t2": "T2: Los adultos usaban ira intensa, miedo o intimidación para controlarme.",
@@ -375,7 +389,7 @@ CONTENT = {
         "t4": "T4: Mi entorno era impredecible; nunca sabía de qué humor estarían mis cuidadores.",
         "t5": "T5: Fui sometido/a a disciplina física que sentí excesiva o insegura.",
         "t6": "T6: Las personas de las que dependía me hacían sentir inseguro/a.",
-        "t7": "T7 (Inverso): Cuando cometía un error, confiaba en que me corregirían con suavidad.",
+        "t7": "T7 🚨 :red[**(PUNTUACIÓN INVERSA - Lea con cuidado)**]: Cuando cometía un error, confiaba en que me corregirían con suavidad.",
         "t_narrative_1": "¿Experimentó situaciones en las que se sintió amenazado/a física o emocionalmente durante su infancia? Describa brevemente.",
         "t_narrative_2": "¿Cómo influyeron esas experiencias en su capacidad para confiar en los demás hoy en día?",
         "part2_title": "Parte 2: Indicadores de Privación",
@@ -385,7 +399,7 @@ CONTENT = {
         "d4": "D4: Con frecuencia me dejaban solo/a o sin supervisión demasiado tiempo.",
         "d5": "D5: Era raro que los adultos me ofrecieran elogios o afecto.",
         "d6": "D6: No tenía un adulto que me ayudara de manera confiable con la escuela.",
-        "d7": "D7 (Inverso): Mi entorno familiar se sentía mentalmente estimulante.",
+        "d7": "D7 🚨 :red[**(PUNTUACIÓN INVERSA - Lea con cuidado)**]: Mi entorno familiar se sentía mentalmente estimulante.",
         "d_narrative_1": "¿Hubo momentos en su infancia en los que sintió que sus necesidades básicas no fueron satisfechas?",
         "d_narrative_2": "¿Cómo ha influido esta ausencia de apoyo en la forma en que se conecta con los demás ahora?",
         "part3_title": "Parte 3: Exposición a la Guerra y el Conflicto",
@@ -395,7 +409,7 @@ CONTENT = {
         "w4": "W4: Perdí a un familiar o alguien cercano debido a la guerra o violencia política.",
         "w5": "W5: Viví en un entorno en el que tenía que averiguar constantemente en quién confiar.",
         "w6": "W6: Mi comunidad fue destruida o gravemente perturbada por la violencia.",
-        "w7": "W7 (Inverso): Incluso en tiempos difíciles, mi comunidad se mantuvo estable y me sentí seguro/a.",
+        "w7": "W7 🚨 :red[**(PUNTUACIÓN INVERSA - Lea con cuidado)**]: Incluso en tiempos difíciles, mi comunidad se mantuvo estable y me sentí seguro/a.",
         "part4_title": "Parte 4: Contexto Cultural y Comunitario",
         "c1": "C1: Cuando algo sale mal en mi vida, lo primero que hago es acudir a las personas que me rodean.",
         "c2": "C2: Me veo a mí mismo/a primero como parte de un grupo, y luego como individuo.",
@@ -433,13 +447,13 @@ CONTENT = {
         "break_msg": "Prenez votre temps. Laissez cette fenêtre ouverte et cliquez ci-dessous lorsque vous êtes prêt(e).",
         "btn_resume": "Je suis prêt(e) à reprendre",
         "skip_note": "💙 *Rappel : Vous pouvez ignorer toute question et la laisser vide si vous préférez.*",
-        "audio_hint": "🎙️ **Comment répondre :** Choisissez de taper votre réponse OU d'enregistrer un fichier audio.",
+        "audio_hint": "🎙️ **Comment répondre :** Tapez votre réponse OU enregistrez un fichier audio. \n\n*Pour enregistrer:* Cliquez sur l'icône du microphone pour commencer, parlez, et cliquez à nouveau pour arrêter.",
         "tab_type": "⌨️ Taper la réponse",
         "tab_record": "🎙️ Enregistrer l'audio",
         "audio_success": "✅ Audio capturé avec succès ! Vous pouvez l'écouter ci-dessus.",
         "scale_desc": "**Échelle:** `1=Jamais` | `2=Rarement` | `3=Parfois` | `4=Souvent` | `5=Très souvent`",
         "btn_continue": "Continuer",
-        "disclaimer_msg": "⚠️ **Avis de non-responsabilité :** Cette visualisation est uniquement à des fins de recherche et d'éducation. Ce n'est pas un diagnostic clinique ou une évaluation médicale professionnelle. Si vous ressentez de la détresse, veuillez consulter un professionnel de la santé qualifié.",
+        "disclaimer_msg": "⚠️ **Avis de non-responsabilité :** Cette visualisation est uniquement à des fins de recherche et d'éducation. Ce n'est pas un diagnostic clinique.",
         "part1_title": "Partie 1 : Indicateurs de Menace",
         "t1": "T1: Je ressentais un besoin constant d'être sur mes gardes dans ma propre maison.",
         "t2": "T2: Les adultes utilisaient une colère intense ou l'intimidation pour me contrôler.",
@@ -447,7 +461,7 @@ CONTENT = {
         "t4": "T4: Mon environnement me semblait imprévisible ; je ne savais jamais de quelle humeur seraient les adultes.",
         "t5": "T5: J'ai subi une discipline physique excessive ou dangereuse.",
         "t6": "T6: Les personnes dont je dépendais me faisaient me sentir en insécurité.",
-        "t7": "T7 (Inversé): Quand je faisais une erreur, je savais que je serais corrigé(e) doucement.",
+        "t7": "T7 🚨 :red[**(ÉVALUATION INVERSÉE - Lisez attentivement)**]: Quand je faisais une erreur, je savais que je serais corrigé(e) doucement.",
         "t_narrative_1": "Avez-vous vécu des moments où vous vous êtes senti(e) menacé(e) physiquement ou émotionnellement pendant votre enfance ?",
         "t_narrative_2": "Comment ces expériences influencent-elles votre capacité à faire confiance aux autres aujourd'hui ?",
         "part2_title": "Partie 2 : Indicateurs de Privation",
@@ -457,7 +471,7 @@ CONTENT = {
         "d4": "D4: J'étais fréquemment laissé(e) seul(e) trop longtemps pour mon âge.",
         "d5": "D5: Il était rare que les adultes m'offrent des éloges ou de l'affection.",
         "d6": "D6: Je n'avais pas d'adulte pour m'aider de manière fiable avec l'école.",
-        "d7": "D7 (Inversé): Mon environnement familial me semblait mentalement stimulant.",
+        "d7": "D7 🚨 :red[**(ÉVALUATION INVERSÉE - Lisez attentivement)**]: Mon environnement familial me semblait mentalement stimulant.",
         "d_narrative_1": "Y a-t-il eu des moments où vous avez senti que vos besoins fondamentaux n'étaient pas satisfaits ?",
         "d_narrative_2": "Comment cette absence de soutien influence-t-elle votre façon de créer des liens avec les autres ?",
         "part3_title": "Partie 3 : Exposition à la Guerre et aux Conflits",
@@ -466,8 +480,8 @@ CONTENT = {
         "w3": "W3: J'ai vu des personnes être gravement blessées ou tuées à cause de conflits.",
         "w4": "W4: J'ai perdu un membre de ma famille à cause de la guerre ou de la violence politique.",
         "w5": "W5: J'ai vécu dans un environnement où je devais constamment deviner à qui faire confiance.",
-        "w6": "W6: Ma communauté a été détruite ou gravement perturbée par la violence.",
-        "w7": "W7 (Inversé): Même dans les moments difficiles, ma communauté est restée stable.",
+        "w6": "W6: Ma communauté a été détruite ou gravemente perturbée par la violence.",
+        "w7": "W7 🚨 :red[**(ÉVALUATION INVERSÉE - Lisez attentivement)**]: Même dans les moments difficiles, ma communauté est restée stable.",
         "part4_title": "Partie 4 : Contexte Communautaire et Culturel",
         "c1": "C1: Quand quelque chose va mal dans ma vie, la première chose que je fais est de me tourner vers mon entourage.",
         "c2": "C2: Je me considère d'abord comme faisant partie d'un groupe, puis comme un individu.",
@@ -505,13 +519,13 @@ CONTENT = {
         "break_msg": "Не торопитесь. Оставьте окно открытым и нажмите ниже, когда будете готовы.",
         "btn_resume": "Я готов(а) продолжить",
         "skip_note": "💙 *Напоминание: Вы можете пропустить любой вопрос и оставить его пустым.*",
-        "audio_hint": "🎙️ **Как ответить:** Выберите ввод текста ИЛИ запись аудио.",
+        "audio_hint": "🎙️ **Как ответить:** Выберите ввод текста ИЛИ запись аудио. \n\n*Для записи:* Нажмите на значок микрофона, чтобы начать, говорите, затем нажмите снова, чтобы остановить.",
         "tab_type": "⌨️ Ввести текст",
         "tab_record": "🎙️ Записать аудио",
         "audio_success": "✅ Аудио успешно записано! Вы можете прослушать его выше.",
         "scale_desc": "**Шкала:** `1=Никогда` | `2=Редко` | `3=Иногда` | `4=Часто` | `5=Очень часто`",
         "btn_continue": "Продолжить",
-        "disclaimer_msg": "⚠️ **Отказ от ответственности:** Эта визуализация предназначена только для исследовательских и образовательных целей. Это не клинический диагноз или профессиональная медицинская оценка. Если вы испытываете стресс, обратитесь к квалифицированному специалисту.",
+        "disclaimer_msg": "⚠️ **Отказ от ответственности:** Эта визуализация предназначена только для исследовательских целей.",
         "part1_title": "Часть 1: Индикаторы Угрозы",
         "t1": "T1: Я чувствовал(а) постоянную необходимость быть начеку в собственном доме.",
         "t2": "T2: Взрослые использовали сильный гнев, страх или запугивание, чтобы контролировать меня.",
@@ -519,7 +533,7 @@ CONTENT = {
         "t4": "T4: Моя среда казалась непредсказуемой.",
         "t5": "T5: Я подвергался(-ась) чрезмерным физическим наказаниям.",
         "t6": "T6: Люди, от которых я зависел(а), заставляли меня чувствовать себя небезопасно.",
-        "t7": "T7 (Обратная): Когда я совершал(а) ошибку, меня поправляли мягко.",
+        "t7": "T7 🚨 :red[**(ОБРАТНАЯ ШКАЛА - Читайте внимательно)**]: Когда я совершал(а) ошибку, меня поправляли мягко.",
         "t_narrative_1": "Были ли в вашем детстве случаи, когда вы чувствовали физическую или эмоциональную угрозу?",
         "t_narrative_2": "Как этот опыт влияет на вашу способность доверять другим сегодня?",
         "part2_title": "Часть 2: Индикаторы Лишений",
@@ -529,7 +543,7 @@ CONTENT = {
         "d4": "D4: Меня часто оставляли одного/одну без присмотра.",
         "d5": "D5: Взрослые редко хвалили или поощряли меня.",
         "d6": "D6: У меня не было взрослого, который бы надежно помогал мне с уроками.",
-        "d7": "D7 (Обратная): В детстве у меня было много возможностей для обучения и развития.",
+        "d7": "D7 🚨 :red[**(ОБРАТНАЯ ШКАЛА - Читайте внимательно)**]: В детстве у меня было много возможностей для обучения и развития.",
         "d_narrative_1": "Были ли в вашем детстве периоды, когда ваши базовые потребности не удовлетворялись?",
         "d_narrative_2": "Как это отсутствие поддержки влияет на то, как вы общаетесь с другими сейчас?",
         "part3_title": "Часть 3: Война и Конфликты",
@@ -539,7 +553,7 @@ CONTENT = {
         "w4": "W4: Я потерял(а) члена семьи на войне или из-за политического насилия.",
         "w5": "W5: Я жил(а) в среде, где приходилось постоянно думать, кому можно доверять.",
         "w6": "W6: Мой район был разрушен из-за конфликта.",
-        "w7": "W7 (Обратная): Даже в трудные времена моя община оставалась стабильной, и я чувствовал(а) безопасность.",
+        "w7": "W7 🚨 :red[**(ОБРАТНАЯ ШКАЛА - Читайте внимательно)**]: Даже в трудные времена моя община оставалась стабильной, и я чувствовал(а) безопасность.",
         "part4_title": "Часть 4: Культурный Контекст",
         "c1": "C1: Когда в моей жизни что-то идет не так, я первым делом обращаюсь к окружающим.",
         "c2": "C2: Я вижу себя в первую очередь частью группы, а затем индивидом.",
@@ -577,13 +591,13 @@ CONTENT = {
         "break_msg": "İstediğiniz kadar zaman ayırın. Hazır olduğunuzda devam etmek için aşağıya tıklayın.",
         "btn_resume": "Devam etmeye hazırım",
         "skip_note": "💙 *Hatırlatma: Cevaplamak istemediğiniz soruları boş bırakabilirsiniz.*",
-        "audio_hint": "🎙️ **Nasıl cevaplanır:** Lütfen yanıtınızı yazmayı VEYA ses kaydetmeyi seçin.",
+        "audio_hint": "🎙️ **Nasıl cevaplanır:** Lütfen yanıtınızı yazmayı VEYA ses kaydetmeyi seçin. \n\n*Kaydetmek için:* Başlamak için mikrofon simgesine tıklayın, konuşun ve durdurmak için tekrar tıklayın.",
         "tab_type": "⌨️ Yanıt Yaz",
         "tab_record": "🎙️ Ses Kaydet",
         "audio_success": "✅ Ses başarıyla kaydedildi! Yukarıdan dinleyebilirsiniz.",
         "scale_desc": "**Ölçek:** `1=Hiçbir zaman` | `2=Nadiren` | `3=Bazen` | `4=Sıklıkla` | `5=Her zaman`",
         "btn_continue": "Devam et",
-        "disclaimer_msg": "⚠️ **Sorumluluk Reddi:** Bu görselleştirme yalnızca araştırma ve eğitim amaçlıdır. Klinik bir teşhis veya profesyonel tıbbi değerlendirme değildir. Sıkıntı yaşıyorsanız, lütfen uzman bir sağlık uzmanına danışın.",
+        "disclaimer_msg": "⚠️ **Sorumluluk Reddi:** Bu görselleştirme yalnızca araştırma ve eğitim amaçlıdır. Klinik bir teşhis değildir.",
         "part1_title": "Bölüm 1: Tehdit Göstergeleri",
         "t1": "T1: Kendi evimde sürekli tetikte olma veya 'yumurta kabukları üzerinde yürüme' ihtiyacı hissettim.",
         "t2": "T2: Hayatımdaki yetişkinler davranışlarımı kontrol etmek için öfke, korku veya sindirme kullandı.",
@@ -591,7 +605,7 @@ CONTENT = {
         "t4": "T4: Çevrem öngörülemezdi; bakıcılarımın ne ruh halinde olacağını asla bilemezdim.",
         "t5": "T5: Aşırı veya güvensiz hissettiren fiziksel disipline maruz kaldım.",
         "t6": "T6: Güvendiğim insanlar beni fiziksel veya duygusal olarak güvende hissettirmedi.",
-        "t7": "T7 (Ters): Hata yaptığımda sertçe değil, nazikçe düzeltileceğime güveniyordum.",
+        "t7": "T7 🚨 :red[**(TERS PUANLAMA - Dikkatle Okuyun)**]: Hata yaptığımda sertçe değil, nazikçe düzeltileceğime güveniyordum.",
         "t_narrative_1": "Çocukluğunuzda fiziksel veya duygusal olarak tehdit altında hissettiğiniz anlar oldu mu? Lütfen kısaca anlatın.",
         "t_narrative_2": "Bu deneyimler bugün başkalarına güvenme yeteneğinizi nasıl etkiliyor?",
         "part2_title": "Bölüm 2: Yoksunluk Göstergeleri",
@@ -601,7 +615,7 @@ CONTENT = {
         "d4": "D4: Sıklıkla yaşıma uygun olmayan uzun süreler yalnız bırakıldım.",
         "d5": "D5: Yetişkinlerin bana övgü, teşvik veya sevgi sunması nadirdi.",
         "d6": "D6: Bana okul ödevlerimde güvenilir bir şekilde yardım eden bir yetişkin yoktu.",
-        "d7": "D7 (Ters): Ev ortamım zihinsel olarak uyarıcı hissettiriyordu.",
+        "d7": "D7 🚨 :red[**(TERS PUANLAMA - Dikkatle Okuyun)**]: Ev ortamım zihinsel olarak uyarıcı hissettiriyordu.",
         "d_narrative_1": "Çocukluğunuzda temel fiziksel veya duygusal ihtiyaçlarınızın karşılanmadığını hissettiğiniz zamanlar oldu mu?",
         "d_narrative_2": "Bu destek eksikliği şimdi başkalarıyla kurduğunuz bağları nasıl etkiliyor?",
         "part3_title": "Bölüm 3: Savaş ve Çatışma Maruziyeti",
@@ -611,7 +625,7 @@ CONTENT = {
         "w4": "W4: Savaş veya siyasi şiddet nedeniyle bir aile üyemi kaybettim.",
         "w5": "W5: Sürekli olarak kime güvenilebileceğini anlamak zorunda olduğum bir çevrede yaşadım.",
         "w6": "W6: Mahallem çatışma nedeniyle yıkıldı veya ciddi şekilde bozuldu.",
-        "w7": "W7 (Ters): Zor zamanlarda bile topluluğum sabit kaldı ve güvende hissettim.",
+        "w7": "W7 🚨 :red[**(TERS PUANLAMA - Dikkatle Okuyun)**]: Zor zamanlarda bile topluluğum sabit kaldı ve güvende hissettim.",
         "part4_title": "Bölüm 4: Kültürel Bağlam",
         "c1": "C1: Hayatımda bir şeyler ters gittiğinde ilk yaptığım şey çevremdeki insanlara ulaşmaktır.",
         "c2": "C2: Kendimi önce bir grubun parçası, sonra bir birey olarak görüyorum.",
@@ -619,10 +633,10 @@ CONTENT = {
         "c4": "C4: Kişisel kimliğimi ait olduğum gruplarla yakından bağlantılı olarak tanımlarım.",
         "c5": "C5: Başarılı olduğumda, bunun sadece kendi çabam değil, çevremin desteği sayesinde olduğunu hissederim.",
         "c6": "C6: Kişisel başarı ile grubumun refahı arasında seçim yapmam gerekseydi, grubumu seçerdim.",
-        "part5_title": "第五部分：叙事背景",
-        "final_q1": "如果您能改变关于您童年的一件事，那会是什么？",
-        "final_q2": "用一个词来形容，那段经历如何塑造了今天的您？",
-        "final_q3": "用一句话概括，当您感到不安全时，您会怎么做？"
+        "part5_title": "Bölüm 5: Anlatı Bağlamı",
+        "final_q1": "Çocukluğunuzla ilgili bir şeyi değiştirebilseydiniz, bu ne olurdu?",
+        "final_q2": "Tek bir kelimeyle, bu deneyim bugünkü sizi nasıl şekillendirdi?",
+        "final_q3": "Tek bir cümleyle, güvensiz hissettiğinizde ne yaparsınız?"
     },
     "German": {
         "meal_q": "Ihr Wohlbefinden ist uns wichtig. Haben Sie kürzlich etwas gegessen?",
@@ -649,13 +663,13 @@ CONTENT = {
         "break_msg": "Nehmen Sie sich die Zeit, die Sie brauchen. Klicken Sie unten, wenn Sie bereit sind.",
         "btn_resume": "Ich bin bereit fortzufahren",
         "skip_note": "💙 *Hinweis: Sie können jede Frage überspringen und leer lassen.*",
-        "audio_hint": "🎙️ **Wie antworten:** Wählen Sie, ob Sie Ihre Antwort tippen ODER Audio aufnehmen möchten.",
+        "audio_hint": "🎙️ **Wie antworten:** Wählen Sie, ob Sie Ihre Antwort tippen ODER Audio aufnehmen möchten. \n\n*Aufnahme:* Klicken Sie auf das Mikrofon, um zu beginnen, sprechen Sie und klicken Sie erneut, um zu stoppen.",
         "tab_type": "⌨️ Antwort tippen",
         "tab_record": "🎙️ Audio aufnehmen",
         "audio_success": "✅ Audio erfolgreich aufgenommen! Sie können es oben abspielen.",
         "scale_desc": "**Skala:** `1=Nie wahr` | `2=Selten wahr` | `3=Manchmal wahr` | `4=Oft wahr` | `5=Sehr oft wahr`",
         "btn_continue": "Fortfahren",
-        "disclaimer_msg": "⚠️ **Haftungsausschluss:** Diese Visualisierung dient nur zu Forschungs- und Bildungszwecken. Es handelt sich nicht um eine klinische Diagnose oder professionelle medizinische Beurteilung. Wenn Sie in Not sind, wenden Sie sich bitte an qualifiziertes Fachpersonal.",
+        "disclaimer_msg": "⚠️ **Haftungsausschluss:** Diese Visualisierung dient nur zu Forschungs- und Bildungszwecken.",
         "part1_title": "Teil 1: Indikatoren für Bedrohung",
         "t1": "T1: Ich spürte in meinem eigenen Zuhause ständig das Bedürfnis, auf der Hut zu sein.",
         "t2": "T2: Erwachsene nutzten extreme Wut, Angst oder Einschüchterung, um mich zu kontrollieren.",
@@ -663,7 +677,7 @@ CONTENT = {
         "t4": "T4: Meine Umgebung fühlte sich unberechenbar an.",
         "t5": "T5: Ich wurde einer körperlichen Disziplinierung unterzogen, die sich unsicher anfühlte.",
         "t6": "T6: Menschen, von denen ich abhängig war, gaben mir das Gefühl der Unsicherheit.",
-        "t7": "T7 (Umgekehrt): Wenn ich einen Fehler machte, vertraute ich darauf, sanft korrigiert zu werden.",
+        "t7": "T7 🚨 :red[**(UMGEKEHRTE BEWERTUNG - Sorgfältig lesen)**]: Wenn ich einen Fehler machte, vertraute ich darauf, sanft korrigiert zu werden.",
         "t_narrative_1": "Haben Sie Situationen erlebt, in denen Sie sich bedroht fühlten? Beschreiben Sie dies kurz.",
         "t_narrative_2": "Wie beeinflussen diese Erfahrungen Ihre Fähigkeit, heute anderen zu vertrauen?",
         "part2_title": "Teil 2: Indikatoren für Deprivation",
@@ -673,7 +687,7 @@ CONTENT = {
         "d4": "D4: Ich wurde häufig länger allein gelassen, als es für mein Alter angemessen war.",
         "d5": "D5: Es war selten, dass Erwachsene mir Lob oder Zuneigung entgegenbrachten.",
         "d6": "D6: Ich hatte keinen Erwachsenen, der mir verlässlich bei den Schularbeiten half.",
-        "d7": "D7 (Umgekehrt): Meine familiäre Umgebung fühlte sich geistig anregend an.",
+        "d7": "D7 🚨 :red[**(UMGEKEHRTE BEWERTUNG - Sorgfältig lesen)**]: Meine familiäre Umgebung fühlte sich geistig anregend an.",
         "d_narrative_1": "Gab es Zeiten, in denen Ihre Grundbedürfnisse nicht erfüllt wurden?",
         "d_narrative_2": "Wie beeinflusst diese fehlende Unterstützung heute Ihre Beziehungen?",
         "part3_title": "Teil 3: Krieg und Konflikt",
@@ -683,7 +697,7 @@ CONTENT = {
         "w4": "W4: Ich habe ein Familienmitglied durch Krieg oder politische Gewalt verloren.",
         "w5": "W5: Ich lebte in einem Umfeld, in dem ich ständig überlegen musste, wem ich vertrauen kann.",
         "w6": "W6: Meine Gemeinde wurde durch Konflikte zerstört.",
-        "w7": "W7 (Umgekehrt): Selbst in schwierigen Zeiten fühlte ich ein kollektives Gefühl der Sicherheit.",
+        "w7": "W7 🚨 :red[**(UMGEKEHRTE BEWERTUNG - Sorgfältig lesen)**]: Selbst in schwierigen Zeiten fühlte ich ein kollektives Gefühl der Sicherheit.",
         "part4_title": "Teil 4: Kultureller Kontext",
         "c1": "C1: Wenn in meinem Leben etwas schiefgeht, wende ich mich zuerst an meine Mitmenschen.",
         "c2": "C2: Ich sehe mich in erster Linie als Teil einer Gruppe und erst in zweiter Linie als Individuum.",
@@ -730,14 +744,14 @@ with st.sidebar:
 # ==========================================
 # STUDY STATUS GATE (PUBLIC VIEW)
 # ==========================================
-@st.cache_data(ttl=60) # Caches the check for 60 seconds so it doesn't overwhelm Google
+@st.cache_data(ttl=60) 
 def check_study_status():
     try:
         res = requests.get(f"{GOOGLE_WEBAPP_URL}?action=get_status", timeout=10)
         if res.status_code == 200:
             return res.json().get("is_open", True)
     except Exception:
-        return True # Defaults to open if there is a glitch
+        return True
     return True
 
 if not check_study_status():
@@ -748,8 +762,6 @@ if not check_study_status():
 # ==========================================
 # THE STATE MACHINE
 # ==========================================
-t = CONTENT[st.session_state.lang]
-# -- (The rest of your public app goes here) --
 t = CONTENT[st.session_state.lang]
 
 if st.session_state.current_step == 'dashboard':
@@ -826,7 +838,9 @@ elif st.session_state.current_step == 'dmap_part1':
     st.write("---")
     st.header(t["part1_title"])
     st.markdown(t["skip_note"])
-    st.markdown(t["scale_desc"])
+    
+    # NEW STICKY LEGEND
+    st.markdown(f'<div class="sticky-legend">{t["scale_desc"]}</div>', unsafe_allow_html=True)
     
     options = [1, 2, 3, 4, 5]
     t1 = st.radio(t["t1"], options, index=None, horizontal=True)
@@ -879,7 +893,9 @@ elif st.session_state.current_step == 'dmap_part2':
     st.write("---")
     st.header(t["part2_title"])
     st.markdown(t["skip_note"])
-    st.markdown(t["scale_desc"])
+    
+    # NEW STICKY LEGEND
+    st.markdown(f'<div class="sticky-legend">{t["scale_desc"]}</div>', unsafe_allow_html=True)
     
     options = [1, 2, 3, 4, 5]
     d1 = st.radio(t["d1"], options, index=None, horizontal=True)
@@ -917,7 +933,9 @@ elif st.session_state.current_step == 'dmap_part3':
     st.write("---")
     st.header(t["part3_title"])
     st.markdown(t["skip_note"])
-    st.markdown(t["scale_desc"])
+    
+    # NEW STICKY LEGEND
+    st.markdown(f'<div class="sticky-legend">{t["scale_desc"]}</div>', unsafe_allow_html=True)
     
     options = [1, 2, 3, 4, 5]
     w1 = st.radio(t["w1"], options, index=None, horizontal=True)
@@ -942,7 +960,9 @@ elif st.session_state.current_step == 'cultural_inventory':
     st.write("---")
     st.header(t["part4_title"])
     st.markdown(t["skip_note"])
-    st.markdown(t["scale_desc"])
+    
+    # NEW STICKY LEGEND
+    st.markdown(f'<div class="sticky-legend">{t["scale_desc"]}</div>', unsafe_allow_html=True)
     
     options = [1, 2, 3, 4, 5]
     c1 = st.radio(t["c1"], options, index=None, horizontal=True)
