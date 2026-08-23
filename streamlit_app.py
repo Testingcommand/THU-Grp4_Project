@@ -12,7 +12,7 @@ from audio_recorder_streamlit import audio_recorder
 # ==========================================
 # APP CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxqdvDAVoXokgjDkHbPLdGzEIdRQ0pGSgbsPukmmD-Rcc8nicwH0KsoRZ8c2P2PdavN/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbx3bY3Sw-LYJybiwPK76vo6Tsb5_9O57TOgWQEmf7Sfnl8aZvlibSCtjH8LA2hYDUIy/exec"
 
 # TOGGLE THIS TO FALSE TO HIDE THE RADAR MAP AND EXPLANATIONS AT THE END
 SHOW_RADAR_MAP = False 
