@@ -790,7 +790,7 @@ if st.session_state.current_step == 'dashboard':
     # ==========================================
     # Added hyperlinked DMAP acknowledgment 
     # ==========================================
-    st.info("The NeuroTwin instrument uses the DMAP framework to map theoretical brain circuit topologies. Adapted from the [Dimensional Model of Adversity and Psychopathology (DMAP)](https://pmc.ncbi.nlm.nih.gov/articles/PMC5851283/) longitudinal analysis. Your data is strictly confidential and anonymized.")
+    st.info("The NeuroTwin instrument uses the DMAP framework to map theoretical brain circuit topologies. Your data is strictly confidential and anonymized.")
 
 elif st.session_state.current_step == 'intro_meal':
     st.write("---")
