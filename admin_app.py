@@ -57,10 +57,15 @@ def set_study_status(is_open):
     status_str = "OPEN" if is_open else "CLOSED"
     payload = {"action": "set_status", "status": status_str, "key": ADMIN_API_KEY}
     try:
-        # Added allow_redirects and timeout for stability
-        requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=15, allow_redirects=True)
-    except Exception:
-        pass
+        res = requests.post(GOOGLE_WEBAPP_URL, json=payload, timeout=15, allow_redirects=True)
+        if "success" in res.text:
+            return True
+        else:
+            st.error(f"Google rejected the command: {res.text}")
+            return False
+    except Exception as e:
+        st.error(f"Connection failed: {e}")
+        return False
 
 def get_study_status():
     try:
@@ -87,15 +92,17 @@ if "study_is_open" not in st.session_state:
 if st.session_state.study_is_open:
     st.success("🟢 The study is currently OPEN to new participants.")
     if st.button("Close Study", type="primary"):
-        set_study_status(False)
-        st.session_state.study_is_open = False
-        st.rerun()
+        # ONLY update the UI if Google Sheets confirms it worked
+        if set_study_status(False): 
+            st.session_state.study_is_open = False
+            st.rerun()
 else:
     st.error("🔴 The study is currently CLOSED.")
     if st.button("Reopen Study", type="primary"):
-        set_study_status(True)
-        st.session_state.study_is_open = True
-        st.rerun()
+        # ONLY update the UI if Google Sheets confirms it worked
+        if set_study_status(True):
+            st.session_state.study_is_open = True
+            st.rerun()
         
 st.divider()
 
