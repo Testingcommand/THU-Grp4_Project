@@ -178,13 +178,27 @@ if selected_id != "-- Select ID --":
     with col_chart:
         st.write("### Calculated Circuit Topology")
         
+        # Helper function to safely convert to float without crashing
+        def safe_float(val, default):
+            try:
+                return float(val)
+            except (ValueError, TypeError):
+                return default
+
+        # Safely parse each value INDEPENDENTLY 
+        t_val = safe_float(p_data.get("Threat Avg", 0), 0.0)
+        d_val = safe_float(p_data.get("Deprivation Avg", 0), 0.0)
+        w_val = safe_float(p_data.get("War Avg", 0), 0.0)
+        
+        # If Collectivism is corrupted (e.g. text), calculate it manually from the raw C1-C6 columns
         try:
-            t_val = float(p_data.get("Threat Avg", 0) or 0)
-            d_val = float(p_data.get("Deprivation Avg", 0) or 0)
-            w_val = float(p_data.get("War Avg", 0) or 0)
-            c_val = float(p_data.get("Collectivism Avg", 3.0) or 3.0)
-        except ValueError:
-            t_val, d_val, w_val, c_val = 0, 0, 0, 3.0
+            c_val = float(p_data.get("Collectivism Avg", 3.0))
+        except (ValueError, TypeError):
+            try:
+                c_scores = [float(p_data.get(f"C{i}", 3.0)) for i in range(1, 7)]
+                c_val = sum(c_scores) / len(c_scores)
+            except Exception:
+                c_val = 3.0
             
         fig = generate_neurotwin_chart(t_val, d_val, w_val, c_val)
         st.pyplot(fig)
