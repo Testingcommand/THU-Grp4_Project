@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 # ==========================================
 # ADMIN CONFIGURATION
 # ==========================================
-GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbyIoRvEhh4RZg28fKsEQ6M34frZZwH13aSai_ZV0wPMWiuOK_Gcwec5M8v_lLRYifyn/exec"
+GOOGLE_WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzsfuk7xO4NLPYD45PKSx5nLr3fTKEDtdIOhOjnCNwqFPndLdujAVRodScyZQU1bFTD/exec"
 
 # These pull securely from Streamlit Cloud Secrets!
 ADMIN_API_KEY = st.secrets["admin_api_key"]
